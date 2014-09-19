@@ -24,3 +24,9 @@ parseMessage str = let lst = words str in
                                              ValidInt tNum -> ValidLM (LogMessage Warning tNum (unwords rest))
                                              _ -> InvalidLM str
                      _ -> InvalidLM str
+
+
+validMessagesOnly :: [MaybeLogMessage] -> [LogMessage]
+validMessagesOnly [] = []
+validMessagesOnly (ValidLM x@(LogMessage _ _ _):xs) = x:validMessagesOnly xs
+validMessagesOnly (_:xs) = validMessagesOnly xs
