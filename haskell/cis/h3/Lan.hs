@@ -30,3 +30,7 @@ validMessagesOnly :: [MaybeLogMessage] -> [LogMessage]
 validMessagesOnly [] = []
 validMessagesOnly (ValidLM x@(LogMessage _ _ _):xs) = x:validMessagesOnly xs
 validMessagesOnly (_:xs) = validMessagesOnly xs
+
+parse :: String -> [LogMessage]
+parse str = let arr = lines str in
+             validMessagesOnly $ fmap parseMessage arr
