@@ -3,7 +3,7 @@
 module Lan where
 
 import Log
-
+import Data.List
 
 -- parseMessage "E 2 256 somethign happens here" -> ValidLM (LogMessgae (Error 2) 256 "something...")
 -- parseMessage "k wrong" -> InvalidLM
@@ -34,3 +34,15 @@ validMessagesOnly (_:xs) = validMessagesOnly xs
 parse :: String -> [LogMessage]
 parse str = let arr = lines str in
              validMessagesOnly $ fmap parseMessage arr
+
+compareMsgs :: LogMessage -> LogMessage -> Ordering
+compareMsgs (LogMessage _ ts1 _) (LogMessage _ ts2 _)
+  | ts1 > ts2 = GT
+  | ts1 == ts2 = EQ
+  | otherwise = LT
+
+sortMessages :: [LogMessage] -> [LogMessage]
+sortMessages msgs = sortBy compareMsgs msgs
+
+whatWentWrong :: [LogMessage] -> [String]
+whatWentWrong msgs@(LogMessage type time text) = filter
