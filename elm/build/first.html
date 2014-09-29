@@ -1,0 +1,51 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="UTF-8"><title>first</title><script type="text/javascript" src="/usr/local/share/elm/compiler/elm-runtime.js"></script><script type="text/javascript">Elm.Main = Elm.Main || {};
+Elm.Main.make = function (_elm) {
+   "use strict";
+   _elm.Main = _elm.Main || {};
+   if (_elm.Main.values)
+   return _elm.Main.values;
+   var _op = {},
+   _N = Elm.Native,
+   _U = _N.Utils.make(_elm),
+   _L = _N.List.make(_elm),
+   _A = _N.Array.make(_elm),
+   _E = _N.Error.make(_elm),
+   $moduleName = "Main",
+   $Basics = Elm.Basics.make(_elm),
+   $Color = Elm.Color.make(_elm),
+   $Graphics$Collage = Elm.Graphics.Collage.make(_elm),
+   $Graphics$Element = Elm.Graphics.Element.make(_elm),
+   $Text = Elm.Text.make(_elm);
+   var box = function (color) {
+      return A2($Graphics$Collage.filled,
+      color,
+      $Graphics$Collage.square(40));
+   };
+   var main = A3($Graphics$Collage.collage,
+   400,
+   400,
+   _L.fromArray([A2($Graphics$Collage.move,
+                {ctor: "_Tuple2"
+                ,_0: 100
+                ,_1: 100},
+                box($Color.red))
+                ,A2($Graphics$Collage.scale,
+                2,
+                box($Color.green))
+                ,A2($Graphics$Collage.rotate,
+                $Basics.degrees(45),
+                box($Color.blue))]));
+   var dood = A3($Graphics$Element.image,
+   400,
+   200,
+   "http://upload.wikimedia.org/wikipedia/commons/thumb/d/da/Hermann_Hesse_2.jpg/501px-Hermann_Hesse_2.jpg");
+   var mytext = $Text.markdown("<div style=\"height:0;width:0;\">&nbsp;</div><h1>Making Fancy Text</h1>\n<p>These are some text lines with a new paragraph</p>\n<p>here starts a new one\nbut here is the same one</p>\n<ol>\n<li><em>italic</em></li>\n<li><strong>bold</strong></li>\n<li><code>computery</code></li>\n<li><a href=\"http://www.google.com\">Links to things</a></li>\n</ol>\n<div style=\"height:0;width:0;\">&nbsp;</div>",
+   "1:10");
+   _elm.Main.values = {_op: _op
+                      ,mytext: mytext
+                      ,dood: dood
+                      ,box: box
+                      ,main: main};
+   return _elm.Main.values;
+};</script></head><body><script type="text/javascript">Elm.fullscreen(Elm.Main)</script><noscript></noscript></body></html>
