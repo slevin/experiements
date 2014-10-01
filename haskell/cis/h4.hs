@@ -25,4 +25,4 @@ foldTree' x Leaf = Node 0 Leaf x Leaf
 foldTree' x (Node num Leaf y Leaf) = Node (num + 1) (foldTree' x Leaf) y Leaf
 foldTree' x (Node num Leaf y other) = Node num (foldTree' x Leaf) y other
 foldTree' x (Node num other y Leaf) = Node num other y (foldTree' x Leaf)
-foldTree' x (Node num left y right) =
+foldTree' x (Node num left y right) = let
