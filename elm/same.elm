@@ -24,7 +24,12 @@ check list:
 - redraw squares
 
 small steps:
-- draw a square
+method to generate pairs of x,ys 00, 01, 10, 11 ec
+and map offsetbl over those
+
+then assign random colors over those
+
+limit size to fit area
 -}
 
 width = 500
