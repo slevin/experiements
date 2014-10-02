@@ -27,4 +27,13 @@ small steps:
 - draw a square
 -}
 
-main = collage 500 250
+width = 500
+height = 250
+sq = 40
+sp = 2
+box color = filled color (square sq)
+offsetBL idxX idxY = move ((sq / 2) - (width / 2) + (sq * idxX) + (sp * idxX) , 
+                           (sq / 2) - (height / 2) + (sq * idxY) + (sp * idxY))
+main = collage width height [ offsetBL 0 0 (box red)
+                            , offsetBL 0 1 (box red)
+                            , offsetBL 1 0 (box red)]
