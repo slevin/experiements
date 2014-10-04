@@ -16,20 +16,31 @@ goal:
 
 check list:
 - draw random colors
-- add some randomness to heights
 - respond to click
 - check neighbors
 - remove those guys if necessary
 - redraw squares
 
 small steps:
-method to generate pairs of x,ys 00, 01, 10, 11 ec
-and map offsetbl over those
-
-then assign random colors over those
+assign random colors over those
 
 limit size to fit area
+
+how do I get random between three colors
+
+now we need to take a random 1 of 4 colors
+as I'm building up the positions and create some sort of record
+then I can use the color to sort out box
+
+then I need to set up some response to mouse tap
+
+which can somehow build up a list of things that will disappear
+then need to remove those from the list of everything and rerender
+the state crazy
 -}
+
+import Random (range)
+
 
 width = 500
 height = 250
@@ -39,7 +50,17 @@ box color = filled color (square sq)
 offsetBL (idxX, idxY) = move ((sq / 2) - (width / 2) + (sq * idxX) + (sp * idxX) , 
                            (sq / 2) - (height / 2) + (sq * idxY) + (sp * idxY))
 
-pairs = map (\x -> map (\y -> (x, y)) [0..4]) [0..9]
-allPairs = concat pairs
-squares = map (\pair -> offsetBL pair (box red)) allPairs
-main = collage width height squares
+num x = range 1 5 (constant x)
+numarray = combine <| map  (\x -> num x) [0..9]
+
+idx2Pos : [Int] -> [[(Int, Int)]]
+idx2Pos arr = indexedMap (\idx num -> map (\y -> (idx, y)) [0..num]) arr
+
+allPairs : Signal [(Int, Int)]
+allPairs = lift concat (lift idx2Pos numarray)
+
+pair2Square : (Int, Int) -> Form
+pair2Square (x, y) = offsetBL (toFloat x, toFloat y) (box red)
+
+squares = lift2 map (constant pair2Square) allPairs
+main = lift3 collage (constant width) (constant height) squares
