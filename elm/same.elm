@@ -70,7 +70,7 @@ allBoxes : RandomList -> [BoxModel]
 allBoxes rs = concat <| columns2Boxes rs <| numarray rs
 
 num2Color : Float -> Color
-num2Color f = let n = round <| f * 2 in
+num2Color f = let n = floor <| f * 3 in
               if | n == 0 -> red
                  | n == 1 -> green
                  | otherwise -> blue
