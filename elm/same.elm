@@ -46,21 +46,51 @@ width = 500
 height = 250
 sq = 40
 sp = 2
+
+type BoxModel = { pos:(Int,Int), color:Color }
+type RandomList = [Float]
+
 box color = filled color (square sq)
 offsetBL (idxX, idxY) = move ((sq / 2) - (width / 2) + (sq * idxX) + (sp * idxX) , 
                            (sq / 2) - (height / 2) + (sq * idxY) + (sp * idxY))
-
+num : Int -> Signal Int
 num x = range 1 5 (constant x)
-numarray = combine <| map  (\x -> num x) [0..9]
+
+numarray : RandomList -> [Int]
+numarray fs = zipWith (\x y -> floor <| x * 5) fs [0..9]
 
 idx2Pos : [Int] -> [[(Int, Int)]]
 idx2Pos arr = indexedMap (\idx num -> map (\y -> (idx, y)) [0..num]) arr
 
-allPairs : Signal [(Int, Int)]
-allPairs = lift concat (lift idx2Pos numarray)
+allPairs : RandomList -> [(Int, Int)]
+allPairs fs = concat <| idx2Pos <| numarray fs
 
-pair2Square : (Int, Int) -> Form
-pair2Square (x, y) = offsetBL (toFloat x, toFloat y) (box red)
+num2Color : Int -> Color
+num2Color i = if | i == 0 -> red
+                 | i == 1 -> green
+                 | otherwise -> blue
 
-squares = lift2 map (constant pair2Square) allPairs
-main = lift3 collage (constant width) (constant height) squares
+randomColor : a -> Signal Color
+randomColor i = lift num2Color (range 0 2 (constant i))
+
+pair2Box : (Int,Int) -> Signal BoxModel
+pair2Box pair = lift2 BoxModel (constant pair) (randomColor pair)
+
+allBoxes' : Signal [Signal BoxModel]
+allBoxes' = lift2 map (constant pair2Box) allPairs
+
+{-
+allBoxes : Signal [BoxModel]
+allBoxes = combine allBoxes'
+
+
+box2Square : BoxModel -> Form
+box2Square b = offsetBL (toFloat <| fst b.pos, toFloat <| snd b.pos) (box b.color)
+
+allSquares : Signal [Form]
+allSquares = lift2 map (constant box2Square) allBoxes
+
+main = lift3 collage (constant width) (constant height) allSquares
+
+
+-}
