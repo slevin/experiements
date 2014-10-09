@@ -12,11 +12,7 @@ Uses Elm compiler. See URL
    (error line-start "Error on line " line ", column " column " to " (one-or-more digit) ":\n"
           (message) line-end)
    (error line-start "Type error on line " line ", column " column " to " (one-or-more digit)":\n"
-          (message
-           (and (one-or-more not-newline)
-                (zero-or-more "\n"
-                              (zero-or-more " ")
-                              (one-or-more not-newline))))
+          (message (one-or-more (or not-newline "\n")))
           line-end))
   :modes (elm-mode))
 
