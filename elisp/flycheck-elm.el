@@ -16,7 +16,9 @@ Uses Elm compiler. See URL
           line-end)
    (error line-start "Type Error: "
           (message (one-or-more (or not-newline "\n")))
-          line-end))
+          line-end)
+   (error line-start "Syntax Error: "
+          (message (one-or-more (or not-newline "\n")))))
   :modes (elm-mode))
 
 (add-to-list 'flycheck-checkers 'elm)
