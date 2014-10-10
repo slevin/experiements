@@ -22,6 +22,13 @@ main = flow inward [ mytext
                  ]
 -}
 
+something = 5
+
+fun : Int -> String
+fun a = show a
+       
+another = fun "abc"
+
 --main = collage 400 400 [ outlined (dashed green) (ngon 5 100) ]
 
 box color = filled color (square 40)

@@ -13,6 +13,9 @@ Uses Elm compiler. See URL
           (message) line-end)
    (error line-start "Type error on line " line ", column " column " to " (one-or-more digit)":\n"
           (message (one-or-more (or not-newline "\n")))
+          line-end)
+   (error line-start "Type Error: "
+          (message (one-or-more (or not-newline "\n")))
           line-end))
   :modes (elm-mode))
 

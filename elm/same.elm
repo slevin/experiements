@@ -32,8 +32,6 @@ which can somehow build up a list of things that will disappear
 then need to remove those from the list of everything and rerender
 the state crazy
 
-my colors are biased towards 1 because I'm not collecting between each one
-I should to 0 to 3 and round down instead
 -}
 
 import Random (floatList)
