@@ -10,8 +10,12 @@ todo
 
 * I could figure out how to draw the matches by
  turning yellow set matching one hovered over
+
+
 * adjust points so that they "fall down" and "fall left"
  only remove if group is larger than 1
+  (put into lists and back and I get it forfree)
+
 
 * animate highlighting of matching points
 
@@ -30,8 +34,6 @@ iterate for matching points do graph thing I think
     
 
 -}
-
-import Set (diff, fromList, toList)
 
 type BoxModel = { x:Int, y:Int, color:Color }
 
