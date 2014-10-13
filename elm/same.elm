@@ -26,19 +26,25 @@ done
 * starting point set
 * draw boxes
 * given one box find matching set to remove
-
+* can find box from mouse
 
 ----
 todo
 
-* I could figure out how to draw the matches by
- turning yellow set matching one hovered over
+* click on point
+ find box in state (state is list of boxes)
+ find matches
+ update state to remove matches if matches size > 1
+ render state
+ 
 
+* how to highlight matches, hmmm tricky
+ since each item would have a signal for a color, but maybe that's ok
+ not sure how yet (skip maybe)
 
 * adjust points so that they "fall down" and "fall left"
  only remove if group is larger than 1
   (put into lists and back and I get it forfree)
-
 
 * animate highlighting of matching points
 
@@ -47,15 +53,6 @@ todo
 * how do I get interaction with mouse click
  do I add a listener for each item or something?
  what about hover
-
-
-iterate for matching points do graph thing I think
- take current, get potential neighbors
- add to list of checked
- check each potential neighbor if same color, and not already checked
-    add it to list of to check
-    
-
 
 
 -}
