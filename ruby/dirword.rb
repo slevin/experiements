@@ -10,10 +10,7 @@ count = 0
 Dir.foreach(dir) do |filename|
   p = (Pathname.new dir) + filename
   if (p.file?)
-    f = p.open
-    s = f.read
-    num = s.split.length
-    count += num
+    count += p.open.read.split.length
   end
 end
 
