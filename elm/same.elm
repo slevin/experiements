@@ -162,6 +162,11 @@ findMatchingGroup' all graph = case graph.possible of
                                               findMatchingGroup' all (CheckGraph (b::graph.checked) (bs ++ remaining))
 
 
+
+-- given position and all boxmodels find matching
+pos2Box : (Int, Int) -> [BoxModel] -> BoxModel
+pos2Box (x, y) all = filter (\b -> b.x == x && b.y == y) all
+
 main = let 
            all = lift allSquares randomSignal 
            boxes = lift3 collage (constant width) (constant height) all
