@@ -60,6 +60,8 @@ todo
 import Random (floatList)
 import Array
 import Mouse
+import Generator
+import Generator.Standard
 
 width = 500
 height = 250
@@ -164,13 +166,21 @@ findMatchingGroup' all graph = case graph.possible of
 
 
 -- given position and all boxmodels find matching
-pos2Box : (Int, Int) -> [BoxModel] -> BoxModel
-pos2Box (x, y) all = filter (\b -> b.x == x && b.y == y) all
+posFindBox : (Int, Int) -> [BoxModel] -> [BoxModel]
+posFindBox (x, y) all = filter (\b -> b.x == x && b.y == y) all
+
+{-
+  lift pos2Box signal int,int
+-}
+
+--findBox : Signal [BoxModel]
+--findBox sbs = (sampleOn Mouse.clicks Mouse.position)
 
 main = let 
-           all = lift allSquares randomSignal 
-           boxes = lift3 collage (constant width) (constant height) all
-           combined = combine [boxes, posElement]
+           floats = fst <| Generator.listOf Generator.float 100 (Generator.Standard.generator 100)
+           all = allSquares floats
+           boxes = collage width height all
+           combined = combine [(constant boxes), posElement]
        in
          lift2 flow (constant down) combined
 
