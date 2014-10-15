@@ -4,6 +4,7 @@
 Uses Elm compiler. See URL
 `http://elm-lang.org'."
   :command ("elm"
+            "-m"
             "-o"        ; only javascript
             source)
   :error-patterns
