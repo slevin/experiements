@@ -169,18 +169,29 @@ findMatchingGroup' all graph = case graph.possible of
 posFindBox : (Int, Int) -> [BoxModel] -> [BoxModel]
 posFindBox (x, y) all = filter (\b -> b.x == x && b.y == y) all
 
+mousePosFindBox : (Int, Int) -> [BoxModel] -> [BoxModel]
+mousePosFindBox mousePos all = posFindBox (mousePos2Pos mousePos) all
+
 {-
-  lift pos2Box signal int,int
+ why is it not finding anything
 -}
 
---findBox : Signal [BoxModel]
---findBox sbs = (sampleOn Mouse.clicks Mouse.position)
+findBox : [BoxModel] -> Signal [BoxModel]
+findBox allBoxes = lift2 mousePosFindBox Mouse.position (constant allBoxes)
+
+findBoxElement : [BoxModel] -> Signal Element
+findBoxElement boxes = let sboxes = findBox boxes
+                           showboxes = lift show sboxes
+                           textboxes = lift toText showboxes
+                       in
+                         lift leftAligned textboxes
 
 main = let 
            floats = fst <| Generator.listOf Generator.float 100 (Generator.Standard.generator 100)
-           all = allSquares floats
-           boxes = collage width height all
-           combined = combine [(constant boxes), posElement]
+           allBs = allBoxes floats
+           allSs = map box2Square allBs
+           boxes = collage width height allSs
+           combined = combine [(constant boxes), findBoxElement allBs]
        in
          lift2 flow (constant down) combined
 
