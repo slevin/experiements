@@ -172,8 +172,13 @@ findMatchingGroup' all graph = case graph.possible of
 posFindBox : (Int, Int) -> [BoxModel] -> [BoxModel]
 posFindBox (x, y) all = filter (\b -> b.x == x && b.y == y) all
 
-mousePosFindBox : (Int, Int) -> [BoxModel] -> [BoxModel]
-mousePosFindBox mousePos all = posFindBox (mousePos2Pos mousePos) all
+mousePosFindBox : (Int, Int) -> [BoxModel] -> Maybe BoxModel
+mousePosFindBox mousePos all = let pos = mousePos2Pos mousePos
+                                   matches = posFindBox pos all
+                               in
+                                 case matches of
+                                   [] -> Nothing
+                                   b::bs -> Just b
 
 {-
 
@@ -191,24 +196,35 @@ then write method that reorders after deleting
 
 all of course renders current state
 
+matching neightbors is not working
+probably need some tests on that
+
+then can upgrade to clicking/state/updating
+
 -}
 
-findBox : [BoxModel] -> Signal [BoxModel]
-findBox allBoxes = lift2 mousePosFindBox Mouse.position (constant allBoxes)
+thing2Element : Signal a -> Signal Element
+thing2Element thing = let sthing = lift show thing
+                          tthing = lift toText sthing
+                      in
+                        lift leftAligned tthing
 
-findBoxElement : [BoxModel] -> Signal Element
-findBoxElement boxes = let sboxes = findBox boxes
-                           showboxes = lift show sboxes
-                           textboxes = lift toText showboxes
-                       in
-                         lift leftAligned textboxes
+findMatchingNeighborsUnderPointer : (Int, Int) -> [BoxModel] -> [BoxModel]
+findMatchingNeighborsUnderPointer mousePos all = let me = mousePosFindBox mousePos all
+                                          in
+                                            case me of
+                                              Nothing -> []
+                                              Just b -> findMatchingNeighbors b all
+
 
 main = let 
            floats = fst <| Generator.listOf Generator.float 100 (Generator.Standard.generator 100)
+           mousePos = Mouse.position
            allBs = allBoxes floats
            allSs = map box2Square allBs
-           boxes = collage width height allSs
-           combined = combine [(constant boxes), findBoxElement allBs]
+           allSsEl = collage width height allSs
+           matches = lift2 findMatchingNeighborsUnderPointer mousePos (constant allBs)
+           combined = combine [(constant allSsEl), thing2Element matches]
        in
          lift2 flow (constant down) combined
 
