@@ -54,6 +54,9 @@ todo
  do I add a listener for each item or something?
  what about hover
 
+* then I could figure out a way to build up a set of boards in reverse
+
+* could show animation, which is a bit tricky no?
 
 -}
 
@@ -173,7 +176,21 @@ mousePosFindBox : (Int, Int) -> [BoxModel] -> [BoxModel]
 mousePosFindBox mousePos all = posFindBox (mousePos2Pos mousePos) all
 
 {-
- why is it not finding anything
+
+what is next thing? click position instead
+
+then gotta render box or nothing with maybe 
+ 
+then show matching boxes for click
+
+then use state to update state to remove
+  items that are matching
+
+then write method that reorders after deleting
+ then uses state to remove and reorder list
+
+all of course renders current state
+
 -}
 
 findBox : [BoxModel] -> Signal [BoxModel]
