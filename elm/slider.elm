@@ -1,39 +1,61 @@
 {-
 
-slider puzzle 3 x 3
-one missing space
+need a way to get viable neighbors of square
 
-start with solution
+lets try tests, too hard without writing tests
 
+test swapping 0 and 8 in start
+then test swapping 0 and 6
 
 -}
 
+module Slider where
 
 ------------
 -- Model
+import Array
 
 type Square = Int
-type Row = [Square]
-type Board = [Row]
+type Row = Array Square
+type Board = Array Row
+type Index = (Int, Int)
 
-empty : Square
-empty = 0
+emptySquare : Square
+emptySquare = 0
 
 start : Board
-start = [[1,2,3], [4,5,6], [7,8,empty]]
+start = fromList [fromList [1,2,3]
+                 ,fromList [4,5,6]
+                 ,fromList [7,8,emptySquare]
+                 ]
 
 
 -- helper for replacing empty and swapper in row
 swapSquare : Square -> Square -> Square
-swapSquare swapper actual = case actual of
-                              swapper -> empty
-                              empty -> swapper
-                              otherwise -> actual
+swapSquare swapper actual = if | actual == swapper -> emptySquare
+                               | actual == emptySquare -> swapper
+                               | otherwise -> actual
 
 -- swap takes board and number and swaps with empty and returns new board
 swap : Square -> Board -> Board
-swap s b = map (\row -> map (\sq -> swapSquare s sq) row) b
+swap s b = Array.map (\row -> Array.map (\sq -> swapSquare s sq) row) b
 
+{-
+if item else deeper
+-}
+indexOfInBoard : Square -> Board -> Maybe Index
+indexOfInBoard sq b = Array.
+{-
+
+
+-- given board, find neghbors of square
+findNeighbors : Square -> Board -> [Square]
+findNeighbors sq b = let (x,y) = indexOfInBoard sq b
+                     in
+-}
+
+-- empty neighbors gets list of Squares next to empty
+-- stepShuffle shuffles based on random number
 -- shuffle finds empty and uses input to pick direction for moving
 --shuffle : Float -> Board -> Board
 
