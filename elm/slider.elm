@@ -40,6 +40,33 @@ module Slider where
 -- Model
 import Array
 
+data Tile = EmptyTile | Tile Int
+type Square = { x:Int, y:Int, tile:Tile }
+type Board = [Square]
+
+columns : Int
+columns = 3
+rows : Int
+rows = 3
+
+starterList : Int -> Int ->[[Tile]]
+starterList c r = let tileFn num = if | num == c * r -> EmptyTile
+                                      | otherwise -> Tile num 
+                      squareFn row col = col + (row * c) |> tileFn
+                  in 
+                    indexedMap (\idx x -> map (squareFn idx) [1..c]) [1..r]
+
+starterBoard : Int -> Int -> Board
+starterBoard c r = let starter = starterList c r
+                       rowFn idxRow row = indexedMap (\idxCol t -> Square idxRow idxCol t) row
+                   in 
+                     indexedMap (\idxRow row -> (rowFn idxRow)) starter
+                   
+
+--start : Board
+
+{-
+
 type Square = Int
 type Row = Array Square
 type Board = Array Row
@@ -54,8 +81,10 @@ start = fromList [fromList [1,2,3]
                  ,fromList [7,8,emptySquare]
                  ]
 
+-}
 
 -- helper for replacing empty and swapper in row
+{-
 swapSquare : Square -> Square -> Square
 swapSquare swapper actual = if | actual == swapper -> emptySquare
                                | actual == emptySquare -> swapper
@@ -64,14 +93,14 @@ swapSquare swapper actual = if | actual == swapper -> emptySquare
 -- swap takes board and number and swaps with empty and returns new board
 swap : Square -> Board -> Board
 swap s b = Array.map (\row -> Array.map (\sq -> swapSquare s sq) row) b
-
+-}
 {-
 if item else deeper
 
 what about an r
 -}
-indexOfInBoard : Square -> Board -> Maybe Index
-indexOfInBoard sq b = Array.
+--indexOfInBoard : Square -> Board -> Maybe Index
+--indexOfInBoard sq b = Array.
 {-
 
 
