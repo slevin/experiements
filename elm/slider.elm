@@ -58,9 +58,9 @@ starterList c r = let tileFn num = if | num == c * r -> EmptyTile
 
 starterBoard : Int -> Int -> Board
 starterBoard c r = let starter = starterList c r
-                       rowFn idxRow row = indexedMap (\idxCol t -> Square idxRow idxCol t) row
+                       rowFn idxRow row = indexedMap (\idxCol t -> Square idxCol idxRow t) row
                    in 
-                     indexedMap (\idxRow row -> (rowFn idxRow)) starter
+                     indexedMap (\idxRow row -> rowFn idxRow row) starter |> concat
                    
 
 --start : Board

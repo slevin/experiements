@@ -32,7 +32,7 @@ starterBoardTest = let after = starterBoard 2 2
                              ,{x=1,y=0,tile=Tile 2}
                              ,{x=0,y=1,tile=Tile 3}
                              ,{x=1,y=1,tile=EmptyTile}
-                             ]
+                             ] after
 
 s = suite "Board Functions"
     [
