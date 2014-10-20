@@ -49,6 +49,7 @@ columns = 3
 rows : Int
 rows = 3
 
+-- Given a row/column count, creates an array of arrays with the containing tiles
 starterList : Int -> Int ->[[Tile]]
 starterList c r = let tileFn num = if | num == c * r -> EmptyTile
                                       | otherwise -> Tile num 
@@ -56,6 +57,7 @@ starterList c r = let tileFn num = if | num == c * r -> EmptyTile
                   in 
                     indexedMap (\idx x -> map (squareFn idx) [1..c]) [1..r]
 
+-- Uses starter list to create a board which is an array of tiles and their positions
 starterBoard : Int -> Int -> Board
 starterBoard c r = let starter = starterList c r
                        rowFn idxRow row = indexedMap (\idxCol t -> Square idxCol idxRow t) row
@@ -63,9 +65,17 @@ starterBoard c r = let starter = starterList c r
                      indexedMap (\idxRow row -> rowFn idxRow row) starter |> concat
                    
 
---start : Board
+start : Board
+start = starterBoard columns rows
+
 
 {-
+
+I want to swap things so given a tile
+find if it has an empty and return a board that has those swapped
+
+next thing is find a list of matching neighbors given a tile
+
 
 type Square = Int
 type Row = Array Square
