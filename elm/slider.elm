@@ -69,63 +69,49 @@ start : Board
 start = starterBoard columns rows
 
 
+
+neighbors : Tile -> Board -> [Tile]
+neighbors t b = let tileSquares = take 1 <| filter (\sq -> sq.tile == t) b
+                    tileNeighbors = concat <| map (\ts -> neighbors' ts.x ts.y b) tileSquares
+                in
+                  map (\sq -> sq.tile) tileNeighbors
+
+neighbors' : Int -> Int -> Board -> [Square]
+neighbors' x y b = filter (\sq -> (sq.x == x && sq.y == (y - 1)) ||
+                                  (sq.x == x && sq.y == (y + 1)) ||
+                                  (sq.x == (x - 1) && sq.y == y) ||
+                                  (sq.x == (x + 1) && sq.y == y)) b
+
+
+nextToEmpty : Tile -> Board -> Bool
+nextToEmpty t b = any (\tile -> tile == EmptyTile) <| neighbors t b
+
+
+
+
+swapWithEmpty : Tile -> Board -> Board
+swapWithEmpty t b = if | nextToEmpty t b -> swapWithEmpty' t b
+                       | otherwise -> b
+
+swapWithEmpty' : Tile -> Board -> Board
+swapWithEmpty' t b = map (\sq -> if | sq.tile == EmptyTile -> {sq | tile<-t}
+                                    | sq.tile == t -> {sq | tile<-EmptyTile}
+                                    | otherwise -> sq) b
 {-
 
-I want to swap things so given a tile
-find if it has an empty and return a board that has those swapped
+draw board
 
-next thing is find a list of matching neighbors given a tile
+add signals to elements
 
+signal does swap with empty under its selection
 
-type Square = Int
-type Row = Array Square
-type Board = Array Row
-type Index = (Int, Int)
+detect win condition and show some element that its won
 
-emptySquare : Square
-emptySquare = 0
+then do some reverse shuffling on start
 
-start : Board
-start = fromList [fromList [1,2,3]
-                 ,fromList [4,5,6]
-                 ,fromList [7,8,emptySquare]
-                 ]
+then try for animations with swapping
 
 -}
-
--- helper for replacing empty and swapper in row
-{-
-swapSquare : Square -> Square -> Square
-swapSquare swapper actual = if | actual == swapper -> emptySquare
-                               | actual == emptySquare -> swapper
-                               | otherwise -> actual
-
--- swap takes board and number and swaps with empty and returns new board
-swap : Square -> Board -> Board
-swap s b = Array.map (\row -> Array.map (\sq -> swapSquare s sq) row) b
--}
-{-
-if item else deeper
-
-what about an r
--}
---indexOfInBoard : Square -> Board -> Maybe Index
---indexOfInBoard sq b = Array.
-{-
-
-
--- given board, find neghbors of square
-findNeighbors : Square -> Board -> [Square]
-findNeighbors sq b = let (x,y) = indexOfInBoard sq b
-                     in
--}
-
--- empty neighbors gets list of Squares next to empty
--- stepShuffle shuffles based on random number
--- shuffle finds empty and uses input to pick direction for moving
---shuffle : Float -> Board -> Board
-
-
 
 -----------
 -- View
