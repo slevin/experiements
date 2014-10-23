@@ -100,12 +100,12 @@ given [] and xy
 -- generation of elements
 
 squarePartitionedByY : Square -> [[Square]] -> [[Square]]
-squarePartitionedByY sq ls = let found = filter (\l -> head l |> .y |> (==) sq.y) ls
+squarePartitionedByY sq ls = let found = partition (\l -> head l |> .y |> (==) sq.y) ls
                              in
                                case found of
-                                 [] -> [sq] :: ls
-                                 otherwise -> [sortBy (\sq -> sq.x) (sq :: (head found))]
-                                                        
+                                 ([],others) -> others ++ [[sq]]
+                                 (good, others) -> ([sortBy (\sq -> sq.x) ((head good) ++ [sq])] |> (++) others) |> sortBy (\l -> head l |> .y)
+
 board2Lists : Board -> [[Square]]
 board2Lists b = foldl squarePartitionedByY [] b
                 

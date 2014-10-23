@@ -49,7 +49,11 @@ spbTest2 = let after = squarePartitionedByY sq2 [[sq1]]
 spbTest3 = let after = squarePartitionedByY sq3 [[sq1]]                    
            in
              equals [[sq1],[sq3]] after
-                    
+
+spbTest4 = let after = squarePartitionedByY sq2 [[sq1], [sq3]]
+           in
+             equals [[sq1, sq2], [sq3]] after
+
 board2ListsTest = let after = starterBoard 2 2 |> board2Lists
                   in
                     equals [[{x=0,y=0,tile=Tile 1},{x=1,y=0,tile=Tile 2}],
@@ -70,7 +74,8 @@ s = suite "Board Functions"
     ,spbTest1
     ,spbTest2
     ,spbTest3
---    ,board2ListsTest
+    ,spbTest4
+    ,board2ListsTest
     ]
 
 main = runDisplay s
