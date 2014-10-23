@@ -47,14 +47,21 @@ neighborsTest3 = let n = neighbors (Tile 8) start
                  in equals n [Tile 5, Tile 7, EmptyTile]
 neighborsTest4 = let n = neighbors (Tile 20) start
                  in equals n []
+                    
 
 swapWithEmptyTest = let after = swapWithEmpty (Tile 2) <| starterBoard 2 2
-                   in equals [{x=0,y=0,tile=Tile 1}
+                    in
+                      equals [{x=0,y=0,tile=Tile 1}
                              ,{x=1,y=0,tile=EmptyTile}
                              ,{x=0,y=1,tile=Tile 3}
                              ,{x=1,y=1,tile=Tile 2}
                              ] after
 
+board2ListsTest = let after = starterBoard 2 2 |> board2Lists
+                  in
+                    equals [[{x=0,y=0,tile=Tile 1},{x=1,y=0,tile=Tile 2}],
+                            [{x=0,y=1,tile=Tile 3},{x=1,y=1,tile=EmptyTile}]] after
+                                          
 s = suite "Board Functions"
     [
      starterListTest
@@ -67,6 +74,7 @@ s = suite "Board Functions"
     ,nextToEmptyTest2
     ,nextToEmptyTest3
     ,swapWithEmptyTest
+    ,board2ListsTest
     ]
 
 main = runDisplay s
