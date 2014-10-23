@@ -85,12 +85,6 @@ then do some reverse shuffling on start
 
 then try for animations with swapping
 
-
-given a list of list can I foldl new element into one of those lists
-
-given [] and xy
- foldl sqs (\
- filter [] where item head sq.y == 
 -}
 
 -----------
@@ -98,6 +92,12 @@ given [] and xy
 
 -- turn board in to list of lists of tiles to make easy
 -- generation of elements
+
+sqSz : Int
+sqSz = 60
+
+sqSp : Int
+sqSp = 10
 
 squarePartitionedByY : Square -> [[Square]] -> [[Square]]
 squarePartitionedByY sq ls = let found = partition (\l -> head l |> .y |> (==) sq.y) ls
@@ -109,8 +109,19 @@ squarePartitionedByY sq ls = let found = partition (\l -> head l |> .y |> (==) s
 board2Lists : Board -> [[Square]]
 board2Lists b = foldl squarePartitionedByY [] b
                 
---boardElements : Board -> [Element]
+squareRow2Element : [Square] -> Element
+squareRow2Element sqs = map (\sq -> flow right [(color red <| spacer sqSz sqSz), (spacer sqSp sqSz)]) sqs |> flow right
 
+rows2Element : [Element] -> Element
+rows2Element els = intersperse (spacer sqSz sqSp) els |> flow down
+
+boardElements : Board -> Element
+boardElements b = let ls = board2Lists b
+                  in
+                    map squareRow2Element ls |> rows2Element
+
+
+main = boardElements <| starterBoard 3 3
                          
 
 
