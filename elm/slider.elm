@@ -1,13 +1,9 @@
-{-
-
-
--}
-
 module Slider where
 
 ------------
 -- Model
 import Array
+import Graphics.Input (Input, input, clickable)
 
 data Tile = EmptyTile | Tile Int
 type Square = { x:Int, y:Int, tile:Tile }
@@ -68,30 +64,27 @@ swapWithEmpty' t b = map (\sq -> if | sq.tile == EmptyTile -> {sq | tile<-t}
                                     | otherwise -> sq) b
 {-
 
-draw board
-  turn board into list of lists -> group/sort/sort
-  elements are squares with number inside them
-  and then have a an input signal attached to them which signals a new tile
-
-add signals to elements
-
-signal does swap with empty under its selection
- foldp on input signal does swap with empty
- might be kind of easy
-
 detect win condition and show some element that its won
 
 then do some reverse shuffling on start
+
+how about hovering as a highlighting color
 
 then try for animations with swapping
 
 -}
 
+----------
+-- Control
+
+tileClick : Input Tile
+tileClick = input EmptyTile
+
+gameState : Signal Board
+gameState = foldp swapWithEmpty (starterBoard 3 3) tileClick.signal
+
 -----------
 -- View
-
--- turn board in to list of lists of tiles to make easy
--- generation of elements
 
 sqSz : Int
 sqSz = 60
@@ -113,7 +106,9 @@ square2Element : Square -> Element
 square2Element sq = case sq.tile of
                       EmptyTile -> spacer sqSz sqSz
                       Tile x -> [show x |> toText |> centered,
-                                 spacer sqSz sqSz |> color red] |> flow inward
+                                 spacer sqSz sqSz |> color red] |> 
+                                flow inward |>
+                                clickable tileClick.handle sq.tile
 
 columnSpacer : Element
 columnSpacer = spacer sqSp sqSz
@@ -136,10 +131,7 @@ boardElements b = board2Lists b |>
                   rows2Element
 
 
-main = boardElements <| starterBoard 3 3
+main = boardElements <~ gameState
                          
 
-
-----------
--- Control
 
