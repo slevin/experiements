@@ -109,16 +109,31 @@ squarePartitionedByY sq ls = let found = partition (\l -> head l |> .y |> (==) s
 board2Lists : Board -> [[Square]]
 board2Lists b = foldl squarePartitionedByY [] b
                 
+square2Element : Square -> Element
+square2Element sq = case sq.tile of
+                      EmptyTile -> spacer sqSz sqSz
+                      Tile x -> [show x |> toText |> centered,
+                                 spacer sqSz sqSz |> color red] |> flow inward
+
+columnSpacer : Element
+columnSpacer = spacer sqSp sqSz
+
 squareRow2Element : [Square] -> Element
-squareRow2Element sqs = map (\sq -> flow right [(color red <| spacer sqSz sqSz), (spacer sqSp sqSz)]) sqs |> flow right
+squareRow2Element sqs = map square2Element sqs |> 
+                        intersperse columnSpacer |> 
+                        flow right
+
+rowSpacer : Element
+rowSpacer = spacer sqSz sqSp
 
 rows2Element : [Element] -> Element
-rows2Element els = intersperse (spacer sqSz sqSp) els |> flow down
+rows2Element rows = intersperse rowSpacer rows |> 
+                    flow down
 
 boardElements : Board -> Element
-boardElements b = let ls = board2Lists b
-                  in
-                    map squareRow2Element ls |> rows2Element
+boardElements b = board2Lists b |>
+                  map squareRow2Element |> 
+                  rows2Element
 
 
 main = boardElements <| starterBoard 3 3
