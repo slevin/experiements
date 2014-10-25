@@ -58,6 +58,11 @@ swapWithEmpty' t b = let swapFn sq = if | sq.tile == EmptyTile -> {sq | tile<-t}
                                         | otherwise -> sq
                      in
                        map (\row -> map swapFn row) b
+
+-- if event is an off remove the off tile
+-- if an event is an on  make sure it contains the tile
+updateHovers : TileHoverEvent -> [Tile] -> [Tile]
+updateHovers event tiles = []
 {-
 
 detect win condition and show some element that its won
@@ -81,8 +86,16 @@ center it, make it look nice, maybe give it images from real game
 tileClick : Input Tile
 tileClick = input EmptyTile
 
+type TileHoverEvent = { tile:Tile, hoverState:Bool }
+
+tileHover : Input TileHoverEvent
+tileHover = input <| TileHoverEvent EmptyTile False
+
 gameState : Signal Board
 gameState = foldp swapWithEmpty (starterBoard 3 3) tileClick.signal
+
+hoverState : Signal [Tile]
+hoverState = foldp updateHovers [] tileHover.signal
 
 -----------
 -- View
@@ -94,12 +107,16 @@ sqSp : Int
 sqSp = 10
 
 -- create a ui element for a given square
-square2Element : Tile -> Square -> Element
-square2Element h sq = case sq.tile of
+
+inTiles : Tile -> [Tile] -> Bool
+inTiles t ts = (filter (\x -> x == t) ts |> length) > 0
+
+square2Element : [Tile] -> Square -> Element
+square2Element hs sq = case sq.tile of
                         EmptyTile -> spacer sqSz sqSz
                         Tile x -> [show x |> toText |> centered,
                                    spacer sqSz sqSz |> 
-                                   if | h == sq.tile -> color yellow
+                                   if | inTiles sq.tile hs -> color yellow
                                       | otherwise -> color red] |> 
                                   flow inward |>
                                   clickable tileClick.handle sq.tile
@@ -108,8 +125,8 @@ columnSpacer : Element
 columnSpacer = spacer sqSp sqSz
 
 -- make a row of elements for a row of squares
-squareRow2Element : Tile -> [Square] -> Element
-squareRow2Element h sqs = map (square2Element h) sqs |> 
+squareRow2Element : [Tile] -> [Square] -> Element
+squareRow2Element hs sqs = map (square2Element hs) sqs |> 
                           intersperse columnSpacer |> 
                           flow right
 
@@ -122,12 +139,12 @@ rows2Element rows = intersperse rowSpacer rows |>
                     flow down
 
 -- turn a set of rows in a board to a set of elements
-boardElements : Board -> Tile -> Element
-boardElements b h = map (squareRow2Element h) b |>
+boardElements : Board -> [Tile] -> Element
+boardElements b hs = map (squareRow2Element hs) b |>
                     rows2Element
 
 
-main = boardElements <~ gameState ~ (constant (Tile 2))
+main = boardElements <~ gameState ~ (constant ([Tile 2, Tile 1]))
                          
 
 
