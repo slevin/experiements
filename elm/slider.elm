@@ -22,6 +22,8 @@ starterBoard c r = let tileFn num = if | num == c * r -> EmptyTile
 allSquares : Board -> [Square]
 allSquares b = concat b
 
+-- searches through board and finds a list of tiles neighboring
+-- the given tile
 neighbors : Tile -> Board -> [Tile]
 neighbors t b = allSquares b |>  
                 filter (\sq -> sq.tile == t) |>
@@ -30,6 +32,7 @@ neighbors t b = allSquares b |>
                 concat |>
                 map (\sq -> sq.tile)
 
+-- helper function that finds neighboring tiles to a position
 neighbors' : Int -> Int -> Board -> [Square]
 neighbors' x y b = allSquares b |> 
                    filter (\sq -> (sq.x == x && sq.y == (y - 1)) ||
@@ -38,14 +41,17 @@ neighbors' x y b = allSquares b |>
                            (sq.x == (x + 1) && sq.y == y))
 
 
+-- finds neighboring tiles and checks if any of them are empty
 nextToEmpty : Tile -> Board -> Bool
 nextToEmpty t b = any (\tile -> tile == EmptyTile) <| neighbors t b
 
 
+-- if given tile is next to empty swap with that
 swapWithEmpty : Tile -> Board -> Board
 swapWithEmpty t b = if | nextToEmpty t b -> swapWithEmpty' t b
                        | otherwise -> b
 
+-- helper function to do the swapping with the empty tile
 swapWithEmpty' : Tile -> Board -> Board
 swapWithEmpty' t b = let swapFn sq = if | sq.tile == EmptyTile -> {sq | tile<-t}
                                         | sq.tile == t -> {sq | tile<-EmptyTile}
@@ -67,10 +73,6 @@ then try for animations with swapping
 
 center it, make it look nice, maybe give it images from real game
 
-could remove partitioning just by keeping board a [[Square]]
- and maping over it to swap double nested map (not hard)
- clean up starter list stuff
-
 -}
 
 ----------
@@ -91,6 +93,7 @@ sqSz = 60
 sqSp : Int
 sqSp = 10
 
+-- create a ui element for a given square
 square2Element : Square -> Element
 square2Element sq = case sq.tile of
                       EmptyTile -> spacer sqSz sqSz
@@ -102,6 +105,7 @@ square2Element sq = case sq.tile of
 columnSpacer : Element
 columnSpacer = spacer sqSp sqSz
 
+-- make a row of elements for a row of squares
 squareRow2Element : [Square] -> Element
 squareRow2Element sqs = map square2Element sqs |> 
                         intersperse columnSpacer |> 
@@ -110,10 +114,12 @@ squareRow2Element sqs = map square2Element sqs |>
 rowSpacer : Element
 rowSpacer = spacer sqSz sqSp
 
+-- turn a set of element rows into a single element
 rows2Element : [Element] -> Element
 rows2Element rows = intersperse rowSpacer rows |> 
                     flow down
 
+-- turn a set of rows in a board to a set of elements
 boardElements : Board -> Element
 boardElements b = map squareRow2Element b |>
                   rows2Element
