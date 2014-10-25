@@ -9,11 +9,6 @@ data Tile = EmptyTile | Tile Int
 type Square = { x:Int, y:Int, tile:Tile }
 type Board = [Square]
 
-columns : Int
-columns = 3
-rows : Int
-rows = 3
-
 -- Given a row/column count, creates an array of arrays with the containing tiles
 starterList : Int -> Int ->[[Tile]]
 starterList c r = let tileFn num = if | num == c * r -> EmptyTile
@@ -28,13 +23,9 @@ starterBoard c r = let starter = starterList c r
                        rowFn idxRow row = indexedMap (\idxCol t -> Square idxCol idxRow t) row
                    in 
                      indexedMap (\idxRow row -> rowFn idxRow row) starter |> concat
+
+
                    
-
-start : Board
-start = starterBoard columns rows
-
-
-
 neighbors : Tile -> Board -> [Tile]
 neighbors t b = let tileSquares = take 1 <| filter (\sq -> sq.tile == t) b
                     tileNeighbors = concat <| map (\ts -> neighbors' ts.x ts.y b) tileSquares
@@ -52,8 +43,6 @@ nextToEmpty : Tile -> Board -> Bool
 nextToEmpty t b = any (\tile -> tile == EmptyTile) <| neighbors t b
 
 
-
-
 swapWithEmpty : Tile -> Board -> Board
 swapWithEmpty t b = if | nextToEmpty t b -> swapWithEmpty' t b
                        | otherwise -> b
@@ -69,8 +58,17 @@ detect win condition and show some element that its won
 then do some reverse shuffling on start
 
 how about hovering as a highlighting color
+ board would have to carry hover state which gets updated
+  by signal, and need to figure out foldp based on two signals
+  (or pass it all the way in to rendering)
 
 then try for animations with swapping
+
+center it, make it look nice, maybe give it images from real game
+
+could remove partitioning just by keeping board a [[Square]]
+ and maping over it to swap double nested map (not hard)
+ clean up starter list stuff
 
 -}
 
