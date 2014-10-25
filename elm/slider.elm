@@ -7,36 +7,35 @@ import Graphics.Input (Input, input, clickable)
 
 data Tile = EmptyTile | Tile Int
 type Square = { x:Int, y:Int, tile:Tile }
-type Board = [Square]
+type Board = [[Square]]
 
--- Given a row/column count, creates an array of arrays with the containing tiles
-starterList : Int -> Int ->[[Tile]]
-starterList c r = let tileFn num = if | num == c * r -> EmptyTile
-                                      | otherwise -> Tile num 
-                      squareFn row col = col + (row * c) |> tileFn
-                  in 
-                    indexedMap (\idx x -> map (squareFn idx) [1..c]) [1..r]
-
--- Uses starter list to create a board which is an array of tiles and their positions
+-- Given a row/column count, creates an array of arrays with the squares
 starterBoard : Int -> Int -> Board
-starterBoard c r = let starter = starterList c r
-                       rowFn idxRow row = indexedMap (\idxCol t -> Square idxCol idxRow t) row
+starterBoard c r = let tileFn num = if | num == c * r -> EmptyTile
+                                       | otherwise -> Tile num
+                       cr2num col row = ((c * row) + (col + 1))
+                       squareFn row col = Square col row (tileFn <| cr2num col row)
                    in 
-                     indexedMap (\idxRow row -> rowFn idxRow row) starter |> concat
+                     map (\row -> map (squareFn row) [0..(c - 1)]) [0..(r - 1)]
 
 
-                   
+allSquares : Board -> [Square]
+allSquares b = concat b
+
 neighbors : Tile -> Board -> [Tile]
-neighbors t b = let tileSquares = take 1 <| filter (\sq -> sq.tile == t) b
-                    tileNeighbors = concat <| map (\ts -> neighbors' ts.x ts.y b) tileSquares
-                in
-                  map (\sq -> sq.tile) tileNeighbors
+neighbors t b = allSquares b |>  
+                filter (\sq -> sq.tile == t) |>
+                take 1 |>
+                map (\ts -> neighbors' ts.x ts.y b) |>
+                concat |>
+                map (\sq -> sq.tile)
 
 neighbors' : Int -> Int -> Board -> [Square]
-neighbors' x y b = filter (\sq -> (sq.x == x && sq.y == (y - 1)) ||
-                                  (sq.x == x && sq.y == (y + 1)) ||
-                                  (sq.x == (x - 1) && sq.y == y) ||
-                                  (sq.x == (x + 1) && sq.y == y)) b
+neighbors' x y b = allSquares b |> 
+                   filter (\sq -> (sq.x == x && sq.y == (y - 1)) ||
+                           (sq.x == x && sq.y == (y + 1)) ||
+                           (sq.x == (x - 1) && sq.y == y) ||
+                           (sq.x == (x + 1) && sq.y == y))
 
 
 nextToEmpty : Tile -> Board -> Bool
@@ -48,9 +47,11 @@ swapWithEmpty t b = if | nextToEmpty t b -> swapWithEmpty' t b
                        | otherwise -> b
 
 swapWithEmpty' : Tile -> Board -> Board
-swapWithEmpty' t b = map (\sq -> if | sq.tile == EmptyTile -> {sq | tile<-t}
-                                    | sq.tile == t -> {sq | tile<-EmptyTile}
-                                    | otherwise -> sq) b
+swapWithEmpty' t b = let swapFn sq = if | sq.tile == EmptyTile -> {sq | tile<-t}
+                                        | sq.tile == t -> {sq | tile<-EmptyTile}
+                                        | otherwise -> sq
+                     in
+                       map (\row -> map swapFn row) b
 {-
 
 detect win condition and show some element that its won
@@ -90,16 +91,6 @@ sqSz = 60
 sqSp : Int
 sqSp = 10
 
-squarePartitionedByY : Square -> [[Square]] -> [[Square]]
-squarePartitionedByY sq ls = let found = partition (\l -> head l |> .y |> (==) sq.y) ls
-                             in
-                               case found of
-                                 ([],others) -> others ++ [[sq]]
-                                 (good, others) -> ([sortBy (\sq -> sq.x) ((head good) ++ [sq])] |> (++) others) |> sortBy (\l -> head l |> .y)
-
-board2Lists : Board -> [[Square]]
-board2Lists b = foldl squarePartitionedByY [] b
-                
 square2Element : Square -> Element
 square2Element sq = case sq.tile of
                       EmptyTile -> spacer sqSz sqSz
@@ -124,8 +115,7 @@ rows2Element rows = intersperse rowSpacer rows |>
                     flow down
 
 boardElements : Board -> Element
-boardElements b = board2Lists b |>
-                  map squareRow2Element |> 
+boardElements b = map squareRow2Element b |>
                   rows2Element
 
 
