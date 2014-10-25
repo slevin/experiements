@@ -3,7 +3,7 @@ module Slider where
 ------------
 -- Model
 import Array
-import Graphics.Input (Input, input, clickable)
+import Graphics.Input (Input, input, clickable, hoverable)
 
 data Tile = EmptyTile | Tile Int
 type Square = { x:Int, y:Int, tile:Tile }
@@ -59,10 +59,17 @@ swapWithEmpty' t b = let swapFn sq = if | sq.tile == EmptyTile -> {sq | tile<-t}
                      in
                        map (\row -> map swapFn row) b
 
+-- tile lists membership test 
+inTiles : Tile -> [Tile] -> Bool
+inTiles t ts = (filter (\x -> x == t) ts |> length) > 0
+
 -- if event is an off remove the off tile
 -- if an event is an on  make sure it contains the tile
 updateHovers : TileHoverEvent -> [Tile] -> [Tile]
-updateHovers event tiles = []
+updateHovers event tiles = let others = filter (\t -> t /= event.tile) tiles
+                           in 
+                             if | event.hoverState -> event.tile :: others
+                                | otherwise -> others
 {-
 
 detect win condition and show some element that its won
@@ -108,9 +115,6 @@ sqSp = 10
 
 -- create a ui element for a given square
 
-inTiles : Tile -> [Tile] -> Bool
-inTiles t ts = (filter (\x -> x == t) ts |> length) > 0
-
 square2Element : [Tile] -> Square -> Element
 square2Element hs sq = case sq.tile of
                         EmptyTile -> spacer sqSz sqSz
@@ -119,7 +123,8 @@ square2Element hs sq = case sq.tile of
                                    if | inTiles sq.tile hs -> color yellow
                                       | otherwise -> color red] |> 
                                   flow inward |>
-                                  clickable tileClick.handle sq.tile
+                                  clickable tileClick.handle sq.tile |>
+                                  hoverable tileHover.handle (\b -> TileHoverEvent sq.tile b)
 
 columnSpacer : Element
 columnSpacer = spacer sqSp sqSz
@@ -144,7 +149,7 @@ boardElements b hs = map (squareRow2Element hs) b |>
                     rows2Element
 
 
-main = boardElements <~ gameState ~ (constant ([Tile 2, Tile 1]))
+main = boardElements <~ gameState ~ hoverState
                          
 
 

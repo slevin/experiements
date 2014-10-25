@@ -35,6 +35,15 @@ swapWithEmptyTest = let after = swapWithEmpty (Tile 2) <| starterBoard 2 2
                               [sq3,{x=1,y=1,tile=Tile 2}]
                              ] after
 
+
+updateHoversTest1 = let after = updateHovers (TileHoverEvent (Tile 1) True) []
+                    in
+                      equals [Tile 1] after
+
+updateHoversTest2 = let after = updateHovers (TileHoverEvent (Tile 1) False) [Tile 1, Tile 2]
+                    in
+                      equals [Tile 2] after
+
 s = suite "Board Functions"
     [
      starterBoardTest
@@ -46,6 +55,8 @@ s = suite "Board Functions"
     ,nextToEmptyTest2
     ,nextToEmptyTest3
     ,swapWithEmptyTest
+    ,updateHoversTest1
+    ,updateHoversTest2
     ]
 
 main = runDisplay s
