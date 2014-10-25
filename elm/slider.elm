@@ -94,22 +94,24 @@ sqSp : Int
 sqSp = 10
 
 -- create a ui element for a given square
-square2Element : Square -> Element
-square2Element sq = case sq.tile of
-                      EmptyTile -> spacer sqSz sqSz
-                      Tile x -> [show x |> toText |> centered,
-                                 spacer sqSz sqSz |> color red] |> 
-                                flow inward |>
-                                clickable tileClick.handle sq.tile
+square2Element : Tile -> Square -> Element
+square2Element h sq = case sq.tile of
+                        EmptyTile -> spacer sqSz sqSz
+                        Tile x -> [show x |> toText |> centered,
+                                   spacer sqSz sqSz |> 
+                                   if | h == sq.tile -> color yellow
+                                      | otherwise -> color red] |> 
+                                  flow inward |>
+                                  clickable tileClick.handle sq.tile
 
 columnSpacer : Element
 columnSpacer = spacer sqSp sqSz
 
 -- make a row of elements for a row of squares
-squareRow2Element : [Square] -> Element
-squareRow2Element sqs = map square2Element sqs |> 
-                        intersperse columnSpacer |> 
-                        flow right
+squareRow2Element : Tile -> [Square] -> Element
+squareRow2Element h sqs = map (square2Element h) sqs |> 
+                          intersperse columnSpacer |> 
+                          flow right
 
 rowSpacer : Element
 rowSpacer = spacer sqSz sqSp
@@ -120,12 +122,12 @@ rows2Element rows = intersperse rowSpacer rows |>
                     flow down
 
 -- turn a set of rows in a board to a set of elements
-boardElements : Board -> Element
-boardElements b = map squareRow2Element b |>
-                  rows2Element
+boardElements : Board -> Tile -> Element
+boardElements b h = map (squareRow2Element h) b |>
+                    rows2Element
 
 
-main = boardElements <~ gameState
+main = boardElements <~ gameState ~ (constant (Tile 2))
                          
 
 
