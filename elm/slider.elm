@@ -89,17 +89,11 @@ shuffleOnce f b = let emptyNeighbors = neighbors EmptyTile b
                       Nothing -> b
 
 {-
-float * count floor index to array list
-get empty tile neighbors
-
-then do some reverse shuffling on start
- take start board
- random number between 0 and 1
- random number picks one of those options
-
-
-
 detect win condition and show some element that its won
+
+click signal
+ means board update
+ board update means game state change
 
 
 after hovering we need to somehow signal
@@ -125,10 +119,13 @@ tileHover : Input TileHoverEvent
 tileHover = input <| TileHoverEvent EmptyTile False
 
 floatList : [Float]
-floatList = fst <| Generator.listOf Generator.float 100 (Generator.Standard.generator 100)
+floatList = fst <| Generator.listOf Generator.float 10 (Generator.Standard.generator 100)
+
+absoluteStart : Board
+absoluteStart = starterBoard 3 3
 
 shuffledBoard : Board
-shuffledBoard = starterBoard 3 3 |> shuffleBoard floatList
+shuffledBoard = absoluteStart |> shuffleBoard floatList
 
 gameState : Signal Board
 gameState = foldp swapWithEmpty shuffledBoard tileClick.signal
@@ -181,7 +178,12 @@ boardElements b hs = map (squareRow2Element hs) b |>
                     rows2Element
 
 
-main = boardElements <~ gameState ~ hoverState
+-- board or "you win!"
+gameElements : Board -> [Tile] -> Element
+gameElements b hs = if | b == absoluteStart -> plainText "You Win!"
+                       | otherwise -> boardElements b hs
+
+main = gameElements <~ gameState ~ hoverState
                          
 
 
