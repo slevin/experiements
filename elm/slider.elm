@@ -2,8 +2,10 @@ module Slider where
 
 ------------
 -- Model
-import Array
+import Array (fromList, get)
 import Graphics.Input (Input, input, clickable, hoverable)
+import Generator
+import Generator.Standard
 
 data Tile = EmptyTile | Tile Int
 type Square = { x:Int, y:Int, tile:Tile }
@@ -70,16 +72,40 @@ updateHovers event tiles = let others = filter (\t -> t /= event.tile) tiles
                            in 
                              if | event.hoverState -> event.tile :: others
                                 | otherwise -> others
+
+-- shuffle board based on feed of random numbers
+shuffleBoard : [Float] -> Board -> Board
+shuffleBoard fs b = foldl shuffleOnce b fs
+
+-- pick a neighbor of EmptyTile based on Float
+-- and return the board with it swapped
+shuffleOnce : Float -> Board -> Board
+shuffleOnce f b = let emptyNeighbors = neighbors EmptyTile b
+                      idx = length emptyNeighbors |> toFloat |> (*) f |> floor
+                      tileNum = fromList emptyNeighbors |> get idx
+                  in
+                    case tileNum of
+                      Just (Tile num) -> swapWithEmpty (Tile num) b
+                      Nothing -> b
+
 {-
+float * count floor index to array list
+get empty tile neighbors
+
+then do some reverse shuffling on start
+ take start board
+ random number between 0 and 1
+ random number picks one of those options
+
+
 
 detect win condition and show some element that its won
 
-then do some reverse shuffling on start
 
-how about hovering as a highlighting color
- board would have to carry hover state which gets updated
-  by signal, and need to figure out foldp based on two signals
-  (or pass it all the way in to rendering)
+after hovering we need to somehow signal
+ an update to hover (because it moves and I lose it)
+ hover is a mix of hover signal and postclick signal
+  clicking updates postclick with an off event for that tile
 
 then try for animations with swapping
 
@@ -98,8 +124,14 @@ type TileHoverEvent = { tile:Tile, hoverState:Bool }
 tileHover : Input TileHoverEvent
 tileHover = input <| TileHoverEvent EmptyTile False
 
+floatList : [Float]
+floatList = fst <| Generator.listOf Generator.float 100 (Generator.Standard.generator 100)
+
+shuffledBoard : Board
+shuffledBoard = starterBoard 3 3 |> shuffleBoard floatList
+
 gameState : Signal Board
-gameState = foldp swapWithEmpty (starterBoard 3 3) tileClick.signal
+gameState = foldp swapWithEmpty shuffledBoard tileClick.signal
 
 hoverState : Signal [Tile]
 hoverState = foldp updateHovers [] tileHover.signal
