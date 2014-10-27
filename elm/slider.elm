@@ -91,6 +91,14 @@ shuffleOnce f b = let emptyNeighbors = neighbors EmptyTile b
 {-
 
 
+then see if I can place those in a collage
+ instead of flow of elements
+ (so I can get the input)
+
+then I can fake a slide then swap when its done
+
+
+
 then try for animations with swapping
 
 animation is foldp over whatever fps
@@ -140,21 +148,24 @@ hoverState = foldp updateHovers [] tileHover.signal
 sqSz : Int
 sqSz = 160
 
+gap : Int
+gap = 6
+
 sqSp : Int
-sqSp = 10
+sqSp = 6
 
 -- create a ui element for a given square
 
 square2Element : [Tile] -> Square -> Element
 square2Element hs sq = case sq.tile of
                         EmptyTile -> spacer sqSz sqSz
-                        Tile x -> [image (sqSz - 2) (sqSz - 2) ("./tiles/" ++ (show x) ++ ".jpg") ,
-                                   spacer sqSz sqSz |> 
-                                   if | inTiles sq.tile hs -> color yellow
-                                      | otherwise -> color red] |> 
-                                  flow inward |>
+                        Tile x -> image (sqSz - gap) (sqSz - gap) ("./tiles/" ++ (show x) ++ ".jpg") |>
+                                  container sqSz sqSz middle |>
                                   clickable tileClick.handle sq.tile |>
-                                  hoverable tileHover.handle (\b -> TileHoverEvent sq.tile b)
+                                  hoverable tileHover.handle (\b -> TileHoverEvent sq.tile b) |>
+                                  if | inTiles sq.tile hs -> color yellow
+                                     | otherwise -> color red
+-- |> 
 
 columnSpacer : Element
 columnSpacer = spacer sqSp sqSz
