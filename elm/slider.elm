@@ -89,19 +89,20 @@ shuffleOnce f b = let emptyNeighbors = neighbors EmptyTile b
                       Nothing -> b
 
 {-
-detect win condition and show some element that its won
 
-click signal
- means board update
- board update means game state change
+
+then try for animations with swapping
+
+animation is foldp over whatever fps
+
+
 
 
 after hovering we need to somehow signal
  an update to hover (because it moves and I lose it)
  hover is a mix of hover signal and postclick signal
   clicking updates postclick with an off event for that tile
-
-then try for animations with swapping
+  but it should only update if its a move
 
 center it, make it look nice, maybe give it images from real game
 
@@ -137,7 +138,7 @@ hoverState = foldp updateHovers [] tileHover.signal
 -- View
 
 sqSz : Int
-sqSz = 60
+sqSz = 160
 
 sqSp : Int
 sqSp = 10
@@ -147,7 +148,7 @@ sqSp = 10
 square2Element : [Tile] -> Square -> Element
 square2Element hs sq = case sq.tile of
                         EmptyTile -> spacer sqSz sqSz
-                        Tile x -> [show x |> toText |> centered,
+                        Tile x -> [image (sqSz - 2) (sqSz - 2) ("./tiles/" ++ (show x) ++ ".jpg") ,
                                    spacer sqSz sqSz |> 
                                    if | inTiles sq.tile hs -> color yellow
                                       | otherwise -> color red] |> 
