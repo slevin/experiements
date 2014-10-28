@@ -90,20 +90,12 @@ shuffleOnce f b = let emptyNeighbors = neighbors EmptyTile b
 
 {-
 
+slide tiles with animation
 
-then see if I can place those in a collage
- instead of flow of elements
- (so I can get the input)
-
-then I can fake a slide then swap when its done
-
-
-
-then try for animations with swapping
-
-animation is foldp over whatever fps
-
-
+is it possible to force a masked image in there?
+ then could use clipping and positioning to take 
+ any image and tile it
+ could do with divs and images
 
 
 after hovering we need to somehow signal
@@ -113,7 +105,7 @@ after hovering we need to somehow signal
   but it should only update if its a move
 
 center it, make it look nice, maybe give it images from real game
-
+  better colors
 -}
 
 ----------
@@ -154,7 +146,18 @@ gap = 6
 sqSp : Int
 sqSp = 6
 
+
 -- create a ui element for a given square
+
+total : Int
+total = sqSz * 3 + sqSp * 2
+
+square2Form : [Tile] -> Square -> Form
+square2Form hs sq = let el = square2Element hs sq
+                        x = (toFloat sq.x) * (toFloat (sqSz + sqSp)) - ((toFloat (total - sqSz)) / 2.0)
+                        y = (toFloat (sq.y * -1)) * (toFloat (sqSz + sqSp)) + ((toFloat (total - sqSz)) / 2.0)
+                    in
+                      el |> toForm |> move (x, y)
 
 square2Element : [Tile] -> Square -> Element
 square2Element hs sq = case sq.tile of
@@ -165,30 +168,13 @@ square2Element hs sq = case sq.tile of
                                   hoverable tileHover.handle (\b -> TileHoverEvent sq.tile b) |>
                                   if | inTiles sq.tile hs -> color yellow
                                      | otherwise -> color red
--- |> 
-
-columnSpacer : Element
-columnSpacer = spacer sqSp sqSz
-
--- make a row of elements for a row of squares
-squareRow2Element : [Tile] -> [Square] -> Element
-squareRow2Element hs sqs = map (square2Element hs) sqs |> 
-                          intersperse columnSpacer |> 
-                          flow right
-
-rowSpacer : Element
-rowSpacer = spacer sqSz sqSp
-
--- turn a set of element rows into a single element
-rows2Element : [Element] -> Element
-rows2Element rows = intersperse rowSpacer rows |> 
-                    flow down
 
 -- turn a set of rows in a board to a set of elements
 boardElements : Board -> [Tile] -> Element
-boardElements b hs = map (squareRow2Element hs) b |>
-                    rows2Element
-
+boardElements b hs = let forms = map (\row -> map (square2Form hs) row) b
+                     in
+                       collage total total <| concat forms
+                    
 
 -- board or "you win!"
 gameElements : Board -> [Tile] -> Element
