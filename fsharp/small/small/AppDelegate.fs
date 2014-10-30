@@ -1,4 +1,4 @@
-﻿namespace simple
+﻿namespace small
 
 open System
 open MonoTouch.UIKit
@@ -11,7 +11,10 @@ type AppDelegate() =
     // This method is invoked when the application is ready to run.
     override this.FinishedLaunching(app, options) = 
         this.Window <- new UIWindow(UIScreen.MainScreen.Bounds)
-        this.Window.RootViewController <- new simpleViewController()
+        let viewController = new smallViewController()
+        viewController.View.BackgroundColor <- UIColor.White
+        let navController = new UINavigationController(viewController)
+        this.Window.RootViewController <- navController
         this.Window.MakeKeyAndVisible()
         true
 
