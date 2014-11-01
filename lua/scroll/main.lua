@@ -1,5 +1,44 @@
-local widget = require( "widget" )
+--[[
 
+swiping card moves it left and right
+
+
+
+list of cards means more of them
+
+flexible pixels (need to do scale)
+
+
+--]]
+
+local bottomHeight = 100
+local restHeight = display.contentHeight - bottomHeight
+local restCenterY = restHeight * 0.5
+
+local padding = 50
+
+local cardBlue = {r=0; g=0.65; b=0.97}
+
+-- background
+local bg = display.newRect(display.contentCenterX,
+                           display.contentCenterY,
+                           display.contentWidth,
+                           display.contentHeight)
+
+bg:setFillColor(1)
+
+local sq = display.newRoundedRect(display.contentCenterX,
+                                  restCenterY,
+                                  display.contentWidth - (padding * 2),
+                                  restHeight - (padding * 2), 20)
+
+
+sq:setFillColor(cardBlue.r, cardBlue.g, cardBlue.b)
+
+
+
+
+--[[
 -- ScrollView listener
 local function scrollListener( event )
 
@@ -36,3 +75,4 @@ local scrollView = widget.newScrollView
 -- Create a image and insert it into the scroll view
 local background = display.newImageRect( "ziggy.jpg", 768, 1024 )
 scrollView:insert( background )
+--]]
