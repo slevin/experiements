@@ -39,15 +39,13 @@ local sq = display.newRoundedRect(display.contentCenterX,
                                   restHeight - (padding * 2), 20)
 
 
---sq:setFillColor(cardBlue.r, cardBlue.g, cardBlue.b)
+local startOffsetX = 0
 
---[[
-  move sq offset by whatever amount
---]]
 local function onObjectTouch(event)
-  if event.phase == "moved" then
-    local xoff = event.x - event.xStart
-    sq.x = sq.x + xoff
+  if event.phase == "began" then
+    startOffsetX = sq.x - event.x
+  elseif event.phase == "moved" then
+    sq.x = event.x + startOffsetX
   end
 end
 
