@@ -23,7 +23,7 @@ local restCenterY = restHeight * 0.5
 
 local padding = 50
 
-local cardBlue = {r=0; g=0.65; b=0.97}
+local cardBlue = {0;0.65;0.97}
 
 -- background
 local bg = display.newRect(display.contentCenterX,
@@ -53,17 +53,37 @@ end
 
 sq:addEventListener("touch", onObjectTouch)
 
+local function printAll(t)
+  local m = getmetatable(t)
+  for k,v in pairs(t) do
+    print(k)
+    print(v)
+  end
+end
+
+
+
 local oldIndex = getmetatable(sq).__index
 
-local function setFillColorC(self, colorTable)
-  self:setFillColor(colorTable.r, colorTable.g, colorTable.b)
+local function mysetFillColor(self, ...)
+  print("in mysetfillcolor")
+  print(arg)
+  local old = oldIndex(self, "setFillColor")
+  if arg.n == 1 and type(arg[1] == "table") then
+    print("in mysetfill with arg0 as table")
+    printAll(arg)
+    print("in there?")
+    printAll(arg[1])
+    old(self, unpack(arg[1]))
+  else
+    old(self, unpack(arg))
+  end
 end
 
 local function myIndex(self, key)
-  print("in myindex with key" .. key)
-  if key == "setFillColorC" then
-    print("got it")
-    return setFillColorC
+  print("in myindex with key " .. key)
+  if key == "setFillColor" then
+    return mysetFillColor
   else
     return oldIndex(self, key)
   end
@@ -73,23 +93,10 @@ local temp = getmetatable(sq)
 temp.__index = myIndex
 setmetatable(sq, temp)
 
-print("something")
-print(myIndex)
+sq:setFillColor(cardBlue)
 
-sq:setFillColorC(cardBlue)
+sq:setFillColor(0.5,0.5,0.5)
 
---sq:setFillColor(0.5,0.5,0.5)
-
-
-local function printAll(t)
-  local m = getmetatable(t)
-  for k,v in pairs(m) do
-    print(k)
-    print(v)
-  end
-end
-
-printAll(sq)
 
 
 --[[
