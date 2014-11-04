@@ -40,14 +40,26 @@ local sq = display.newRoundedRect(display.contentCenterX,
 
 
 local startOffsetX = 0
+local startX = 0
+local nextStop = display.contentWidth - (padding * 2)
 
 local function onObjectTouch(event)
   if event.phase == "began" then
+    startX = sq.x
     startOffsetX = sq.x - event.x
   elseif event.phase == "moved" then
     sq.x = event.x + startOffsetX
+  elseif event.phase == "ended" or event.phase == "cancelled" then
+    if sq.x < (startX - (nextStop * 0.5)) then
+      transition.to(sq, { x=(startX - nextStop), transition=easing.outExpo })
+    elseif sq.x > (startX + (nextStop * 0.5)) then
+      transition.to(sq, { x=(startX + nextStop), transition=easing.outExpo })
+    else
+      transition.to(sq, { x=startX, transition=easing.outExpo })
+    end
   end
 end
+
 
 sq:addEventListener("touch", onObjectTouch)
 
