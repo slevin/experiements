@@ -1,5 +1,6 @@
-finish the drag depending on where it is
-full drag would be (width - 2*padding)
 
-if its less than half drag then go back to starting spot
-otherwise go to next spot
+
+ideal with ui is to make intent explicit
+
+
+need to capture the display objects to iterate over, not the original cardModels
