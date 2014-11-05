@@ -17,44 +17,41 @@ bg:setFillColor(1)
 local indexOffset = 0
 local nextStop = display.contentWidth - (padding * 2)
 
-local sq = display.newRoundedRect(display.contentCenterX,
-                                  restCenterY,
-                                  display.contentWidth - (padding * 2),
-                                  restHeight - (padding * 2), 20)
+local function cardAtOffset(indexOffset)
+  return display.newRoundedRect(display.contentCenterX +
+                                  ((nextStop + (padding * 0.5)) * indexOffset),
+                                restCenterY,
+                                display.contentWidth - (padding * 2),
+                                restHeight - (padding * 2),
+                                20)
+end
 
-indexOffset = -1
-local sq2 = display.newRoundedRect(display.contentCenterX +
-                                     ((nextStop + (padding * 0.5)) * indexOffset),
-                                   restCenterY,
-                                   display.contentWidth - (padding * 2),
-                                   restHeight - (padding * 2),
-                                   20)
+
+
 
 local startOffsetX = 0
 local startX = 0
 
 local function onObjectTouch(event)
-  if event.phase == "began" then.
+  if event.phase == "began" then
     startX = event.target.x
     startOffsetX = startX - event.x
   elseif event.phase == "moved" then
-    sq.x = event.x + startOffsetX
+    event.target.x = event.x + startOffsetX
   elseif event.phase == "ended" or event.phase == "cancelled" then
     print("stop phase " .. event.phase)
-    if sq.x < (startX - (nextStop * 0.5)) then
-      transition.to(sq, { x=(startX - nextStop), transition=easing.outExpo })
-    elseif sq.x > (startX + (nextStop * 0.5)) then
-      transition.to(sq, { x=(startX + nextStop), transition=easing.outExpo })
+    if event.target.x < (startX - (nextStop * 0.5)) then
+      transition.to(event.target, { x=(startX - nextStop), transition=easing.outExpo })
+    elseif event.target.x > (startX + (nextStop * 0.5)) then
+      transition.to(event.target, { x=(startX + nextStop), transition=easing.outExpo })
     else
-      transition.to(sq, { x=startX, transition=easing.outExpo })
+      transition.to(event.target, { x=startX, transition=easing.outExpo })
     end
   else
     print("whats this " .. event.phase)
   end
 end
 
-
-sq:addEventListener("touch", onObjectTouch)
 
 local function printAll(t)
   local m = getmetatable(t)
@@ -64,6 +61,19 @@ local function printAll(t)
   end
 end
 
+local cards = {
+  {r=0;g=0.65;b=0.97},
+  {r=0.8;g=0.3;b=0.1},
+  {r=0.5;g=0.5;b=0.5}
+}
 
-sq:setFillColor(0.5,0.5,0.5)
-sq2:setFillColor(cardBlue.r, cardBlue.g, cardBlue.b)
+local function renderCards(cards)
+  for i,c in ipairs(cards) do
+    print(c)
+    newCard = cardAtOffset(i - 2)
+    newCard:setFillColor(c.r, c.g, c.b)
+    newCard:addEventListener("touch", onObjectTouch)
+  end
+end
+
+renderCards(cards)
