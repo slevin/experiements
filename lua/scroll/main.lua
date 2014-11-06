@@ -39,15 +39,6 @@ cardStack.addCard = function(self, red, green, blue)
   table.insert(cardStack, {r=red; g=green; b=blue})
 end
 
-cardStack.positionEachXBy = function(self, moveOffset)
-  for i,c in ipairs(self) do
-    local indexOffset = i - 2
-    print(cardXAtOffset(indexOffset, moveOffset))
-    c.x = cardXAtOffset(indexOffset, moveOffset)
-  end
-end
-
-
 cardStack:addCard(  0, 0.65, 0.97)
 cardStack:addCard(0.8, 0.3,  0.1)
 cardStack:addCard(0.5, 0.5,  0.5)
@@ -82,12 +73,24 @@ local function cardTouchEventFactory(cardStack, card, indexOffset)
 end
 
 
+local uiCards = {}
+uiCards.positionEachXBy = function(self, moveOffset)
+  for i,c in ipairs(self) do
+    local indexOffset = i - 2
+    print(cardXAtOffset(indexOffset, moveOffset))
+    c.x = cardXAtOffset(indexOffset, moveOffset)
+  end
+end
+
+
+
 local function renderCards(cards)
   for i,c in ipairs(cards) do
     local indexOffset = i - 2
     local newCard = cardAtOffset(indexOffset)
+    table.insert(uiCards, newCard)
     newCard:setFillColor(c.r, c.g, c.b)
-    newCard:addEventListener("touch", cardTouchEventFactory(cards, card, indexOffset))
+    newCard:addEventListener("touch", cardTouchEventFactory(uiCards, card, indexOffset))
   end
 end
 
