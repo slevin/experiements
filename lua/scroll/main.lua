@@ -45,25 +45,20 @@ cardStack:addCard(0.5, 0.5,  0.5)
 
 
 local function cardTouchEventFactory(cardStack, card, indexOffset)
-  local startOffsetX
   local startX
   local function onObjectTouch(event)
     if event.phase == "began" then
       startX = event.target.x
-      startOffsetX = startX - event.x
     elseif event.phase == "moved" then
       cardStack:positionEachXBy(event.x - event.xStart)
     elseif event.phase == "ended" or event.phase == "cancelled" then
-      --[[
-      print("stop phase " .. event.phase)
       if event.target.x < (startX - (nextStop * 0.5)) then
-        transition.to(event.target, { x=(startX - nextStop), transition=easing.outExpo })
+        cardStack:transitionToEach(nextStop * -1 - (padding * 0.5))
       elseif event.target.x > (startX + (nextStop * 0.5)) then
-        transition.to(event.target, { x=(startX + nextStop), transition=easing.outExpo })
+        cardStack:transitionToEach(nextStop + (padding * 0.5))
       else
-        transition.to(event.target, { x=startX, transition=easing.outExpo })
+        cardStack:transitionToEach(0)
       end
-      --]]
     else
       print("whats this " .. event.phase)
     end
@@ -77,18 +72,22 @@ local uiCards = {}
 uiCards.positionEachXBy = function(self, moveOffset)
   for i,c in ipairs(self) do
     local indexOffset = i - 2
-    print(cardXAtOffset(indexOffset, moveOffset))
     c.x = cardXAtOffset(indexOffset, moveOffset)
   end
 end
 
+uiCards.transitionToEach = function(self, moveOffset)
+  for i,c in ipairs(self) do
+    local indexOffset = i - 2
+    transition.to(c, { x=cardXAtOffset(indexOffset, moveOffset), transition=easing.outExpo })
+  end
+end
 
 
 local function renderCards(cards)
   for i,c in ipairs(cards) do
     local indexOffset = i - 2
     local newCard = cardAtOffset(indexOffset)
-    table.insert(uiCards, newCard)
     newCard:setFillColor(c.r, c.g, c.b)
     newCard:addEventListener("touch", cardTouchEventFactory(uiCards, card, indexOffset))
   end
