@@ -3,5 +3,5 @@ task :test do
 end
 
 task :term do
-  sh 'open "/Applications/CoronaSDK/Corona Terminal"'
+  sh '"/Applications/CoronaSDK/Corona Terminal"'
 end
