@@ -43,6 +43,7 @@ cardStack:addCard(  0, 0.65, 0.97)
 cardStack:addCard(0.8, 0.3,  0.1)
 cardStack:addCard(0.5, 0.5,  0.5)
 
+local cardPointer = 2
 
 local function cardTouchEventFactory(cardStack, card, indexOffset)
   local startX
@@ -54,8 +55,10 @@ local function cardTouchEventFactory(cardStack, card, indexOffset)
     elseif event.phase == "ended" or event.phase == "cancelled" then
       if event.target.x < (startX - (nextStop * 0.5)) then
         cardStack:transitionToEach(nextStop * -1 - (padding * 0.5))
+        cardPointer = cardPointer + 1
       elseif event.target.x > (startX + (nextStop * 0.5)) then
         cardStack:transitionToEach(nextStop + (padding * 0.5))
+        cardPointer = cardPointer - 1
       else
         cardStack:transitionToEach(0)
       end
@@ -71,8 +74,9 @@ end
 local uiCards = {}
 uiCards.positionEachXBy = function(self, moveOffset)
   for i,c in ipairs(self) do
-    local indexOffset = i - 2
+    local indexOffset = i - cardPointer
     c.x = cardXAtOffset(indexOffset, moveOffset)
+    print(c.x)
   end
 end
 
@@ -86,8 +90,9 @@ end
 
 local function renderCards(cards)
   for i,c in ipairs(cards) do
-    local indexOffset = i - 2
+    local indexOffset = i - cardPointer
     local newCard = cardAtOffset(indexOffset)
+    table.insert(uiCards, newCard)
     newCard:setFillColor(c.r, c.g, c.b)
     newCard:addEventListener("touch", cardTouchEventFactory(uiCards, card, indexOffset))
   end
