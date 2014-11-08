@@ -12,11 +12,12 @@ local bg = display.newRect(display.contentCenterX,
 bg:setFillColor(1)
 
 local nextStop = display.contentWidth - (padding * 2)
+local distanceToNext = nextStop + (padding * 0.5)
+
 
 local function cardXAtOffset(indexOffset, moveOffset)
   return display.contentCenterX +
-      ((nextStop + (padding * 0.5)) * indexOffset) +
-      moveOffset
+      (distanceToNext * indexOffset) + moveOffset
 end
 
 local function cardAtOffset(indexOffset)
@@ -45,20 +46,33 @@ cardStack:addCard(0.5, 0.5,  0.5)
 
 local cardPointer = 2
 
-local function cardTouchEventFactory(cardStack, card, indexOffset)
-  local startX
+
+
+local function dragSignal(displayObject)
+  local signal = {}
+  local function updateFunction(event)
+
+
+  end
+
+  displayObject:addEventListener("touch", updateFunction)
+end
+
+
+
+local function cardTouchEventFactory(cardStack)
   local function onObjectTouch(event)
+    local amountMovedRight = event.x - event.xStart
     if event.phase == "began" then
-      startX = event.target.x
+
     elseif event.phase == "moved" then
-      cardStack:positionEachXBy(event.x - event.xStart)
+      cardStack:positionEachXBy(amountMovedRight)
     elseif event.phase == "ended" or event.phase == "cancelled" then
-      if event.target.x < (startX - (nextStop * 0.5)) then
-        cardStack:transitionToEach(nextStop * -1 - (padding * 0.5))
-        cardPointer = cardPointer + 1
-      elseif event.target.x > (startX + (nextStop * 0.5)) then
-        cardStack:transitionToEach(nextStop + (padding * 0.5))
-        cardPointer = cardPointer - 1
+      local halfwayAcross = display.contentWidth * 0.5
+      if amountMovedRight > halfwayAcross then
+        cardStack:transitionToEach(distanceToNext, {onComplete=function() cardPointer = cardPointer + 1 end})
+      elseif amountMovedRight < halfwayAcross * -1 then
+        cardStack:transitionToEach(distanceToNext * -1, {onComplete=function()cardPointer = cardPointer - 1 end})
       else
         cardStack:transitionToEach(0)
       end
@@ -73,10 +87,11 @@ end
 
 local uiCards = {}
 uiCards.positionEachXBy = function(self, moveOffset)
+  print(cardPointer)
   for i,c in ipairs(self) do
     local indexOffset = i - cardPointer
     c.x = cardXAtOffset(indexOffset, moveOffset)
-    print(c.x)
+    print("draw card " .. tostring(i) .. " at " .. tostring(c.x))
   end
 end
 
@@ -94,7 +109,7 @@ local function renderCards(cards)
     local newCard = cardAtOffset(indexOffset)
     table.insert(uiCards, newCard)
     newCard:setFillColor(c.r, c.g, c.b)
-    newCard:addEventListener("touch", cardTouchEventFactory(uiCards, card, indexOffset))
+    newCard:addEventListener("touch", cardTouchEventFactory(uiCards))
   end
 end
 
