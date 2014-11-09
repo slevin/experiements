@@ -1,3 +1,6 @@
+
+local tablex = require('pl.tablex')
+
 local bottomHeight = 100
 local restHeight = display.contentHeight - bottomHeight
 local restCenterY = restHeight * 0.5
@@ -70,14 +73,14 @@ local function cardTouchEventFactory(cardStack)
     elseif event.phase == "ended" or event.phase == "cancelled" then
       local halfwayAcross = display.contentWidth * 0.5
       if amountMovedRight > halfwayAcross then
-        cardStack:transitionToEach(distanceToNext, {onComplete=function() cardPointer = cardPointer + 1 end})
+        cardStack:transitionToEach(distanceToNext, {})
+        cardPointer = cardPointer - 1
       elseif amountMovedRight < halfwayAcross * -1 then
-        cardStack:transitionToEach(distanceToNext * -1, {onComplete=function()cardPointer = cardPointer - 1 end})
+        cardStack:transitionToEach(distanceToNext * -1, {})
+        cardPointer = cardPointer + 1
       else
-        cardStack:transitionToEach(0)
+        cardStack:transitionToEach(0, {})
       end
-    else
-      print("whats this " .. event.phase)
     end
   end
 
@@ -91,14 +94,14 @@ uiCards.positionEachXBy = function(self, moveOffset)
   for i,c in ipairs(self) do
     local indexOffset = i - cardPointer
     c.x = cardXAtOffset(indexOffset, moveOffset)
-    print("draw card " .. tostring(i) .. " at " .. tostring(c.x))
   end
 end
 
-uiCards.transitionToEach = function(self, moveOffset)
+uiCards.transitionToEach = function(self, moveOffset, params)
   for i,c in ipairs(self) do
     local indexOffset = i - 2
-    transition.to(c, { x=cardXAtOffset(indexOffset, moveOffset), transition=easing.outExpo })
+    local transitionParams = tablex.merge({x=cardXAtOffset(indexOffset, moveOffset), transition=easing.outExpo}, params, true)
+    transition.to(c, transitionParams)
   end
 end
 
