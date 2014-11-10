@@ -122,8 +122,8 @@ end
 
 local cards = require('cards')
 
-local function newCardFunction(frame, color)
-  local rect = display.newRoundedRect(frame.x, frame.y, frame.width, frame.height, cornerRadius)
+local function newCardFunction(cframe, color)
+  local rect = display.newRoundedRect(cframe.x, cframe.y, cframe.width, cframe.height, cornerRadius)
   rect:setFillColor(color.red, color.green, color.blue)
 end
 

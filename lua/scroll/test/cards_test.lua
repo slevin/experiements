@@ -18,20 +18,20 @@ describe("card model", function()
 end)
 
 describe("newCardFunction", function()
-    local myFrame, myColor
+    local mySize, myColor
     local stack, card
 
     local function newCardFunction(cframe, color)
-        myFrame = cframe
+        mySize = cframe
         myColor = color
     end
 
     before_each(function()
-        myFrame = nil
+        mySize = nil
         myColor = nil
-        local containerBounds = {width=100, height=180 }
+        local containerSize = {width=100, height=180 }
         local padding = 10
-        stack = cards.newCardStack(containerBounds, padding, newCardFunction)
+        stack = cards.newCardStack(containerSize, padding, newCardFunction)
         card = cards.newCard(0.1, 0.2, 0.3)
         stack:addCard(card)
     end)
@@ -43,10 +43,10 @@ describe("newCardFunction", function()
     end)
 
     it("calls with card in center of given area", function()
-        assert.are.equal( 50, myFrame.x)
-        assert.are.equal( 90, myFrame.y)
-        assert.are.equal( 80, myFrame.width)
-        assert.are.equal(160, myFrame.height)
+        assert.are.equal( 50, mySize.x)
+        assert.are.equal( 90, mySize.y)
+        assert.are.equal( 80, mySize.width)
+        assert.are.equal(160, mySize.height)
     end)
 end)
 
