@@ -7,3 +7,13 @@ elm/build
 /fsharp/small/small/bin/
 /fsharp/small/small/obj/
 /fsharp/small/small.userprefs
+
+# Intellij
+/lua/scroll/.idea
+/lua/scroll/*.iml
+/lua/scroll/*.iws
+/lua/scroll/notes.org
+
+/lua/scroll/moses.lua
+/lua/scroll/pl
+/lua/scroll/.idea/workspace.xml
