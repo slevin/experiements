@@ -17,22 +17,28 @@ describe("card model", function()
 
 end)
 
-describe("newCardFunction", function()
-    local mySize, myColor
-    local stack, card
+describe("cardStack", function()
+    local myFrame, myColor
+    local  stack, card
+    local updateTarget
 
     local function newCardFunction(cframe, color)
-        mySize = cframe
+        myFrame  = cframe
         myColor = color
     end
 
+    local function updateXFunction(x, updateTargetParam)
+        myFrame.x = x
+        updateTarget = updateTargetParam
+    end
+
     before_each(function()
-        mySize = nil
+        myFrame  = nil
         myColor = nil
         local containerSize = {width=100, height=180 }
-        local padding = 10
-        stack = cards.newCardStack(containerSize, padding, newCardFunction)
-        card = cards.newCard(0.1, 0.2, 0.3)
+        local       padding = 10
+        stack = cards.newCardStack(containerSize, padding, newCardFunction, updateXFunction)
+        card  = cards.newCard(0.1, 0.2, 0.3)
         stack:addCard(card)
     end)
 
@@ -43,10 +49,16 @@ describe("newCardFunction", function()
     end)
 
     it("calls with card in center of given area", function()
-        assert.are.equal( 50, mySize.x)
-        assert.are.equal( 90, mySize.y)
-        assert.are.equal( 80, mySize.width)
-        assert.are.equal(160, mySize.height)
+        assert.are.equal( 50, myFrame.x)
+        assert.are.equal( 90, myFrame.y)
+        assert.are.equal( 80, myFrame.width)
+        assert.are.equal(160, myFrame.height)
+    end)
+
+    it("moves card with drag", function()
+        stack:dragHandler({xStart=75, x=85, target="abc"})
+        assert.are.equal(60, myFrame.x)
+        assert.are.equal("abc", updateTarget)
     end)
 end)
 

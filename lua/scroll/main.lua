@@ -121,19 +121,24 @@ end
 --renderCards(cardStack)
 
 local cards = require('cards')
+local cardStack
 
 local function newCardFunction(cframe, color)
   local rect = display.newRoundedRect(cframe.x, cframe.y, cframe.width, cframe.height, cornerRadius)
   rect:setFillColor(color.red, color.green, color.blue)
+  rect:addEventListener("touch", function(event) cardStack:dragHandler(event) end)
+  -- SMELL: should probably pass cardStack in as param to newCardFunction (like a delegate call in objc)
+end
+
+local function updateXFunction(x, updateTarget)
+  updateTarget.x = x
 end
 
 local containerSize = {width=display.contentWidth, height=display.contentHeight }
 
-local cardStack = cards.newCardStack(containerSize, padding, newCardFunction)
+cardStack = cards.newCardStack(containerSize, padding, newCardFunction, updateXFunction)
 
---cardStack:addCard(  0, 0.65, 0.97)
 --cardStack:addCard(0.8, 0.3,  0.1)
 --cardStack:addCard(0.5, 0.5,  0.5)
 local card1 = cards.newCard(0, 0.65, 0.97)
-
 cardStack:addCard(card1)
