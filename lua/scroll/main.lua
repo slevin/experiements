@@ -127,8 +127,13 @@ local function newCardFunction(cframe, color)
   rect:setFillColor(color.red, color.green, color.blue)
 end
 
-local cardStack = cards.newCardStack(newCardFunction)
+local containerSize = {width=display.contentWidth, height=display.contentHeight }
 
-local card1 = cards.newCard
+local cardStack = cards.newCardStack(containerSize, padding, newCardFunction)
+
+--cardStack:addCard(  0, 0.65, 0.97)
+--cardStack:addCard(0.8, 0.3,  0.1)
+--cardStack:addCard(0.5, 0.5,  0.5)
+local card1 = cards.newCard(0, 0.65, 0.97)
 
 cardStack:addCard(card1)
