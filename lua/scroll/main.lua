@@ -5,17 +5,19 @@ local bottomHeight = 100
 local restHeight = display.contentHeight - bottomHeight
 local restCenterY = restHeight * 0.5
 local padding = 50
+local cornerRadius = 20
+local cardSpacing = 50 * 0.5
 
 -- background
-local bg = display.newRect(display.contentCenterX,
-                           display.contentCenterY,
-                           display.contentWidth,
-                           display.contentHeight)
-
-bg:setFillColor(1)
+--local bg = display.newRect(display.contentCenterX,
+--                           display.contentCenterY,
+--                           display.contentWidth,
+--                           display.contentHeight)
+--
+--bg:setFillColor(1)
 
 local nextStop = display.contentWidth - (padding * 2)
-local distanceToNext = nextStop + (padding * 0.5)
+local distanceToNext = nextStop + cardSpacing
 
 
 local function cardXAtOffset(indexOffset, moveOffset)
@@ -28,7 +30,7 @@ local function cardAtOffset(indexOffset)
                                 restCenterY,
                                 display.contentWidth - (padding * 2),
                                 restHeight - (padding * 2),
-                                20)
+                                cornerRadius)
 end
 
 local function printAll(t)
@@ -38,14 +40,14 @@ local function printAll(t)
   end
 end
 
-local cardStack = {}
-cardStack.addCard = function(self, red, green, blue)
-  table.insert(cardStack, {r=red; g=green; b=blue})
-end
-
-cardStack:addCard(  0, 0.65, 0.97)
-cardStack:addCard(0.8, 0.3,  0.1)
-cardStack:addCard(0.5, 0.5,  0.5)
+--local cardStack = {}
+--cardStack.addCard = function(self, red, green, blue)
+--  table.insert(cardStack, {r=red; g=green; b=blue})
+--end
+--
+--cardStack:addCard(  0, 0.65, 0.97)
+--cardStack:addCard(0.8, 0.3,  0.1)
+--cardStack:addCard(0.5, 0.5,  0.5)
 
 local cardPointer = 2
 
@@ -116,4 +118,17 @@ local function renderCards(cards)
   end
 end
 
-renderCards(cardStack)
+--renderCards(cardStack)
+
+local cards = require('cards')
+
+local function newCardFunction(frame, color)
+  local rect = display.newRoundedRect(frame.x, frame.y, frame.width, frame.height, cornerRadius)
+  rect:setFillColor(color.red, color.green, color.blue)
+end
+
+local cardStack = cards.newCardStack(newCardFunction)
+
+local card1 = cards.newCard
+
+cardStack:addCard(card1)
