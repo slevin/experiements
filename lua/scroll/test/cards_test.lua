@@ -35,9 +35,12 @@ describe("cardStack", function()
     before_each(function()
         myFrame  = nil
         myColor = nil
-        local containerSize = {width=100, height=180 }
-        local       padding = 10
-        stack = cards.newCardStack(containerSize, padding, newCardFunction, updateXFunction)
+        local config = {
+            containerSize={width=100, height=180 },
+              edgePadding=10,
+                  cardGap=5
+        }
+        stack = cards.newCardStack(config, newCardFunction, updateXFunction)
         card  = cards.newCard(0.1, 0.2, 0.3)
         stack:addCard(card)
     end)
@@ -59,6 +62,19 @@ describe("cardStack", function()
         stack:dragHandler({xStart=75, x=85, target="abc"})
         assert.are.equal(60, myFrame.x)
         assert.are.equal("abc", updateTarget)
+    end)
+
+    describe("multiple cards", function()
+        local card2
+
+        before_each(function()
+            card2 = cards.newCard(0.3, 0.2, 0.1)
+            stack:addCard(card2)
+        end)
+
+        it("creates second card to right of first", function()
+            assert.are.equal(135, myFrame.x)
+        end)
     end)
 end)
 
