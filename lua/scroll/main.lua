@@ -128,6 +128,7 @@ local function newCardFunction(cframe, color)
   rect:setFillColor(color.red, color.green, color.blue)
   rect:addEventListener("touch", function(event) cardStack:dragHandler(event) end)
   -- SMELL: should probably pass cardStack in as param to newCardFunction (like a delegate call in objc)
+  return rect
 end
 
 local function updateXFunction(x, updateTarget)
