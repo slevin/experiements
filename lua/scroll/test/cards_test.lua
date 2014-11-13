@@ -108,8 +108,10 @@ describe("cardStack", function()
             local completeMoveCalled
             local updateTo
             local updaterObject
-            local function completeMoveFunction()
+            local function completeMoveFunction(updaterObjectParam, updateToParam)
                 completeMoveCalled = true
+                updateTo = updateToParam
+                updaterObject = updaterObjectParam
             end
 
             before_each(function()
@@ -124,24 +126,42 @@ describe("cardStack", function()
                 assert.is.truthy(completeMoveCalled)
             end)
 
-            it("returns to original card when not past threshold", function()
+            describe("not past threshold", function()
+                it("hands back updater objects for returning to start", function()
+                    stack:dragHandler({ xStart = 75, x = 85, phase = "ended" })
+                    assert.are.equal(10, updaterObject.x)
+                    assert.are.equal(0, updateTo)
+                end)
 
-
+                it("updater objects perform movement on display objects", function()
+                    stack:dragHandler({ xStart = 75, x = 85, phase = "ended" })
+                    updaterObject.x = 0
+                    assert.are.equal(2, #lastX)
+                    _.each(lastX, function(k, v)
+                        if k == 1 then
+                            assert.are.equal(50, v)
+                        elseif k == 2 then
+                            assert.are.equal(135, v)
+                        end
+                    end)
+                end)
             end)
 
-
-            it("pages to next card when past threshold", function()
-                --stack:dragHandler
-                -- send an end signal with drag more
-                -- expect call to some animate method which will call
-                -- some sort of positioning method
-            end)
-
-            it("can't page off beginning", function()
-            end)
-
-            it("cant page off end", function()
-            end)
+--            it("returns to original card when not past threshold", function()end)
+--
+--
+--            it("pages to next card when past threshold", function()
+--                --stack:dragHandler
+--                -- send an end signal with drag more
+--                -- expect call to some animate method which will call
+--                -- some sort of positioning method
+--            end)
+--
+--            it("can't page off beginning", function()
+--            end)
+--
+--            it("cant page off end", function()
+--            end)
         end)
     end)
 end)
