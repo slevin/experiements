@@ -12,6 +12,19 @@ cards.newCard = function(red, green, blue)
     return {red=red, green=green, blue=blue}
 end
 
+cards.newUpdater = function(initialX, updateFunction)
+    local updater = {
+        _x=initialX,
+        updateFunction=updateFunction
+    }
+    local m = {
+        __index=function(tbl, var) if var == "x" then return tbl._x else return nil end end,
+        __newindex=function(tbl, var, val) if var == "x" then tbl._x = val; tbl.updateFunction(val) end end
+    }
+    setmetatable(updater, m)
+    return updater
+end
+
 cards.newCardStack = function(config, newCardFunction, updateXFunction)
     local stack = {
           containerSize=config.containerSize,

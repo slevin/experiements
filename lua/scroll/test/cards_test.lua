@@ -69,9 +69,9 @@ describe("cardStack", function()
     end)
 
     it("moves card with drag", function()
-        stack:dragHandler({xStart=75, x=85, target="abc"})
+        stack:dragHandler({xStart=75, x=85})
         -- there's only one, so each is an easy way to access it
-        _.each(lastX, function(k, v)
+        _.each(lastX, function(_, v)
             assert.are.equal(60, v)
         end)
     end)
@@ -94,7 +94,7 @@ describe("cardStack", function()
         end)
 
         it("moves all cards with drag", function()
-            stack:dragHandler({xStart=75, x=85, target="abc"})
+            stack:dragHandler({xStart=75, x=85})
             local hasBoth = lastX[1] ~= nil and lastX[2] ~= nil
             assert.is.truthy(hasBoth)
             _.each(lastX, function(k, v)
@@ -106,12 +106,16 @@ describe("cardStack", function()
 
         describe("paging", function()
             local completeMoveCalled
+            local updateTo
+            local updaterObject
             local function completeMoveFunction()
                 completeMoveCalled = true
             end
 
             before_each(function()
                 completeMoveCalled = false
+                updateTo = nil
+                updaterObject = nil
                 stack.completeMoveFunction = completeMoveFunction
             end)
 
@@ -121,6 +125,7 @@ describe("cardStack", function()
             end)
 
             it("returns to original card when not past threshold", function()
+
 
             end)
 
@@ -141,6 +146,21 @@ describe("cardStack", function()
     end)
 end)
 
+describe("updater", function()
+    it("has initial value and update method", function()
+        local updater = cards.newUpdater(10, nil)
+        assert.are.equal(10, updater.x)
+    end)
 
+    it("calls update function on value change", function()
+        local testVal
+        local function myUpdate(newValue)
+            testVal = newValue
+        end
+        local updater = cards.newUpdater(10, myUpdate)
+        updater.x = 20
+        assert.are.equal(20, testVal)
+    end)
+end)
 
 
