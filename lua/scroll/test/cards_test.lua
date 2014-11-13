@@ -104,6 +104,21 @@ describe("cardStack", function()
             end)
         end)
 
+        it("pages to next card when past threshold", function()
+            -- send an end signal with drag more
+            -- expect call to some animate method which will call
+            -- some sort of positioning method
+        end)
+
+        it("returns to original card when not past threshold", function()
+
+        end)
+
+        it("can't page off beginning", function()
+        end)
+
+        it("cant page off end", function()
+        end)
     end)
 end)
 
