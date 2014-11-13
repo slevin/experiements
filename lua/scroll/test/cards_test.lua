@@ -76,7 +76,7 @@ describe("cardStack", function()
         end)
     end)
 
-    describe("multiple cards", function()
+    describe("with multiple cards", function()
         local card2
 
         before_each(function()
@@ -104,20 +104,39 @@ describe("cardStack", function()
             end)
         end)
 
-        it("pages to next card when past threshold", function()
-            -- send an end signal with drag more
-            -- expect call to some animate method which will call
-            -- some sort of positioning method
-        end)
+        describe("paging", function()
+            local completeMoveCalled
+            local function completeMoveFunction()
+                completeMoveCalled = true
+            end
 
-        it("returns to original card when not past threshold", function()
+            before_each(function()
+                completeMoveCalled = false
+                stack.completeMoveFunction = completeMoveFunction
+            end)
 
-        end)
+            it("calls complete move function when done dragging", function()
+                stack:dragHandler({xStart=75, x=85, phase="ended"})
+                assert.is.truthy(completeMoveCalled)
+            end)
 
-        it("can't page off beginning", function()
-        end)
+            it("returns to original card when not past threshold", function()
 
-        it("cant page off end", function()
+            end)
+
+
+            it("pages to next card when past threshold", function()
+                --stack:dragHandler
+                -- send an end signal with drag more
+                -- expect call to some animate method which will call
+                -- some sort of positioning method
+            end)
+
+            it("can't page off beginning", function()
+            end)
+
+            it("cant page off end", function()
+            end)
         end)
     end)
 end)

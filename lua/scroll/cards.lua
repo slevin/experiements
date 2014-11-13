@@ -45,10 +45,14 @@ cards.newCardStack = function(config, newCardFunction, updateXFunction)
 
     stack.dragHandler = function(self, event)
         local offset = event.x - event.xStart
-        _.each(self.displayCards, function(k, v)
-            local x = self.containerSize.width * 0.5 + cardOffset(k) + offset
-            self.updateXFunction(x, v)
-        end)
+        if event.phase == "ended" then
+            self.completeMoveFunction()
+        else
+            _.each(self.displayCards, function(k, v)
+                local x = self.containerSize.width * 0.5 + cardOffset(k) + offset
+                self.updateXFunction(x, v)
+            end)
+        end
     end
 
     return stack
