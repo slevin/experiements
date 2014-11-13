@@ -13,6 +13,10 @@ cards.newCard = function(red, green, blue)
 end
 
 cards.newUpdater = function(initialX, updateFunction)
+    -- SMELL: possible pain to set "x" and compare with string since its always the same
+    -- could just make the metatable so "calling" the object with the parameter invokes the update function
+    -- which means I could have just return a function that gets called, making this irrelevant
+    -- but I may need more functionality
     local updater = {
         _x=initialX,
         updateFunction=updateFunction
