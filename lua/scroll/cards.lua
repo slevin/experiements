@@ -70,7 +70,14 @@ cards.newCardStack = function(config, newCardFunction, updateXFunction)
     stack.dragHandler = function(self, event)
         local offset = event.x - event.xStart
         if event.phase == "ended" then
-            self.completeMoveFunction(cards.newUpdater(offset, function(newOffset) self:positionAllCardsByOffset(newOffset) end), 0)
+            local moveTo = 0
+            if offset < cardWidth * -0.5 then
+                moveTo = -1 * cardOffset(2)
+            elseif offset > cardWidth * 0.5 then
+                moveTo = cardOffset(2)
+            end
+
+            self.completeMoveFunction(cards.newUpdater(offset, function(newOffset) self:positionAllCardsByOffset(newOffset) end), moveTo)
         else
             self:positionAllCardsByOffset(offset)
         end

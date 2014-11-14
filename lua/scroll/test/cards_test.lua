@@ -11,11 +11,10 @@ describe("card model", function()
 
     it("creates with colors", function()
         local card = cards.newCard(0.1, 0.2, 0.3)
-        assert.are.equal(card.red,   0.1)
+        assert.are.equal(card.red, 0.1)
         assert.are.equal(card.green, 0.2)
-        assert.are.equal(card.blue,  0.3)
+        assert.are.equal(card.blue, 0.3)
     end)
-
 end)
 
 describe("cardStack", function()
@@ -26,7 +25,7 @@ describe("cardStack", function()
     local displayCardsToAdd
 
     local function newCardFunction(cframe, color)
-        myFrame  = cframe
+        myFrame = cframe
         myColor = color
         return _.pop(displayCardsToAdd)
     end
@@ -36,30 +35,30 @@ describe("cardStack", function()
     end
 
     before_each(function()
-        myFrame  = nil
+        myFrame = nil
         myColor = nil
         lastX = {}
-        displayCardsToAdd = {1, 2}
+        displayCardsToAdd = { 1, 2 }
         local config = {
-            containerSize={width=100, height=180 },
-              edgePadding=10,
-                  cardGap=5
+            containerSize = { width = 100, height = 180 },
+            edgePadding = 10,
+            cardGap = 5
         }
         stack = cards.newCardStack(config, newCardFunction, updateXFunction)
-        card  = cards.newCard(0.1, 0.2, 0.3)
+        card = cards.newCard(0.1, 0.2, 0.3)
         stack:addCard(card)
     end)
 
     it("calls with color of card", function()
-        assert.are.equal(myColor.red,   0.1)
+        assert.are.equal(myColor.red, 0.1)
         assert.are.equal(myColor.green, 0.2)
-        assert.are.equal(myColor.blue,  0.3)
+        assert.are.equal(myColor.blue, 0.3)
     end)
 
     it("calls with card in center of given area", function()
-        assert.are.equal( 50, myFrame.x)
-        assert.are.equal( 90, myFrame.y)
-        assert.are.equal( 80, myFrame.width)
+        assert.are.equal(50, myFrame.x)
+        assert.are.equal(90, myFrame.y)
+        assert.are.equal(80, myFrame.width)
         assert.are.equal(160, myFrame.height)
     end)
 
@@ -69,7 +68,7 @@ describe("cardStack", function()
     end)
 
     it("moves card with drag", function()
-        stack:dragHandler({xStart=75, x=85})
+        stack:dragHandler({ xStart = 75, x = 85 })
         -- there's only one, so each is an easy way to access it
         _.each(lastX, function(_, v)
             assert.are.equal(60, v)
@@ -94,7 +93,7 @@ describe("cardStack", function()
         end)
 
         it("moves all cards with drag", function()
-            stack:dragHandler({xStart=75, x=85})
+            stack:dragHandler({ xStart = 75, x = 85 })
             local hasBoth = lastX[1] ~= nil and lastX[2] ~= nil
             assert.is.truthy(hasBoth)
             _.each(lastX, function(k, v)
@@ -122,20 +121,20 @@ describe("cardStack", function()
             end)
 
             it("calls complete move function when done dragging", function()
-                stack:dragHandler({xStart=75, x=85, phase="ended"})
+                stack:dragHandler({ xStart = 75, x = 85, phase = "ended" })
                 assert.is.truthy(completeMoveCalled)
             end)
 
             describe("not past threshold", function()
                 it("hands back updater objects for returning to start", function()
-                    stack:dragHandler({ xStart = 75, x = 85, phase = "ended" })
-                    assert.are.equal(10, updaterObject.x)
+                    stack:dragHandler({ xStart = 75, x = 65, phase = "ended" })
+                    assert.are.equal(-10, updaterObject.x)
                     assert.are.equal(0, updateTo)
                 end)
 
                 it("updater objects perform movement on display objects", function()
-                    stack:dragHandler({ xStart = 75, x = 85, phase = "ended" })
-                    updaterObject.x = 0
+                    stack:dragHandler({ xStart = 75, x = 65, phase = "ended" })
+                    updaterObject.x = updateTo
                     assert.are.equal(2, #lastX)
                     _.each(lastX, function(k, v)
                         if k == 1 then
@@ -147,21 +146,28 @@ describe("cardStack", function()
                 end)
             end)
 
---            it("returns to original card when not past threshold", function()end)
---
---
---            it("pages to next card when past threshold", function()
---                --stack:dragHandler
---                -- send an end signal with drag more
---                -- expect call to some animate method which will call
---                -- some sort of positioning method
---            end)
---
---            it("can't page off beginning", function()
---            end)
---
---            it("cant page off end", function()
---            end)
+            describe("past threshold", function()
+                it("moves to next going forward", function()
+                    stack:dragHandler({ xStart = 75, x = 24 , phase = "ended" })
+                    updaterObject.x = updateTo
+                    assert.are.equal(2, #lastX)
+                    _.each(lastX, function(k, v)
+                        if k == 1 then
+                            assert.are.equal(-35, v)
+                        elseif k == 2 then
+                            assert.are.equal(50, v)
+                        end
+                    end)
+                end)
+            end)
+
+            
+            -- test swiping back as well
+            --            it("can't page off beginning", function()
+            --            end)
+            --
+            --            it("cant page off end", function()
+            --            end)
         end)
     end)
 end)
@@ -177,6 +183,7 @@ describe("updater", function()
         local function myUpdate(newValue)
             testVal = newValue
         end
+
         local updater = cards.newUpdater(10, myUpdate)
         updater.x = 20
         assert.are.equal(20, testVal)
