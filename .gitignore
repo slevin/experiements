@@ -18,3 +18,4 @@ elm/build
 /lua/scroll/pl
 /lua/scroll/.idea/workspace.xml
 /lua/scroll/notes.org
+/lua/scroll/mobdebug.lua
