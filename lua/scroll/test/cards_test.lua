@@ -159,9 +159,27 @@ describe("cardStack", function()
                         end
                     end)
                 end)
+              
+                it("moves next and back to original position", function()
+                    stack:dragHandler({xStart =75, x=24, phase="ended"})
+                    updaterObject.x = updateTo
+                    updaterObject.completeFunction()
+                    stack:dragHandler({xStart=25, x=76, phase="ended"})
+                    updaterObject.x = updateTo
+                    updaterObject.completeFunction()
+                    assert.are.equal(2, #lastX)
+                    _.each(lastX, function(k, v)
+                        if k == 1 then
+                          assert.are.equal(50, v)
+                        elseif k == 2 then
+                          assert.are.equal(135, v)
+                        end
+                      end)
+                  end)
+        
             end)
 
-            
+            -- can do next thing sdflksjdf sdf
             -- test swiping back as well
             --            it("can't page off beginning", function()
             --            end)

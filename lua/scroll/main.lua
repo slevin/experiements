@@ -37,7 +37,7 @@ local config = {
 cardStack = cards.newCardStack(config, newCardFunction, updateXFunction)
 
 cardStack.completeMoveFunction = function(updaterObject, updateTo)
-  transition.to(updaterObject, {x=updateTo, transition=easing.outExpo})
+  transition.to(updaterObject, {x=updateTo, transition=easing.outExpo, onComplete=updaterObject.completeFunction})
 end
 
 --cardStack:addCard(0.8, 0.3,  0.1)
@@ -46,3 +46,5 @@ local card1 = cards.newCard(0, 0.65, 0.97)
 cardStack:addCard(card1)
 local card2 = cards.newCard(0.8, 0.3, 0.1)
 cardStack:addCard(card2)
+local card3 = cards.newCard(0.5, 0.5, 0.5)
+cardStack:addCard(card3)

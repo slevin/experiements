@@ -12,14 +12,15 @@ cards.newCard = function(red, green, blue)
     return {red=red, green=green, blue=blue}
 end
 
-cards.newUpdater = function(initialX, updateFunction)
+cards.newUpdater = function(initialX, updateFunction, completeFunction)
     -- SMELL: possible pain to set "x" and compare with string since its always the same
     -- could just make the metatable so "calling" the object with the parameter invokes the update function
     -- which means I could have just return a function that gets called, making this irrelevant
     -- but I may need more functionality
     local updater = {
         _x=initialX,
-        updateFunction=updateFunction
+        updateFunction=updateFunction,
+        completeFunction=completeFunction
     }
     local m = {
         __index=function(tbl, var) if var == "x" then return tbl._x else return nil end end,
@@ -43,9 +44,10 @@ cards.newCardStack = function(config, newCardFunction, updateXFunction)
 
     local cardWidth  = stack.containerSize.width  - (stack.edgePadding * 2)
     local cardHeight = stack.containerSize.height - (stack.edgePadding * 2)
-
+    local cardIndexOffset = 0
+    
     local function cardOffset(cardIndex)
-        return (cardIndex - 1) * (cardWidth + stack.cardGap)
+        return (cardIndex - 1 + cardIndexOffset) * (cardWidth + stack.cardGap)
     end
 
     stack.addCard = function(self, card)
@@ -71,13 +73,20 @@ cards.newCardStack = function(config, newCardFunction, updateXFunction)
         local offset = event.x - event.xStart
         if event.phase == "ended" then
             local moveTo = 0
+            local cardIndexOffsetModifier = 0
             if offset < cardWidth * -0.5 then
+                print("move back")
                 moveTo = -1 * cardOffset(2)
+                cardIndexOffsetModifier = -1
             elseif offset > cardWidth * 0.5 then
+                print("move forward")
                 moveTo = cardOffset(2)
+                cardIndexOffsetModifier = 1
             end
 
-            self.completeMoveFunction(cards.newUpdater(offset, function(newOffset) self:positionAllCardsByOffset(newOffset) end), moveTo)
+            self.completeMoveFunction(cards.newUpdater(offset, 
+                function(newOffset) self:positionAllCardsByOffset(newOffset) end,
+                function() cardIndexOffset = cardIndexOffset + cardIndexOffsetModifier end), moveTo)
         else
             self:positionAllCardsByOffset(offset)
         end
