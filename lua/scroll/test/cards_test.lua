@@ -19,7 +19,7 @@ describe("card model", function()
 
 describe("cardStack", function()
     local createdCards
-    local stack, card
+    local stack, card1
     local lastX
     local displayCardsToAdd
 
@@ -42,17 +42,27 @@ describe("cardStack", function()
           cardGap = 5
         }
         stack = cards.newCardStack(config, newCardFunction, updateXFunction)
-        card = cards.newCard(0.1, 0.2, 0.3)
-        stack:addCard(card)
+        card1 = cards.newCard(0.1, 0.2, 0.3)
+      end)
+
+    it("initial card index is nil", function()
+        assert.are.equal(stack.cardIndex, nil)
+      end)
+
+    it("after adding cardIndex is 1", function()
+        stack:addCard(card1)
+        assert.are.equal(1, stack.cardIndex)
       end)
 
     it("calls with color of card", function()
+        stack:addCard(card1)
         assert.are.equal(createdCards[1].color.red, 0.1)
         assert.are.equal(createdCards[1].color.green, 0.2)
         assert.are.equal(createdCards[1].color.blue, 0.3)
       end)
 
     it("calls with card in center of given area", function()
+        stack:addCard(card1)
         assert.are.equal(50, createdCards[1].frame.x)
         assert.are.equal(90, createdCards[1].frame.y)
         assert.are.equal(80, createdCards[1].frame.width)
@@ -60,16 +70,15 @@ describe("cardStack", function()
       end)
 
     it("keeps track of display cards returned", function()
+        stack:addCard(card1)
         local numberOfCards = #(stack.displayCards)
         assert.are.equal(1, numberOfCards)
       end)
 
     it("moves card with drag", function()
+        stack:addCard(card1)
         stack:dragHandler({ xStart = 75, x = 85 })
-        -- there's only one, so each is an easy way to access it
-        _.each(lastX, function(_, v)
-            assert.are.equal(60, v)
-          end)
+        assert.are.equal(60, lastX[1])
       end)
 
     describe("with multiple cards", function()
@@ -79,8 +88,13 @@ describe("cardStack", function()
         before_each(function()
             card2 = cards.newCard(0.3, 0.2, 0.1)
             card3 = cards.newCard(0.4, 0.5, 0.6)
+            stack:addCard(card1)
             stack:addCard(card2)
             stack:addCard(card3)
+          end)
+
+        it("after adding multiple cards, cardIndex is still 1", function()
+            assert.are.equal(1, stack.cardIndex)
           end)
 
         it("creates second card to right of first", function()
@@ -128,54 +142,99 @@ describe("cardStack", function()
               end)
 
             describe("not past threshold", function()
+                before_each(function()
+                    stack:dragHandler({ xStart = 75, x = 65, phase = "ended" })                    
+                  end)
+
                 it("hands back updater objects for returning to start", function()
-                    stack:dragHandler({ xStart = 75, x = 65, phase = "ended" })
                     assert.are.equal(-10, updaterObject.x)
                     assert.are.equal(0, updateTo)
                   end)
 
                 it("updater objects perform movement on display objects", function()
-                    stack:dragHandler({ xStart = 75, x = 65, phase = "ended" })
                     updaterObject.x = updateTo
                     assert.are.equal(3, #lastX)
                     assert.are.equal(50, lastX[1])
                     assert.are.equal(135, lastX[2])
                     assert.are.equal(220, lastX[3])
                   end)
+
+                it("cardIndex stays the same", function()
+                    assert.are.equal(1, stack.cardIndex)
+                  end)
+
               end)
 
             describe("past threshold", function()
+                local function swipeToPageNext(forward)
+                  local start = 75
+                  local final
+                  if (forward) then
+                    final = start - 51
+                  else
+                    final = start + 51
+                  end
+
+                  stack:dragHandler({ xStart = start, x = final , phase = "ended" })
+                  updaterObject.x = updateTo
+                  updaterObject.completeFunction()                  
+                end                  
+
                 it("moves to next going forward", function()
-                    stack:dragHandler({ xStart = 75, x = 24 , phase = "ended" })
-                    updaterObject.x = updateTo
+                    swipeToPageNext(true)
+                    assert.are.equal(-85, updateTo)
                     assert.are.equal(3, #lastX)
                     assert.are.equal(-35, lastX[1])
                     assert.are.equal(50, lastX[2])
                     assert.are.equal(135, lastX[3])                  
+                    assert.are.equal(2, stack.cardIndex)
+                  end)
+
+                it("after completing move, cards drag from that spot", function()
+                    swipeToPageNext(true)
+                    stack:dragHandler({xStart = 75, x = 65})
+                    assert.are.equal(-45, lastX[1])
+                  end)
+
+                it("moves next and next again", function()
+                    swipeToPageNext(true)
+                    swipeToPageNext(true)
+                    assert.are.equal(-85, updateTo)
+                    assert.are.equal(-120, lastX[1])
+                    assert.are.equal(3, stack.cardIndex)
                   end)
 
                 it("moves next and back to original position", function()
-                    stack:dragHandler({xStart =75, x=24, phase="ended"})
-                    updaterObject.x = updateTo
-                    updaterObject.completeFunction()
-                    stack:dragHandler({xStart=25, x=76, phase="ended"})
-                    updaterObject.x = updateTo
-                    updaterObject.completeFunction()
+                    swipeToPageNext(true)
+                    swipeToPageNext(false)
                     assert.are.equal(3, #lastX)
                     assert.are.equal(50, lastX[1])
                     assert.are.equal(135, lastX[2])
                     assert.are.equal(220, lastX[3])                  
+                    assert.are.equal(1, stack.cardIndex)
                   end)
+
+                it("goes back to beginning if at beginning", function()
+                    swipeToPageNext(false)
+                    assert.are.equal(50, lastX[1])
+                    assert.are.equal(135, lastX[2])
+                    assert.are.equal(220, lastX[3])                  
+                    assert.are.equal(1, stack.cardIndex)                    
+                  end)
+
+                it("goes back to end if at the end", function()
+                    swipeToPageNext(true)
+                    swipeToPageNext(true)
+                    swipeToPageNext(true)
+                    assert.are.equal(-120, lastX[1])
+                    assert.are.equal(3, stack.cardIndex)
+                  end)
+
 
               end)
 
-            -- can do next thing sdflksjdf sdf
-            -- test swiping back as well
-            --            it("can't page off beginning", function()
-            --            end)
-            --
-            --            it("cant page off end", function()
-            --            end)
+            -- seemed to mess up once I got it off the end
+            -- test reduced drag off the end
           end)
       end)
   end)

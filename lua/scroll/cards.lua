@@ -40,31 +40,31 @@ cards.newCardStack = function(config, newCardFunction, updateXFunction)
            displayCards={}
     }
 
-    local cardCount = 1
-
     local cardWidth  = stack.containerSize.width  - (stack.edgePadding * 2)
     local cardHeight = stack.containerSize.height - (stack.edgePadding * 2)
-    local cardIndexOffset = 0
+    local cardCenterToCenter = cardWidth + stack.cardGap
     
-    local function cardOffset(cardIndex)
-        return (cardIndex - 1 + cardIndexOffset) * (cardWidth + stack.cardGap)
+    stack.cardOffset = function(self, cardNumber)
+        return (cardNumber - 1 + (1 - self.cardIndex)) * cardCenterToCenter
     end
 
     stack.addCard = function(self, card)
+        if (self.cardIndex == nil) then
+          self.cardIndex = 1
+        end
         local cframe = {
-                 x=self.containerSize.width  * 0.5 + cardOffset(cardCount),
+                 x=self.containerSize.width  * 0.5 + self:cardOffset(#(self.displayCards) + 1),
                  y=self.containerSize.height * 0.5,
              width=cardWidth,
             height=cardHeight
         }
         local newDisplayCard = self.newCardFunction(cframe, {red=card.red, green=card.green, blue=card.blue})
         table.insert(self.displayCards, newDisplayCard)
-        cardCount = cardCount + 1
     end
 
     stack.positionAllCardsByOffset = function(self, offset)
         _.each(self.displayCards, function(k, v)
-            local x = self.containerSize.width * 0.5 + cardOffset(k) + offset
+            local x = self.containerSize.width * 0.5 + self:cardOffset(k) + offset
             self.updateXFunction(x, v)
         end)
     end
@@ -72,21 +72,19 @@ cards.newCardStack = function(config, newCardFunction, updateXFunction)
     stack.dragHandler = function(self, event)
         local offset = event.x - event.xStart
         if event.phase == "ended" then
-            local moveTo = 0
-            local cardIndexOffsetModifier = 0
-            if offset < cardWidth * -0.5 then
-                print("move back")
-                moveTo = -1 * cardOffset(2)
-                cardIndexOffsetModifier = -1
-            elseif offset > cardWidth * 0.5 then
-                print("move forward")
-                moveTo = cardOffset(2)
-                cardIndexOffsetModifier = 1
-            end
+            local offsetTo = 0
+            local cardIndexModifier = 0
+              if offset < cardWidth * -0.5 and self.cardIndex ~= #(self.displayCards) then
+                offsetTo = -1 * cardCenterToCenter
+                cardIndexModifier = 1
+              elseif offset > cardWidth * 0.5 and self.cardIndex ~= 1 then
+                offsetTo = cardCenterToCenter
+                cardIndexModifier = -1
+              end
 
             self.completeMoveFunction(cards.newUpdater(offset, 
                 function(newOffset) self:positionAllCardsByOffset(newOffset) end,
-                function() cardIndexOffset = cardIndexOffset + cardIndexOffsetModifier end), moveTo)
+                function() self.cardIndex = self.cardIndex + cardIndexModifier end), offsetTo)
         else
             self:positionAllCardsByOffset(offset)
         end
