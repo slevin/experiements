@@ -1,5 +1,5 @@
 task :test do
-  sh 'busted -p _test test'
+  sh 'busted -v -p _test test'
 end
 
 task :term do
