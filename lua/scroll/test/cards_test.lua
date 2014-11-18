@@ -75,12 +75,6 @@ describe("cardStack", function()
         assert.are.equal(1, numberOfCards)
       end)
 
-    it("moves card with drag", function()
-        stack:addCard(card1)
-        stack:dragHandler({ xStart = 75, x = 85 })
-        assert.are.equal(60, lastX[1])
-      end)
-
     describe("with multiple cards", function()
         local card2
         local card3
@@ -112,11 +106,19 @@ describe("cardStack", function()
           end)
 
         it("moves all cards with drag", function()
+            stack:dragHandler({ xStart = 75, x = 65 })
+            assert.are.equal(3, #lastX)
+            assert.are.equal(40, lastX[1])
+            assert.are.equal(125, lastX[2])
+            assert.are.equal(210, lastX[3])
+          end)
+
+        it("decays drag if past the beginning", function()
             stack:dragHandler({ xStart = 75, x = 85 })
             assert.are.equal(3, #lastX)
-            assert.are.equal(60, lastX[1])
-            assert.are.equal(145, lastX[2])
-            assert.are.equal(230, lastX[3])
+            assert.is.True(60 > lastX[1])
+            assert.is.True(145 > lastX[2])
+            assert.is.True(230 > lastX[3])
           end)
 
         describe("paging", function()
@@ -230,11 +232,18 @@ describe("cardStack", function()
                     assert.are.equal(3, stack.cardIndex)
                   end)
 
+                it("decays drag if past the end", function()
+                    swipeToPageNext(true)
+                    swipeToPageNext(true)                    
+                    stack:dragHandler({ xStart = 75, x = 65 })
+                    assert.is.True(-130 < lastX[1])
+                    assert.is.True(-45 < lastX[2])
+                    assert.is.True(40 < lastX[3])
+                  end)
 
               end)
 
             -- seemed to mess up once I got it off the end
-            -- test reduced drag off the end
           end)
       end)
   end)

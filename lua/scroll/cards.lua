@@ -71,6 +71,14 @@ cards.newCardStack = function(config, newCardFunction, updateXFunction)
 
     stack.dragHandler = function(self, event)
         local offset = event.x - event.xStart
+        
+        -- handle decay past beginning
+        if (self.cardIndex == 1 and offset > 0) then
+          offset = offset ^ 0.85
+        elseif (self.cardIndex == #(self.displayCards) and offset < 0) then
+          offset = -1 * (math.abs(offset) ^ 0.85)
+        end
+        
         if event.phase == "ended" then
             local offsetTo = 0
             local cardIndexModifier = 0
