@@ -28,7 +28,7 @@ return {
 --    DisplayOutputLn("D:", tostring(('D'):byte()))
 
     if mod == wx.wxMOD_ALT then
-      DisplayOutputLn("in1")
+--      DisplayOutputLn("in1")
 --      if keycode == ('D'):byte() then
 --        DisplayOutputLn("in2")
 --        editor:DeleteWordRight()
