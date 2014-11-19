@@ -19,3 +19,4 @@ elm/build
 /lua/scroll/.idea/workspace.xml
 /lua/scroll/notes.org
 /lua/scroll/mobdebug.lua
+/.DS_Store
