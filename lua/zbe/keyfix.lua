@@ -27,6 +27,18 @@ return {
 --    DisplayOutputLn("alt:", wx.wxMOD_ALT)
 --    DisplayOutputLn("D:", tostring(('D'):byte()))
 
+    if mod == wx.wxMOD_CMD + wx.wxMOD_SHIFT then
+      if keycode == ('['):byte() then
+        local nb = ide.frame.notebook
+        nb:AdvanceSelection(false)
+        return false
+      elseif keycode == (']'):byte() then
+        local nb = ide.frame.notebook
+        nb:AdvanceSelection(true)
+        return false
+      end
+    end
+
     if mod == wx.wxMOD_ALT then
 --      DisplayOutputLn("in1")
 --      if keycode == ('D'):byte() then
