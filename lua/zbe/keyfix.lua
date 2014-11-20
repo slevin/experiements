@@ -1,7 +1,8 @@
+
 return {
-  name = "Home/End modified",
-  description = "Modified Ctrl-Left and Ctrl-right to behave as Home/End.",
-  author = "Paul Kulchenko",
+  name = "Zemacsy",
+  description = "Xcode and Emacs type keybindings",
+  author = "Sean Levin",
   version = 0.1,
 
   onRegister = function()
@@ -13,6 +14,8 @@ return {
   onEditorFocusSet = function(self, editor, event)
   end,
 
+  
+  
   --[[
  This page is helpful for commands http://wxlua.sourceforge.net/docs/wxluaref.html
  -- mac ctrl == 16, raw_control
