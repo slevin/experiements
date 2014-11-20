@@ -1,5 +1,7 @@
 local composer = require( "composer" )
 
+local gameplay = require("gameplay")
+local widget = require("widget")
 local scene = composer.newScene()
 
 -- -----------------------------------------------------------------------------------------------------------------
@@ -14,53 +16,76 @@ local scene = composer.newScene()
 -- "scene:create()"
 function scene:create( event )
 
-    local sceneGroup = self.view
+  local sceneGroup = self.view
 
-    -- Initialize the scene here.
-    -- Example: add display objects to "sceneGroup", add touch listeners, etc.
+  local bg = display.newRect(sceneGroup, 
+    display.contentCenterX, 
+    display.contentCenterY, 
+    display.contentWidth,
+    display.contentHeight)
+  bg:setFillColor(1)
+
+  local backButton = widget.newButton{left=20,top=20,width=200,height=100}
+  backButton.labelColor={default={0,0,0},over={0.2,0.2,0.2}}
+  backButton.fontSize=100
+  backButton:setLabel("Back")
+  sceneGroup:insert(backButton)
+  
+  local gameLabel = display.newText{
+    parent=sceneGroup,
+    text="Patrick's Game",
+    x=display.contentCenterX,
+    y=150,
+    width=display.contentWidth * 0.8,
+    height=200,
+    fontSize=40,
+    align="center"
+  }
+  gameLabel:setFillColor({0.0,0.0,1.0})
+    
 end
 
 
 -- "scene:show()"
 function scene:show( event )
 
-    local sceneGroup = self.view
-    local phase = event.phase
+  local sceneGroup = self.view
+  local phase = event.phase
 
-    if ( phase == "will" ) then
-        -- Called when the scene is still off screen (but is about to come on screen).
-    elseif ( phase == "did" ) then
-        -- Called when the scene is now on screen.
-        -- Insert code here to make the scene come alive.
-        -- Example: start timers, begin animation, play audio, etc.
-    end
+  if ( phase == "will" ) then
+    -- Called when the scene is still off screen (but is about to come on screen).
+  elseif ( phase == "did" ) then
+    -- Called when the scene is now on screen.
+    -- Insert code here to make the scene come alive.
+    -- Example: start timers, begin animation, play audio, etc.
+  end
 end
 
 
 -- "scene:hide()"
 function scene:hide( event )
 
-    local sceneGroup = self.view
-    local phase = event.phase
+  local sceneGroup = self.view
+  local phase = event.phase
 
-    if ( phase == "will" ) then
-        -- Called when the scene is on screen (but is about to go off screen).
-        -- Insert code here to "pause" the scene.
-        -- Example: stop timers, stop animation, stop audio, etc.
-    elseif ( phase == "did" ) then
-        -- Called immediately after scene goes off screen.
-    end
+  if ( phase == "will" ) then
+    -- Called when the scene is on screen (but is about to go off screen).
+    -- Insert code here to "pause" the scene.
+    -- Example: stop timers, stop animation, stop audio, etc.
+  elseif ( phase == "did" ) then
+    -- Called immediately after scene goes off screen.
+  end
 end
 
 
 -- "scene:destroy()"
 function scene:destroy( event )
 
-    local sceneGroup = self.view
+  local sceneGroup = self.view
 
-    -- Called prior to the removal of scene's view ("sceneGroup").
-    -- Insert code here to clean up the scene.
-    -- Example: remove display objects, save state, etc.
+  -- Called prior to the removal of scene's view ("sceneGroup").
+  -- Insert code here to clean up the scene.
+  -- Example: remove display objects, save state, etc.
 end
 
 
