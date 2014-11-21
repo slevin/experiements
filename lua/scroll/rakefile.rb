@@ -3,5 +3,5 @@ task :test do
 end
 
 task :term do
-  sh '"/Applications/CoronaSDK/Corona Terminal"'
+  sh '"/Applications/CoronaSDK/Corona Terminal" ./main.lua'
 end
