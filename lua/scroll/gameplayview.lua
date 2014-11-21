@@ -42,7 +42,38 @@ function scene:create( event )
     align="center"
   }
   gameLabel:setFillColor({0.0,0.0,1.0})
-    
+
+  local function renderFun(event)
+    local row = event.row
+    local sq = display.newRect(
+      row,
+      row.contentWidth * 0.5,
+      row.contentHeight * 0.5,
+      row.contentWidth - 20,
+      row.contentHeight - 20
+    )
+    sq:setFillColor(0.0,0.7,0.4)
+
+  end
+
+  local gameTable = widget.newTableView{
+    parent=sceneGroup,
+    x=display.contentCenterX,
+    y=display.contentCenterY + 200,
+    width=display.contentWidth,
+    height=display.contentHeight - 200,
+    onRowRender=renderFun
+  }
+
+  gameTable:insertRow{
+    rowHeight=400,
+  }
+
+  gameTable:insertRow{rowHeight=300 }
+  gameTable:insertRow{rowHeight=500 }
+  gameTable:insertRow{rowHeight=500 }
+
+
 end
 
 
