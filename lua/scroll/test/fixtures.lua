@@ -13,16 +13,22 @@ fixtures.playerSean = {
   name="Sean",
   age="40",
   location="Williamsburg",
-  avatarUrl="http://www.whatever.com/myimage.jpg"
+  avatarUrl="http://www.seanlevin.com/original.jpg"
 }
 
 fixtures.playerMara = {
   name="Mara",
   age="35",
   location="Texas",
-  avatarUrl="http://www.another.com/img.png"
+  avatarUrl="http://www.seanlevin.com/marafinger.jpg"
 }
 
+fixtures.playerBowie = {
+  name="David Bowie",
+  age="60",
+  location="New York",
+  avatarUrl="http://www.seanlevin.com/davidbowie.png"
+}
 
 fixtures.game1 = {
   owner=fixtures.playerSean,
@@ -32,7 +38,12 @@ fixtures.game1 = {
     {
       owner=fixtures.playerMara,
       answer="Taylor Swift, duh"
-    }
+    },
+
+    {
+      owner=fixtures.playerBowie,
+      answer="Me, obviously"
+    },
   }
 }
 

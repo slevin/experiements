@@ -2,6 +2,7 @@ local composer = require( "composer" )
 
 local gameplay = require("gameplay")
 local widget = require("widget")
+local fixtures = require("test.fixtures")
 local scene = composer.newScene()
 
 -- -----------------------------------------------------------------------------------------------------------------
@@ -43,8 +44,15 @@ function scene:create( event )
   }
   gameLabel:setFillColor({0.0,0.0,1.0})
 
+  local gp
+
   local function renderFun(event)
     local row = event.row
+    gp:renderRow(row)
+  end
+
+  local function renderChallengeRow(row)
+    print("this is it", row)
     local sq = display.newRect(
       row,
       row.contentWidth * 0.5,
@@ -53,7 +61,6 @@ function scene:create( event )
       row.contentHeight - 20
     )
     sq:setFillColor(0.0,0.7,0.4)
-
   end
 
   local gameTable = widget.newTableView{
@@ -65,14 +72,16 @@ function scene:create( event )
     onRowRender=renderFun
   }
 
-  gameTable:insertRow{
-    rowHeight=400,
-  }
+  local game = fixtures.game1
 
-  gameTable:insertRow{rowHeight=300 }
-  gameTable:insertRow{rowHeight=500 }
-  gameTable:insertRow{rowHeight=500 }
+  local function challengeRowInsert()
+    gameTable:insertRow{}
+  end
 
+  gp = gameplay.newGameplay(game)
+  gp.challengeRowInsertFunction = challengeRowInsert
+  gp.challengeRowRenderFunction = renderChallengeRow
+  gp:renderGameplayView()
 
 end
 
