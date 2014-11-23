@@ -48,11 +48,10 @@ function scene:create( event )
 
   local function renderFun(event)
     local row = event.row
-    gp:renderRow(row)
+    gp:renderRow(row, row.id)
   end
 
   local function renderChallengeRow(row)
-    print("this is it", row)
     local sq = display.newRect(
       row,
       row.contentWidth * 0.5,
@@ -61,6 +60,17 @@ function scene:create( event )
       row.contentHeight - 20
     )
     sq:setFillColor(0.0,0.7,0.4)
+  end
+
+  local function renderAnswerRow(row)
+    local sq = display.newRect(
+      row,
+      row.contentWidth * 0.5,
+      row.contentHeight * 0.5,
+      row.contentWidth - 20,
+      row.contentHeight - 20
+    )
+    sq:setFillColor(0.0,0.7,0.9)
   end
 
   local gameTable = widget.newTableView{
@@ -74,13 +84,19 @@ function scene:create( event )
 
   local game = fixtures.game1
 
-  local function challengeRowInsert()
-    gameTable:insertRow{}
+  local function challengeRowInsert(id)
+    gameTable:insertRow{id=id}
+  end
+
+  local function answerRowInsert(id)
+    gameTable:insertRow{id=id}
   end
 
   gp = gameplay.newGameplay(game)
   gp.challengeRowInsertFunction = challengeRowInsert
   gp.challengeRowRenderFunction = renderChallengeRow
+  gp.answerRowInsertFunction = answerRowInsert
+  gp.answerRowRenderFunction = renderAnswerRow
   gp:renderGameplayView()
 
 end

@@ -15,12 +15,11 @@ describe("gameplay", function()
   end)
 
   describe("challenge row", function()
-    local challengeRow
     local challengeRowDisplay
-    local called
+    local challengeInsertId
 
-    local function insertChallengeRowFun()
-      challengeRow = {}
+    local function insertChallengeRowFun(id)
+      challengeInsertId = id
     end
 
     local function renderChallengeRowFun(row)
@@ -28,8 +27,7 @@ describe("gameplay", function()
     end
 
     before_each(function()
-      called = false
-      challengeRow = nil
+      challengeInsertId = nil
       challengeRowDisplay = nil
       gp.challengeRowInsertFunction = insertChallengeRowFun
       gp.challengeRowRenderFunction = renderChallengeRowFun
@@ -37,33 +35,50 @@ describe("gameplay", function()
     end)
 
     it("adds a challenge row for game", function()
-      assert.is_not.Nil(challengeRow)
+      assert.are.same(gameplay.challengeRowId, challengeInsertId)
     end)
 
     it("renders challenge row when requested", function()
-      gp:renderRow(challengeRow)
-      assert.is_not.Nil(challengeRowDisplay)
+      local row = {test="test"}
+      gp:renderRow(row, gameplay.challengeRowId)
+      assert.are.same(row, challengeRowDisplay)
     end)
 
   end)
 
+  describe("answer rows", function()
+    local answerRows
+    local answerRowsDisplay
 
+    local function insertAnswerRowFun(id)
+      table.insert(answerRows, id)
+    end
 
-  -- divider is part of the challenge row
+    local function renderAnswerRowFun(row)
+      table.insert(answerRowsDisplay, row)
+    end
 
-  -- it adds an answer row for each item
+    before_each(function()
+      answerRows = {}
+      answerRowsDisplay = {}
+      gp.answerRowInsertFunction = insertAnswerRowFun
+      gp.answerRowRenderFunction = renderAnswerRowFun
+      gp:renderGameplayView()
+    end)
 
-  -- different kind of row for different parts
+    it("calls insert for each answer in game", function()
+      assert.are.same(gameplay.answerRowId(1), answerRows[1])
+      assert.are.same(gameplay.answerRowId(2), answerRows[2])
+    end)
 
-  -- ask game to render triggers insert row
-
-  -- onRender requests game to give it the row
-  -- gameplay asks to create row and returns it to render
-  --  could technically do it itself, depends on if there is any logic
-  --  view can be only wiring up and configuration
-
-  -- can I capture some snapshots of different views for easy visual testing
-  -- that would really help with the integration aspects
-
+    it("calls correct row render function when asked", function()
+      local row1 = { test="test1" }
+      local row2 = { test="test2" }
+      gp:renderRow(row1, gameplay.answerRowId(1))
+      gp:renderRow(row2, gameplay.answerRowId(2))
+      assert.are.same(row1, answerRowsDisplay[1])
+      assert.are.same(row2, answerRowsDisplay[2])
+    end)
+  end)
 
 end)
