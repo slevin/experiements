@@ -19,3 +19,11 @@
 
 ;; don't need polymorphic dispatch because anything can be
 ;; anything from late binding
+
+
+(ltbl-new) ; empty hash
+(ltbl-set key value tbl) ; returns table
+(ltbl-ref key tbl) ; value
+(ltbl-set key nil tbl) ; deletes key
+(ltbl-setmeta tbl metatbl)
+(ltbl-getmeta tbl)
