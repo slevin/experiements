@@ -45,8 +45,8 @@
                                                               -> _CXTranslationUnit))
 
 (define idx (clang_createIndex 1 1))
-(define file "/Users/slevin/wrk/tavi/tavi/WNDayPickerDayDataSource.m")
-;;(define file "/Users/slevin/wrk/exp/racket/clang/simple.c")
+;;(define file "/Users/slevin/wrk/tavi/tavi/WNDayPickerDayDataSource.m")
+(define file "/Users/slevin/wrk/exp/racket/clang/simple.c")
 
 ;;(define-values (tu err) (clang_createTranslationUnit2 idx file))
 ;;(define tu (clang_createTranslationUnit idx file))
@@ -72,3 +72,4 @@
   )
 
 (clang_visitChildren cu visitor #f)
+
