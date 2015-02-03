@@ -20,4 +20,4 @@ elm/build
 /lua/scroll/notes.org
 /lua/scroll/mobdebug.lua
 /.DS_Store
-/racket/clang/clang.rkt~
+*.*~
