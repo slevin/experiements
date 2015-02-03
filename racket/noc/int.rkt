@@ -11,18 +11,29 @@
 (define x 320)
 (define y 180)
 
-(new canvas% [parent frame]
-     [paint-callback
-      (lambda (canvas dc)
-        (send dc draw-rectangle x y 2 2))])
+
+(define cnv (new canvas% [parent frame]
+                 [style '(no-autoclear)]
+                 [paint-callback
+                  (lambda (canvas dc)
+                    (send dc draw-rectangle x y 2 2))]))
 
 (send frame show #t)
 
-;; canvas has an animation callback that I might draw in
+(new timer%
+     [interval 42]
+     [notify-callback
+      (lambda ()
+        (let* ((rnd (random 4)))
+          (cond 
+            [(= rnd 0) (set! x (+ x 1))
+                       (set! y (+ y 1))]
+            [(= rnd 1) (set! x (+ x 1))
+                       (set! y (- y 1))]
+            [(= rnd 2) (set! x (- x 1))
+                       (set! y (+ y 1))]
+            [(= rnd 3) (set! x (- x 1))
+                       (set! y (- y 1))]))
+        (send cnv refresh-now)
+        )])
 
-
-;; draw dot
-
-;; then do random walk
-
-;; need run loop on a timer
