@@ -3,16 +3,14 @@
 
 (require racket/draw)
 (require racket/gui)
+(require plot/utils)
 
 (define width 640)
 (define height 360)
 
-(define x (/ width 2))
-(define y (/ height 2))
-(define xvel 0)
-(define yvel 0)
-(define mx 0)
-(define my 0)
+(define pos (vector (/ width 2) (/ height 2)))
+(define vel (vector 0 0))
+(define mouse (vector 0 0))
 
 (define frame (new frame%
                    [label "stuff"]
@@ -21,15 +19,15 @@
 
 (define (painter canvas dc)
   (send dc set-pen "DarkRed" 3 'solid)
-  (send dc set-brush "Firebrick" 'cross-hatch)
-  (send dc draw-ellipse x y 80 80)
+  (send dc set-brush "Firebrick" 'solid)
+  (send dc draw-ellipse (- (vector-ref pos 0) 40) (- (vector-ref pos 1) 40) 80 80)
   )
 
 (define my-canvas%
   (class canvas%
     (define/override (on-event event)
-      (set! mx (send event get-x))
-      (set! my (send event get-y)))
+      (vector-set! mouse 0 (send event get-x))
+      (vector-set! mouse 1 (send event get-y)))
     (super-new)))
 
 (define canvas (new my-canvas%
@@ -40,21 +38,17 @@
 
       
 (define (timer-tick)
-  (define dist (sqrt (+ (expt (- mx x) 2) (expt (- my y) 2))))
-  (define xa (* (/ (- mx x) dist) 0.5))
-  (define ya (* (/ (- my y) dist) 0.5))
-  (set! xvel (+ xvel xa))
-  (set! yvel (+ yvel ya))
-  (set! x (+ x xvel))
-  (set! y (+ y yvel))
+  (define accel (v* (vnormalize (v- mouse pos)) 0.2))
+  (set! vel (v+ vel accel))
+  (set! pos (v+ pos vel))
   (send canvas refresh-now)
   )
 
 (define timer (new timer%
-                   [interval 42]
+                   [interval 16]
                    [notify-callback timer-tick]))
 
 
-;; should draw at center, not at corner
-;; why so slow, how can I make it faster (I need it to be faster)
-;; how does it compare to what I did before
+;; how does it compare to their class?
+;; is it worth making a class for somee of these functions?
+
