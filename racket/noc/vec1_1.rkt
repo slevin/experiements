@@ -11,6 +11,8 @@
 (define y (/ height 2))
 (define xvel 0)
 (define yvel 0)
+(define mx 0)
+(define my 0)
 
 (define frame (new frame%
                    [label "stuff"]
@@ -23,16 +25,26 @@
   (send dc draw-ellipse x y 80 80)
   )
 
-(define canvas (new canvas%
+(define my-canvas%
+  (class canvas%
+    (define/override (on-event event)
+      (set! mx (send event get-x))
+      (set! my (send event get-y)))
+    (super-new)))
+
+(define canvas (new my-canvas%
                     [paint-callback painter]
                     [parent frame]))
 
 (send frame show #t)
 
-;; mouse point
+      
 (define (timer-tick)
-  (define dist 
-  (define xa (
+  (define dist (sqrt (+ (expt (- mx x) 2) (expt (- my y) 2))))
+  (define xa (* (/ (- mx x) dist) 0.5))
+  (define ya (* (/ (- my y) dist) 0.5))
+  (set! xvel (+ xvel xa))
+  (set! yvel (+ yvel ya))
   (set! x (+ x xvel))
   (set! y (+ y yvel))
   (send canvas refresh-now)
@@ -43,4 +55,6 @@
                    [notify-callback timer-tick]))
 
 
-;; accel my point - ball point / distance * some factor
+;; should draw at center, not at corner
+;; why so slow, how can I make it faster (I need it to be faster)
+;; how does it compare to what I did before
