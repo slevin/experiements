@@ -1,17 +1,15 @@
 #lang typed/racket
 
-(require racket/gui)
-(require racket/draw)
 (require racket/flonum)
+
+(require/typed "for2extra.rkt"
+               [gui-scene (-> Flonum Flonum Any)])
 
 (struct: scene ([size : FlVector]))
 
 
 (: make-scene (-> Flonum Flonum scene))
 (define (make-scene width height)
-  (define frame (new frame%
-                     [label "stuff"]
-                     [width width]
-                     [height height]))
+  (gui-scene width height)
   (scene (flvector width height))
   )
