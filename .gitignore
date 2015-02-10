@@ -21,3 +21,4 @@ elm/build
 /lua/scroll/mobdebug.lua
 /.DS_Store
 *.*~
+/unity/
