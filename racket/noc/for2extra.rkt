@@ -3,19 +3,31 @@
 (require racket/gui)
 (require racket/draw)
 
-(provide gui-scene)
+(provide make-scene-context)
 
-(define (gui-scene width height)
-  (define frame (new frame%
+(struct scene-context (frame canvas [commands #:mutable]))
+
+(define (make-scene-context width height)
+  (let* ((fr (new frame%
                      [label "stuff"]
                      [width width]
                      [height height]))
-  
-  (define canvas (new canvas%
+        (cv (new canvas%
                       [paint-callback (lambda (canvas dc) #f)]
-                      [parent frame]))
-  
-  (send frame show #t)
-  #f
-  )
+                      [parent fr]))
+        (ctx (scene-context fr cv '())))
+    (send fr show #t)
+    ctx))
 
+(define (render-scene 
+(define (draw-circle context x y radius)
+  (set-scene-context-commands! context
+                               (cons
+                                (lambda (dc)
+                                  (let ((size (* radius 2)))
+                                    (send dc draw-ellipse (- x radius) 
+                                          (- y radius) size size)))
+                                (scene-context-commands context))
+                                ))
+
+  
