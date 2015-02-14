@@ -10,29 +10,40 @@
 
 (struct scene-context (frame canvas [commands #:mutable]))
 
+(define command-canvas%
+  (class canvas%
+    (define commands '())
+
+    (define/public (add-command command)
+      (set! commands (cons command commands)))
+    
+    (define/public (get-commands)
+      commands)
+    
+    (super-new)))
+
 (define (make-scene-context width height)
   (let* ((fr (new frame%
                      [label "stuff"]
                      [width width]
                      [height height]))
-        (cv (new canvas% [parent fr]))
+        (cv (new command-canvas% 
+                 [parent fr]
+                 [paint-callback (lambda (canvas dc) (render-commands dc (send canvas get-commands)))]))
         (ctx (scene-context fr cv '())))
     (send fr show #t)
     ctx))
 
 
+(define (render-commands dc commands)
+  (for ([c commands])
+    (c dc)))
+
 (define (render-scene context)
-  (send (scene-context-canvas context)
-        refresh-now
-        (lambda (dc)
-          (for ([c (scene-context-commands context)])
-            (c dc)))
-        ))
+  (send (scene-context-canvas context) refresh-now))
 
 (define (add-draw-command context command)
-  (set-scene-context-commands! context 
-                               (cons command 
-                                     (scene-context-commands context))))
+  (send (scene-context-canvas context) add-command command))
 
 (define (draw-circle context x y radius)
   (add-draw-command context
