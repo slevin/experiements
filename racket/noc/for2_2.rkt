@@ -8,24 +8,48 @@
                [draw-circle (-> Scene-context Flonum Flonum Flonum Void)]
                [render-scene (-> Scene-context Void)])
 
+(struct: mover ([position : FlVector]
+                [velocity : FlVector]
+                [radius : Flonum]))
+
 (struct: scene ([size : FlVector]
+                [movers : (Listof mover)]
                 [context : Scene-context]))
 
 
 (: make-scene (-> Flonum Flonum scene))
 (define (make-scene width height)
   (scene (flvector width height)
+         '()
          (make-scene-context (fl->exact-integer width) (fl->exact-integer height))
          )
   )
 
+(: add-mover (-> scene Flonum Flonum Flonum Void))
+(define (add-mover sc pos-x pos-y radius)
+  (set-scene-movers! (cons (mover (flvector pos-x pos-y) (flvector 0.0 0.0) radius)
+                           scene-movers)))
 
 (define sc (make-scene 640.0 320.0))
-(draw-circle (scene-context sc) 40. 40. 40.)
-(draw-circle (scene-context sc) 40. 40. 60.)
+(add-mover sc 40.0 40.0 40.0)
+(add-mover sc 100.0 100.0 60.0)
+
+;; start update that gats called and has 
+
 (render-scene (scene-context sc))
 
 #|
+
+timer ticks
+ triggers for each mover to call draw-circle
+
+would like to be able to add a force
+maybe should send a make scene context that triggers updates to things
+based on a set of forces
+
+
+probably needs drawing into buffered commands
+then swapping in the buffered and saying refresh now
 
 
 |#

@@ -8,7 +8,7 @@
          draw-circle
          scene-context?)
 
-(struct scene-context (frame canvas [commands #:mutable]))
+(struct scene-context (frame canvas [commands #:mutable] timer))
 
 (define command-canvas%
   (class canvas%
@@ -22,7 +22,7 @@
     
     (super-new)))
 
-(define (make-scene-context width height)
+(define (make-scene-context width height on-timer-tick)
   (let* ((fr (new frame%
                      [label "stuff"]
                      [width width]
@@ -30,7 +30,10 @@
         (cv (new command-canvas% 
                  [parent fr]
                  [paint-callback (lambda (canvas dc) (render-commands dc (send canvas get-commands)))]))
-        (ctx (scene-context fr cv '())))
+        (tm (new timer%
+                 [interval 16]
+                 [notify-callback on-timer-tick]))
+        (ctx (scene-context fr cv '() tm)))
     (send fr show #t)
     ctx))
 
