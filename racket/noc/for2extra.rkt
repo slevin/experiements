@@ -7,7 +7,8 @@
          render-scene
          draw-circle
          scene-context?
-         start-updates)
+         start-updates
+         clear-scene)
 
 (struct scene-context (frame canvas [commands #:mutable] [timer #:mutable]))
 
@@ -21,9 +22,12 @@
     (define/public (get-commands)
       commands)
     
+    (define/public (clear-commands)
+      (set! commands '()))
+    
     (super-new)))
 
-(define (make-scene-context width height on-timer-tick)
+(define (make-scene-context width height)
   (let* ((fr (new frame%
                      [label "stuff"]
                      [width width]
@@ -40,11 +44,15 @@
   (for ([c commands])
     (c dc)))
 
+(define (clear-scene context)
+  (send (scene-context-canvas context) clear-commands))
+
 (define (render-scene context)
   (send (scene-context-canvas context) refresh-now))
 
 (define (start-updates context update-fun)
-  (set-scene-context-timer! (new timer%
+  (set-scene-context-timer! context
+                            (new timer%
                                  [interval 16]
                                  [notify-callback update-fun])))
 
@@ -62,9 +70,6 @@
                         (send dc draw-ellipse new-x new-y size size)))))
 
 #|
-why erase
-
-some notion of a timer that's firing off each second
 
 
 |#
