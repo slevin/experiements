@@ -6,9 +6,10 @@
 (provide make-scene-context
          render-scene
          draw-circle
-         scene-context?)
+         scene-context?
+         start-updates)
 
-(struct scene-context (frame canvas [commands #:mutable] timer))
+(struct scene-context (frame canvas [commands #:mutable] [timer #:mutable]))
 
 (define command-canvas%
   (class canvas%
@@ -30,10 +31,7 @@
         (cv (new command-canvas% 
                  [parent fr]
                  [paint-callback (lambda (canvas dc) (render-commands dc (send canvas get-commands)))]))
-        (tm (new timer%
-                 [interval 16]
-                 [notify-callback on-timer-tick]))
-        (ctx (scene-context fr cv '() tm)))
+        (ctx (scene-context fr cv '() #f)))
     (send fr show #t)
     ctx))
 
@@ -44,6 +42,11 @@
 
 (define (render-scene context)
   (send (scene-context-canvas context) refresh-now))
+
+(define (start-updates context update-fun)
+  (set-scene-context-timer! (new timer%
+                                 [interval 16]
+                                 [notify-callback update-fun])))
 
 (define (add-draw-command context command)
   (send (scene-context-canvas context) add-command command))
