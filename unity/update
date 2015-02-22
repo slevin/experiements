@@ -1,0 +1,14 @@
+#! /bin/sh
+
+# for each subdirectory
+DIRS=`find . -maxdepth 1 -type d -depth +0`
+for d in $DIRS
+do
+        # if subdirectory contains an update method, run it
+        cd $d
+        if [ -e update ]
+        then
+                ./update
+        fi
+        cd ..
+done

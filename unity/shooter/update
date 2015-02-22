@@ -1,0 +1,3 @@
+#! /bin/sh
+cp ~/wrk/unity/spaceshooter/Assets/Scripts/*.cs .
+
