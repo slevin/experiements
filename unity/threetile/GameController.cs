@@ -2,49 +2,103 @@
 using System.Collections;
 using System.Collections.Generic;
 
+public class IntPair
+{
+    public int x;
+    public int y;
+
+    public IntPair(int x, int y)  {
+        this.x = x;
+        this.y = y;
+    }
+
+    public override bool Equals(object o)
+    {
+        return base.Equals (o);
+    }
+
+    public override int GetHashCode()
+    {
+        return x * y + x;
+    }
+
+    public IntPair Left() {
+        return new IntPair(x - 1, y);
+    }
+
+    public IntPair Right() {
+        return new IntPair(x + 1, y);
+    }
+
+    public IntPair Up() {
+        return new IntPair(x, y - 1);
+    }
+
+    public IntPair Down() {
+        return new IntPair(x , y + 1);
+    }
+}
+
+public class IntPairComparer : IEqualityComparer<IntPair>
+{
+    public bool Equals(IntPair one, IntPair two) {
+        return one.x == two.x && one.y == two.y;
+    }
+
+    public int GetHashCode(IntPair pair) {
+        return pair.x * pair.y + pair.x;
+    }
+}
+
 public class Slot : Object
 {
-    public Slot left;
-    public Slot right;
-    public Slot up;
-    public Slot down;
+    private IntPair pos;
+    private Dictionary<IntPair, Slot> allSlots;
 
-    // where am I relative to the rest of the board
+    public Slot(IntPair pos, Dictionary<IntPair, Slot> allSlots) {
+        this.pos = pos;
+        this.allSlots = allSlots;
+    }
 
-    // who are my neighborss
+    private Slot otherSlot(IntPair pos) {
+        return allSlots[pos];
+    }
 
-    public void ClearNieghbors() {
-        left = null;
-        right = null;
-        up = null;
-        right = null;
+    public Slot Left() {
+        return otherSlot(pos.Left());
+    }
+
+    public Slot Right() {
+        return otherSlot(pos.Right());
+    }
+
+    public Slot Up() {
+        return otherSlot(pos.Up ());
+    }
+
+    public Slot Down() {
+        return otherSlot(pos.Down ());
     }
 }
 
 public class Board : Object
 {
-    private HashSet<Slot> slots;
-    private int columns;
-    private int rows;
+//    private int columns;
+//    private int rows;
 
     public Board(int columns, int rows) {
-        this.slots = new HashSet<Slot>();
-        this.columns = columns;
-        this.rows = rows;
+//        this.columns = columns;
+//        this.rows = rows;
 
+        int count = rows * columns;
+        Dictionary<IntPair, Slot> allSlots = new Dictionary<IntPair, Slot>(count, new IntPairComparer());
         for (int y = 0; y < rows; y++) {
             for (int x = 0; x < columns; x++) {
-                
+                IntPair pair = new IntPair(x, y); 
+                Slot slot = new Slot(pair, allSlots);
+                allSlots.Add(pair, slot);
             }
         }
-    }
-
-    ~Board() {
-        // remove circular references
-        foreach (Slot s in this.slots) {
-            s.ClearNieghbors();
-        }
-        this.slots.Clear();
     }
 }
 
@@ -55,12 +109,6 @@ public class GameController : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-
-        HashSet<Slot> board = new HashSet<Slot>();
-
-
-        // my physical location (slot should know)
-
 
 
         GameObject topLeft = Instantiate (tileQuad, new Vector3 (-1.1f, 1.1f), Quaternion.identity) as GameObject;
@@ -76,10 +124,10 @@ public class GameController : MonoBehaviour
 
     }
 
-    
+
     // Update is called once per frame
     void Update()
     {
-    
+
     }
 }
