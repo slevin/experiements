@@ -177,11 +177,11 @@ public class GameController : MonoBehaviour
         float totalHeight = this.rows * this.tileSize + (this.rows - 1) * this.tileSpacing;
         float halfWidth = totalWidth / 2.0f;
         float halfHeight = totalHeight / 2.0f;
-        float myX = this.tileSize + this.tileSpacing * pos.x;
-        float myY = this.tileSize * this.tileSpacing * pos.y;
+        float myX = (this.tileSize + this.tileSpacing) * pos.x;
+        float myY = (this.tileSize + this.tileSpacing) * pos.y;
         
         float p6nOffX = myX - halfWidth + (this.tileSize / 2.0f);
-        float p6nOffY = myY - halfHeight + (this.tileSize / 2.0f);
+        float p6nOffY = totalHeight - myY - halfHeight + (this.tileSize / 2.0f);
         return new Vector3(p6nOffX, p6nOffY);
     }
 
