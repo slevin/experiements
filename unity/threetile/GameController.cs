@@ -62,7 +62,7 @@ public class Slot : Object
     private IntPair pos;
     private Dictionary<IntPair, Slot> allSlots;
     private Vector3 location;
-    private Tile tile;
+    public Tile tile;
 
     public Slot(IntPair pos, Dictionary<IntPair, Slot> allSlots, Vector3 location)
     {
@@ -95,22 +95,66 @@ public class Slot : Object
     {
         return otherSlot (pos.Down ());
     }
+
+    public Slot EmptyNeighbor() {
+        Slot left = Left();
+        if (left.tile == nil) { return left; }
+        Slot right = Right();
+        if (right.tile == nil) { return right; }
+        Slot up = Up();
+        if (up.tile == nil) { return up; }
+        Slot down = Down();
+        if (down.tile == nil) { return down; }
+        return nil;
+    }
+}
+
+public class TileMove {
+    public Slot fromSlot;
+    public Slot toSlot;
+    public float distanceOverTime;
+
+    public TileMove(Slot fromSlot, Slot toSlot) {
+        this.fromSlot = fromSlot;
+        this.toSlot = toSlot;
+
+        this.distanceOverTime = (fromSlot.location - toSlot.location).magnitude / 1.0f;
+    }
+
+    public TargetPosition() {
+        return this.toSlot.location;
+    }
+
+    public CompleteMove() {
+        fromSlot.CompleteMove();
+    }
 }
 
 public class Tile : Object
 {
-//    GameObject tilePrefab;
-    GameObject tileObject;
 
+    private GameObject tileObject;
+    public Slot slot;
+    public TileMove tileMove;
     public Tile(GameObject tilePrefab, Vector3 location, Vector2 tileShift)
     {
         tileObject = Instantiate(tilePrefab, location, Quaternion.identity) as GameObject;
         tileObject.renderer.material.mainTextureOffset = tileShift;
+
+        TileScript script = tileObject.GetComponent<TileScript>();
+        script.tile = this;
     }
 
-    public void instantiateGameObject()
-    {
-        
+    public void OnClick() {
+        Slot emptyNeighbor = this.slot.EmptyNeighbor();
+        if (emptyNeighbor) {
+            this.tileMove = TileMove(this.slot, emptyNeighbor);
+            // get targetPositon, distanceOverTime
+        }
+    }
+
+    public void CompleteMove() {
+
     }
 }
 
@@ -128,26 +172,21 @@ public class Board : Object
         Dictionary<IntPair, Slot> allSlots = new Dictionary<IntPair, Slot> (count, new IntPairComparer());
         for (int y = 0; y < rows; y++) {
             for (int x = 0; x < columns; x++) {
-                IntPair pair = new IntPair (x, y); 
+                IntPair pair = new IntPair (x, y);
                 Vector3 location = controller.SlotLocation(pair);
                 Slot slot = new Slot (pair, allSlots, location);
                 allSlots.Add (pair, slot);
 
                 bool lastOne = x == columns - 1 && y == rows - 1;
                 if (!lastOne) {
-                    //Tile t = new Tile(controller.tilePrefab, location, controller.TileShift(pair));
-                    GameObject tobj = controller.CreateTile(pair);
+                    Tile t = new Tile(controller.tilePrefab, location, controller.TileShift(pair));
+                    slot.tile = t;
+                    tile.slot = slot;
                 }
             }
         }
     }
 
-    /*
-     * fill with tile objects 
-     * scramble (forget that)
-     * instantiate each one
-     * position based on its tile location, so there is some sizer that knows how to draw
-     * */
 }
 
 public class GameController : MonoBehaviour
@@ -179,7 +218,7 @@ public class GameController : MonoBehaviour
         float halfHeight = totalHeight / 2.0f;
         float myX = (this.tileSize + this.tileSpacing) * pos.x;
         float myY = (this.tileSize + this.tileSpacing) * pos.y;
-        
+
         float p6nOffX = myX - halfWidth + (this.tileSize / 2.0f);
         float p6nOffY = totalHeight - myY - halfHeight + (this.tileSize / 2.0f);
         return new Vector3(p6nOffX, p6nOffY);
