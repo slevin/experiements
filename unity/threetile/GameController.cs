@@ -61,8 +61,18 @@ public class Slot : Object
 {
     private IntPair pos;
     private Dictionary<IntPair, Slot> allSlots;
-    private Vector3 location;
-    public Tile tile;
+    public Vector3 location;
+    private Tile _tile;
+    public Tile tile
+    {
+        get {
+            return this._tile;
+        }
+        set {
+            this._tile = value;
+            value.slot = this;
+        }
+    }
 
     public Slot(IntPair pos, Dictionary<IntPair, Slot> allSlots, Vector3 location)
     {
@@ -98,14 +108,14 @@ public class Slot : Object
 
     public Slot EmptyNeighbor() {
         Slot left = Left();
-        if (left.tile == nil) { return left; }
+        if (left.tile == null) { return left; }
         Slot right = Right();
-        if (right.tile == nil) { return right; }
+        if (right.tile == null) { return right; }
         Slot up = Up();
-        if (up.tile == nil) { return up; }
+        if (up.tile == null) { return up; }
         Slot down = Down();
-        if (down.tile == nil) { return down; }
-        return nil;
+        if (down.tile == null) { return down; }
+        return null;
     }
 }
 
@@ -121,12 +131,14 @@ public class TileMove {
         this.distanceOverTime = (fromSlot.location - toSlot.location).magnitude / 1.0f;
     }
 
-    public TargetPosition() {
+    public Vector3 TargetPosition() {
         return this.toSlot.location;
     }
 
-    public CompleteMove() {
-        fromSlot.CompleteMove();
+    public void CompleteMove() {
+        toSlot.tile = fromSlot.tile;
+        fromSlot.tile.tileMove = null;
+        fromSlot.tile = null;
     }
 }
 
@@ -148,13 +160,8 @@ public class Tile : Object
     public void OnClick() {
         Slot emptyNeighbor = this.slot.EmptyNeighbor();
         if (emptyNeighbor) {
-            this.tileMove = TileMove(this.slot, emptyNeighbor);
-            // get targetPositon, distanceOverTime
+            this.tileMove = new TileMove(this.slot, emptyNeighbor);
         }
-    }
-
-    public void CompleteMove() {
-
     }
 }
 
@@ -181,7 +188,6 @@ public class Board : Object
                 if (!lastOne) {
                     Tile t = new Tile(controller.tilePrefab, location, controller.TileShift(pair));
                     slot.tile = t;
-                    tile.slot = slot;
                 }
             }
         }

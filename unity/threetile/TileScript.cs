@@ -10,14 +10,15 @@ public class TileScript : MonoBehaviour {
     }
 
     void Update() {
-        if (tile and tile.tileMove) {
+        if (tile != null && tile.tileMove != null) {
             float sqrRemainingDistance = (transform.position - tile.tileMove.TargetPosition()).sqrMagnitude;
             bool shouldMove = sqrRemainingDistance > float.Epsilon;
             if (shouldMove) {
                 float moveAmount = tile.tileMove.distanceOverTime * Time.deltaTime;
                 Vector3 newPosition = Vector3.MoveTowards(transform.position,
-                                                          tile.TargetPosition(),
+                                                          tile.tileMove.TargetPosition(),
                                                           moveAmount);
+                this.transform.position = newPosition;
             } else {
                 tile.tileMove.CompleteMove();
             }
