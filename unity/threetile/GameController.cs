@@ -57,7 +57,7 @@ public class IntPairComparer : IEqualityComparer<IntPair>
     }
 }
 
-public class Slot : Object
+public class Slot
 {
     private IntPair pos;
     private Dictionary<IntPair, Slot> allSlots;
@@ -70,7 +70,9 @@ public class Slot : Object
         }
         set {
             this._tile = value;
-            value.slot = this;
+            if (value != null) {
+                value.slot = this;
+            }
         }
     }
 
@@ -83,7 +85,11 @@ public class Slot : Object
 
     private Slot otherSlot(IntPair pos)
     {
-        return allSlots [pos];
+        if (allSlots.ContainsKey(pos)) {
+            return allSlots [pos];
+        } else {
+            return null;
+        }
     }
 
     public Slot Left()
@@ -108,13 +114,17 @@ public class Slot : Object
 
     public Slot EmptyNeighbor() {
         Slot left = Left();
-        if (left.tile == null) { return left; }
+        if (left != null && left.tile == null) {
+            return left; }
         Slot right = Right();
-        if (right.tile == null) { return right; }
+        if (right != null && right.tile == null) {
+            return right; }
         Slot up = Up();
-        if (up.tile == null) { return up; }
+        if (up != null && up.tile == null) {
+            return up; }
         Slot down = Down();
-        if (down.tile == null) { return down; }
+        if (down != null && down.tile == null) {
+            return down; }
         return null;
     }
 }
@@ -128,7 +138,7 @@ public class TileMove {
         this.fromSlot = fromSlot;
         this.toSlot = toSlot;
 
-        this.distanceOverTime = (fromSlot.location - toSlot.location).magnitude / 1.0f;
+        this.distanceOverTime = (fromSlot.location - toSlot.location).magnitude / 0.5f;
     }
 
     public Vector3 TargetPosition() {
@@ -142,24 +152,22 @@ public class TileMove {
     }
 }
 
-public class Tile : Object
+public class Tile
 {
 
     private GameObject tileObject;
     public Slot slot;
     public TileMove tileMove;
-    public Tile(GameObject tilePrefab, Vector3 location, Vector2 tileShift)
+    public Tile(GameObject tileObject)
     {
-        tileObject = Instantiate(tilePrefab, location, Quaternion.identity) as GameObject;
-        tileObject.renderer.material.mainTextureOffset = tileShift;
-
+        this.tileObject = tileObject;
         TileScript script = tileObject.GetComponent<TileScript>();
         script.tile = this;
     }
 
     public void OnClick() {
         Slot emptyNeighbor = this.slot.EmptyNeighbor();
-        if (emptyNeighbor) {
+        if (emptyNeighbor != null) {
             this.tileMove = new TileMove(this.slot, emptyNeighbor);
         }
     }
@@ -186,7 +194,8 @@ public class Board : Object
 
                 bool lastOne = x == columns - 1 && y == rows - 1;
                 if (!lastOne) {
-                    Tile t = new Tile(controller.tilePrefab, location, controller.TileShift(pair));
+                    GameObject tileObject = controller.CreateTile(pair);
+                    Tile t = new Tile(tileObject);
                     slot.tile = t;
                 }
             }
