@@ -247,8 +247,38 @@ public class GameController : MonoBehaviour
 
     public GameObject CreateTile(IntPair pos)
     {
+
+        /*
         GameObject obj = Instantiate(this.tilePrefab, SlotLocation(pos), Quaternion.identity) as GameObject;
         obj.renderer.material.mainTextureOffset = TileShift(pos);
         return obj;
+        */
+
+        // front one
+        Vector3 center = SlotLocation(pos);
+        float offset = (this.tileSize + this.tileSpacing) / 2.0f;
+
+        Vector3 frontCenter = center + new Vector3(0, 0, -offset);
+        GameObject obj = Instantiate(this.tilePrefab, frontCenter, Quaternion.identity) as GameObject;
+        obj.renderer.material.mainTextureOffset = TileShift(pos);
+
+        Vector3 leftCenter = center + new Vector3(-offset, 0, 0);
+        Instantiate(this.tilePrefab, leftCenter, Quaternion.Euler(0, 90, 0));
+
+        Vector3 rightCenter = center + new Vector3(offset, 0, 0);
+        Instantiate(this.tilePrefab, rightCenter, Quaternion.Euler(0, -90, 0));
+
+        Vector3 topCenter = center + new Vector3(0, offset, 0);
+        Instantiate(this.tilePrefab, topCenter, Quaternion.Euler(90, 0, 0));
+
+        Vector3 bottomCenter = center + new Vector3(0, -offset, 0);
+        Instantiate(this.tilePrefab, bottomCenter, Quaternion.Euler(-90, 0, 0));
+
+        Vector3 backCenter = center + new Vector3(0, 0, offset);
+        Instantiate(this.tilePrefab, backCenter, Quaternion.Euler(0,0,180));
+
+
+        return obj;
+
     }
 }
