@@ -248,34 +248,35 @@ public class GameController : MonoBehaviour
     public GameObject CreateTile(IntPair pos)
     {
 
-        /*
-        GameObject obj = Instantiate(this.tilePrefab, SlotLocation(pos), Quaternion.identity) as GameObject;
-        obj.renderer.material.mainTextureOffset = TileShift(pos);
-        return obj;
-        */
-
         // front one
         Vector3 center = SlotLocation(pos);
         float offset = (this.tileSize + this.tileSpacing) / 2.0f;
 
         Vector3 frontCenter = center + new Vector3(0, 0, -offset);
         GameObject obj = Instantiate(this.tilePrefab, frontCenter, Quaternion.identity) as GameObject;
-        obj.renderer.material.mainTextureOffset = TileShift(pos);
+        obj.transform.parent = this.transform;
+        obj.GetComponent<Renderer>().material.mainTextureOffset = TileShift(pos);
 
+        GameObject side;
         Vector3 leftCenter = center + new Vector3(-offset, 0, 0);
-        Instantiate(this.tilePrefab, leftCenter, Quaternion.Euler(0, 90, 0));
+        side = Instantiate(this.tilePrefab, leftCenter, Quaternion.Euler(0, 90, 0)) as GameObject;
+        side.transform.parent = this.transform;
 
         Vector3 rightCenter = center + new Vector3(offset, 0, 0);
-        Instantiate(this.tilePrefab, rightCenter, Quaternion.Euler(0, -90, 0));
+        side = Instantiate(this.tilePrefab, rightCenter, Quaternion.Euler(0, -90, 0)) as GameObject;
+        side.transform.parent = this.transform;
 
         Vector3 topCenter = center + new Vector3(0, offset, 0);
-        Instantiate(this.tilePrefab, topCenter, Quaternion.Euler(90, 0, 0));
+        side = Instantiate(this.tilePrefab, topCenter, Quaternion.Euler(90, 0, 0)) as GameObject;
+        side.transform.parent = this.transform;
 
         Vector3 bottomCenter = center + new Vector3(0, -offset, 0);
-        Instantiate(this.tilePrefab, bottomCenter, Quaternion.Euler(-90, 0, 0));
+        side = Instantiate(this.tilePrefab, bottomCenter, Quaternion.Euler(-90, 0, 0)) as GameObject;
+        side.transform.parent = this.transform;
 
         Vector3 backCenter = center + new Vector3(0, 0, offset);
-        Instantiate(this.tilePrefab, backCenter, Quaternion.Euler(0,0,180));
+        side = Instantiate(this.tilePrefab, backCenter, Quaternion.Euler(0,0,180)) as GameObject;
+        side.transform.parent = this.transform;
 
 
         return obj;
