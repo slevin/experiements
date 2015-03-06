@@ -23,3 +23,5 @@ elm/build
 *.*~
 /unity/**/*.meta
 
+/go/src/.idea
+
