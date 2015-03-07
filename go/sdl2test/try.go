@@ -16,19 +16,35 @@ func main() {
 	}
 	defer window.Destroy()
 
-	renderer, err := sdl.CreateRenderer(window, -1, sdl.RENDERER_ACCELERATED | sdl.RENDERER_PRESENTVSYNC)
+	renderer, err := sdl.CreateRenderer(window, -1, sdl.RENDERER_ACCELERATED|sdl.RENDERER_PRESENTVSYNC)
 	if renderer == nil {
 		panic(err)
 	}
 	defer renderer.Destroy()
 
+	bmp := sdl.LoadBMP("duck.bmp")
+	if bmp == nil {
+		panic("can't load duck bitmap")
+	}
 
+	tex, err := renderer.CreateTextureFromSurface(bmp)
+	bmp.Free()
+	if tex == nil {
+		panic("cant create texture")
+	}
+	defer tex.Destroy()
 
-	surface := window.GetSurface()
+	err = renderer.Clear()
+	if err != nil {
+		panic(err)
+	}
 
-	rect := sdl.Rect{0, 0, 200, 200}
-	surface.FillRect(&rect, 0xffff0000)
-	window.UpdateSurface()
+	err = renderer.Copy(tex, nil, nil)
+	if err != nil {
+		panic(err)
+	}
 
-	sdl.Delay(1000)
+	renderer.Present()
+
+	sdl.Delay(2000)
 }
