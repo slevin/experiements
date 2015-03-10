@@ -2,10 +2,10 @@ package main
 
 import "fmt"
 import "time"
+import "runtime"
 import "github.com/veandco/go-sdl2/sdl"
 import "github.com/veandco/go-sdl2/sdl_image"
-
-//import "github.com/ungerik/go3d"
+import "github.com/ungerik/go3d/vec2"
 
 const width = 800
 const height = 600
@@ -18,7 +18,16 @@ func point32(x int, y int) sdl.Point {
 	return sdl.Point{int32(x), int32(y)}
 }
 
+type Vehicle struct {
+	pos vec2.T
+	vel vec2.T
+	acc vec2.T
+	box sdl.Rect  // for drawing
+}
+
 func main() {
+	fmt.Println("Started...")
+	runtime.LockOSThread()
 
 	window, renderer := initSDL()
 	defer window.Destroy()
@@ -35,17 +44,28 @@ func main() {
 
 	// correct size
 	_, _, shipW, shipH, _ := shipTexture.Query()
+	sdlBox := rect32(0, 0, shipW, shipH)
+
+	// center it
 	x1 := (width - shipW) / 2
 	y1 := (height - shipH) / 2
-	pos := rect32(x1, y1, shipW, shipH)
+	pos := vec2.T{float32(x1), float32(y1)}
 
+	ship := Vehicle{pos, vec2.Zero, vec2.Zero, sdlBox}
 
 
 	// clear with black
 	renderer.SetDrawColor(0, 0, 0, 0xFF)
 
-	ticker := time.NewTicker(time.Millisecond * 30)
+
+	gravity := vec2.T{0, 10}
+	wind := vec2.T{1, 0}
+	speed := 5
+
+	ticker := time.NewTicker(time.Millisecond * 20)
 	keepRunning := true
+	ticks := sdl.GetTicks()
+
 	for keepRunning {
 		for {
 			e := sdl.PollEvent()
@@ -54,17 +74,31 @@ func main() {
 			}
 			switch e.(type) {
 			case *sdl.QuitEvent:
-				fmt.Println("wow it quit")
+				ticker.Stop()
 				keepRunning = false
 			}
 
 		}
 
+		now := sdl.GetTicks()
+		delta := float32(now - ticks) * .0001 * float32(speed)
+		ticks = now
+
+		gr := gravity.Scaled(delta)
+		wd := wind.Scaled(delta)
+		ship.acc.Add(&gr)
+		ship.acc.Add(&wd)
+		ship.vel.Add(&ship.acc)
+		ship.pos.Add(&ship.vel)
+		ship.acc.Mul(&vec2.Zero)
+
+		ship.box.X = int32(ship.pos[0])
+		ship.box.Y = int32(ship.pos[1])
+
 		renderer.Clear()
-		_ = renderer.CopyEx(shipTexture, nil, &pos, 35, nil, sdl.FLIP_NONE)
+		_ = renderer.CopyEx(shipTexture, nil, &ship.box, 35, nil, sdl.FLIP_NONE)
 		renderer.Present()
 		<-ticker.C
-		pos.X = pos.X + 2
 		//fmt.Println("ticker ticked")
 	}
 
