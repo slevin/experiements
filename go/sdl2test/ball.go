@@ -31,14 +31,14 @@ func (v *Vehicle) updateBox() {
 }
 
 func (v *Vehicle) bound(width int, height int) {
-	w := float32(width)
-	h := float32(height)
+	w := float32(width) - float32(v.box.W)
+	h := float32(height) - float32(v.box.H)
 
 	if v.pos[0] < 0 {
 		v.pos[0] = 0
 		v.vel[0] = -1 * v.vel[0]
 	}
-	if v.pos[0] > w {
+	if v.pos[0] > w  {
 		v.pos[0] = w
 		v.vel[0] = -1 * v.vel[0]
 	}
@@ -85,9 +85,9 @@ func main() {
 	//forces := [2]vec2.T{vec2}
 	gravity := vec2.T{0, 10}
 	wind := vec2.T{1, 0}
-	speed := 5
+	speed := 10
 
-	ticker := time.NewTicker(time.Millisecond * 20)
+	ticker := time.NewTicker(time.Millisecond * 16)
 	keepRunning := true
 	ticks := sdl.GetTicks()
 
