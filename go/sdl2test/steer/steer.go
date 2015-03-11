@@ -22,6 +22,7 @@ type Vehicle struct {
 	pos vec2.T
 	vel vec2.T
 	acc vec2.T
+	maxSpeed float32
 	box sdl.Rect // for drawing
 }
 
@@ -87,15 +88,15 @@ func main() {
 	y1 := (height - shipH) / 2
 	pos := vec2.T{float32(x1), float32(y1)}
 
-	ship := Vehicle{pos, vec2.Zero, vec2.Zero, sdlBox}
+	ship := Vehicle{pos, vec2.Zero, vec2.Zero, 10, sdlBox}
 
 	// clear with black
 	renderer.SetDrawColor(0, 0, 0, 0xFF)
 
 	crosshairs := Crosshairs{vec2.T{200, 200}, 20}
 
-	gravity := vec2.T{0, 10}
-	wind := vec2.T{1, 0}
+//	gravity := vec2.T{0, 10}
+//	wind := vec2.T{1, 0}
 	speed := 10
 
 	ticker := time.NewTicker(time.Millisecond * 16)
@@ -127,10 +128,17 @@ func main() {
 		delta := float32(timePassed) * .0001 * float32(speed)
 		ticks = now
 
-		gr := gravity.Scaled(delta)
-		wd := wind.Scaled(delta)
-		ship.acc.Add(&gr)
-		ship.acc.Add(&wd)
+		currentCenter := ship.pos
+		desired := vec2.Sub(&crosshairs.pos, &currentCenter)
+		desired.Normalize()
+		desired.Scale(ship.maxSpeed)
+		steerForce := vec2.Sub(&desired, &ship.vel)
+		steerForce.Scale(delta)
+		ship.acc.Add(&steerForce)
+		//gr := gravity.Scaled(delta)
+		//wd := wind.Scaled(delta)
+		//ship.acc.Add(&gr)
+		//ship.acc.Add(&wd)
 		ship.vel.Add(&ship.acc)
 		ship.pos.Add(&ship.vel)
 		ship.acc.Mul(&vec2.Zero)
