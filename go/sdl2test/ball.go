@@ -122,8 +122,10 @@ func main() {
 
 		ship.updateBox()
 
+
 		renderer.Clear()
-		_ = renderer.CopyEx(shipTexture, nil, &ship.box, 35, nil, sdl.FLIP_NONE)
+		angle := 90 + ship.vel.Angle() * 57.29
+		_ = renderer.CopyEx(shipTexture, nil, &ship.box, float64(angle), nil, sdl.FLIP_NONE)
 		renderer.Present()
 		<-ticker.C
 		//fmt.Println("ticker ticked")
