@@ -1,14 +1,20 @@
 package main
 
+import "flag"
 import "fmt"
 import "time"
 import "runtime"
 import "github.com/veandco/go-sdl2/sdl"
 import "github.com/veandco/go-sdl2/sdl_image"
 import "github.com/ungerik/go3d/vec2"
+import "os"
+import "log"
+import "runtime/pprof"
 
 const width = 800
 const height = 600
+
+var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to file")
 
 func rect32(x int, y int, w int, h int) sdl.Rect {
 	return sdl.Rect{int32(x), int32(y), int32(w), int32(h)}
@@ -23,6 +29,7 @@ type Vehicle struct {
 	vel vec2.T
 	acc vec2.T
 	maxSpeed float32
+	maxSteer float32
 	box sdl.Rect // for drawing
 }
 
@@ -53,6 +60,14 @@ func (v *Vehicle) bound(width int, height int) {
 	}
 }
 
+func limitVec(t *vec2.T, max float32) {
+	// limits magnitude to max
+	if t.LengthSqr() > max * max {
+		t.Normalize()
+		t.Scale(max)
+	}
+}
+
 type Crosshairs struct {
 	pos vec2.T
 	sz float32
@@ -65,6 +80,16 @@ func (c *Crosshairs) render(r *sdl.Renderer) {
 }
 
 func main() {
+	flag.Parse()
+    if *cpuprofile != "" {
+        f, err := os.Create(*cpuprofile)
+        if err != nil {
+            log.Fatal(err)
+        }
+        pprof.StartCPUProfile(f)
+        defer pprof.StopCPUProfile()
+    }
+
 	fmt.Println("Started...")
 	runtime.LockOSThread()
 
@@ -88,7 +113,7 @@ func main() {
 	y1 := (height - shipH) / 2
 	pos := vec2.T{float32(x1), float32(y1)}
 
-	ship := Vehicle{pos, vec2.Zero, vec2.Zero, 10, sdlBox}
+	ship := Vehicle{pos, vec2.Zero, vec2.Zero, 5, 2, sdlBox}
 
 	// clear with black
 	renderer.SetDrawColor(0, 0, 0, 0xFF)
@@ -134,6 +159,7 @@ func main() {
 		desired.Scale(ship.maxSpeed)
 		steerForce := vec2.Sub(&desired, &ship.vel)
 		steerForce.Scale(delta)
+		limitVec(&steerForce, ship.maxSteer)
 		ship.acc.Add(&steerForce)
 		//gr := gravity.Scaled(delta)
 		//wd := wind.Scaled(delta)
