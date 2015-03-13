@@ -30,3 +30,6 @@ elm/build
 /go/sdl2test/marbles.bmp
 /go/sdl2test/ball
 /go/sdl2test/plane.png
+/go/sdl2test/steer/out.svg
+/go/sdl2test/steer/steer
+/go/sdl2test/steer/steer.prof
