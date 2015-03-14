@@ -18,21 +18,44 @@ void main()
 
     auto timer = new Timer();
 
+    SDL_Rect sBox = SDL_Rect(0, 0, shipTexture.width, shipTexture.height);
+
+    int cX = 0;
+    int cY = 0;
+
     while (keepRunning) {
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) {
                 keepRunning = false;
                 break;
+            } else if (event.type == SDL_MOUSEBUTTONUP) {
+                auto mb = event.button;
+                if (mb.state == SDL_RELEASED) {
+                    // get position
+                    cX = mb.x;
+                    cY = mb.y;
+                }
             }
         }
         if (!keepRunning) { break; }
 
         auto delta = timer.update();
 
-        //env.clear();
+        env.clear();
 
-        auto r = SDL_Rect(0,0,100,100);
-        SDL_RenderCopyEx(env.ren, shipTexture.tex, null, &r, 0, null, SDL_FLIP_NONE);
+        // draw crosshairs
+        SDL_SetRenderDrawColor(env.ren, 0x00, 0xFF, 0x00, 0xFF);
+        int cSize = 20;
+        SDL_RenderDrawLine(env.ren,
+                           cX - cSize, cY,
+                           cX + cSize, cY);
+        SDL_RenderDrawLine(env.ren,
+                           cX, cY - cSize,
+                           cX, cY + cSize);
+
+
+        // draw ship
+        SDL_RenderCopyEx(env.ren, shipTexture.tex, null, &sBox, 0, null, SDL_FLIP_NONE);
 
         SDL_RenderPresent(env.ren);
 
@@ -57,6 +80,7 @@ struct SDLEnv {
 
     void clear() {
         SDL_SetRenderDrawColor(this.ren, 0, 0, 0, 0xFF);
+        SDL_RenderClear(this.ren);
     }
 
     ~this() {
@@ -65,11 +89,17 @@ struct SDLEnv {
     }
 }
 
+
 struct Texture {
     SDL_Texture *tex;
+    int width;
+    int height;
 
     this(string path, SDL_Renderer *ren) {
         this.tex = IMG_LoadTexture(ren, toStringz(path));
+        Uint32 format;
+        int access;
+        SDL_QueryTexture(tex, &format, &access, &this.width, &this.height);
     }
 
     ~this() {
