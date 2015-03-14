@@ -84,6 +84,14 @@ struct Vec2 {
         this.y *= val;
     }
 
+    void limit(float max) {
+        float lengthSq = this.x ^^ 2 + this.y ^^ 2;
+
+        if (lengthSq > (max ^^ 2)) {
+            this.scale(max / (lengthSq ^^ 0.5));
+        }
+    }
+
     Vec2 opBinary(string op)(Vec2 rhs) if (op == "-") {
         auto result = Vec2(this.x - rhs.x, this.y - rhs.y);
         return result;
@@ -115,12 +123,14 @@ struct Ship {
     void steerToPosition(Vec2 *desired, float delta) {
         auto direction = *desired - this.pos;
         auto steerForce = direction - this.vel;
+        steerForce.limit(this.maxSteer);
         steerForce.scale(delta);
         this.acc = this.acc + steerForce;
     }
 
     void update() {
         this.vel = this.vel + this.acc;
+        this.vel.limit(this.maxSpeed);
         this.pos = this.pos + this.vel;
         this.acc.scale(0);
     }
