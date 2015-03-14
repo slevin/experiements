@@ -1,5 +1,6 @@
 import std.stdio;
 import std.string;
+import std.math;
 import core.thread;
 
 import derelict.sdl2.sdl;
@@ -92,6 +93,10 @@ struct Vec2 {
         }
     }
 
+    float angle() {
+        return atan2(this.y, this.x);
+    }
+
     Vec2 opBinary(string op)(Vec2 rhs) if (op == "-") {
         auto result = Vec2(this.x - rhs.x, this.y - rhs.y);
         return result;
@@ -138,12 +143,13 @@ struct Ship {
     void render(SDL_Renderer *ren) {
         this.box.x = cast(int)(this.pos.x - this.box.w * 0.5);
         this.box.y = cast(int)(this.pos.y - this.box.h * 0.5);
+        double angle = 90 + this.vel.angle() * 57.29;
 
         SDL_RenderCopyEx(ren,
                          this.tex,
                          null,
                          &this.box,
-                         0,
+                         angle,
                          null,
                          SDL_FLIP_NONE);
     }
