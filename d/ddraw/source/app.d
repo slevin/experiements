@@ -11,17 +11,14 @@ void main()
     int height = 600;
     SDLEnv env = SDLEnv(width, height);
 
-    auto shipTexture = Texture("plane.png", env.ren);
-
     auto keepRunning = true;
     SDL_Event event;
 
     auto timer = new Timer();
 
-    SDL_Rect sBox = SDL_Rect(0, 0, shipTexture.width, shipTexture.height);
+    auto ship = Ship("plane.png", env.ren);
 
-    int cX = 0;
-    int cY = 0;
+    auto crosshairs = Crosshairs();
 
     while (keepRunning) {
         while (SDL_PollEvent(&event)) {
@@ -31,9 +28,7 @@ void main()
             } else if (event.type == SDL_MOUSEBUTTONUP) {
                 auto mb = event.button;
                 if (mb.state == SDL_RELEASED) {
-                    // get position
-                    cX = mb.x;
-                    cY = mb.y;
+                    crosshairs.update(mb.x, mb.y);
                 }
             }
         }
@@ -43,27 +38,18 @@ void main()
 
         env.clear();
 
-        // draw crosshairs
-        SDL_SetRenderDrawColor(env.ren, 0x00, 0xFF, 0x00, 0xFF);
-        int cSize = 20;
-        SDL_RenderDrawLine(env.ren,
-                           cX - cSize, cY,
-                           cX + cSize, cY);
-        SDL_RenderDrawLine(env.ren,
-                           cX, cY - cSize,
-                           cX, cY + cSize);
+        crosshairs.render(env.ren);
 
+        ship.steerToPosition(&crosshairs.pos, delta);
+        ship.update();
 
-        // draw ship
-        SDL_RenderCopyEx(env.ren, shipTexture.tex, null, &sBox, 0, null, SDL_FLIP_NONE);
+        ship.render(env.ren);
 
         SDL_RenderPresent(env.ren);
 
         Thread.sleep(dur!("msecs")(16));
 
     }
-
-
 }
 
 struct SDLEnv {
@@ -90,20 +76,91 @@ struct SDLEnv {
 }
 
 
-struct Texture {
+struct Vec2 {
+    float x = 0, y = 0;
+
+    void scale(float val) {
+        this.x *= val;
+        this.y *= val;
+    }
+
+    Vec2 opBinary(string op)(Vec2 rhs) if (op == "-") {
+        auto result = Vec2(this.x - rhs.x, this.y - rhs.y);
+        return result;
+    }
+
+    Vec2 opBinary(string op)(Vec2 rhs) if (op == "+") {
+        auto result = Vec2(this.x + rhs.x, this.y + rhs.y);
+        return result;
+    }
+}
+
+struct Ship {
+    Vec2 pos, vel, acc;
     SDL_Texture *tex;
-    int width;
-    int height;
+    SDL_Rect box;
+    float maxSpeed = 5;
+    float maxSteer = 2;
 
     this(string path, SDL_Renderer *ren) {
         this.tex = IMG_LoadTexture(ren, toStringz(path));
-        Uint32 format;
-        int access;
-        SDL_QueryTexture(tex, &format, &access, &this.width, &this.height);
+        this.box = SDL_Rect();
+        SDL_QueryTexture(tex, null, null, &this.box.w, &this.box.h);
     }
 
     ~this() {
         SDL_DestroyTexture(this.tex);
+    }
+
+    void steerToPosition(Vec2 *desired, float delta) {
+        auto direction = *desired - this.pos;
+        auto steerForce = direction - this.vel;
+        steerForce.scale(delta);
+        this.acc = this.acc + steerForce;
+    }
+
+    void update() {
+        this.vel = this.vel + this.acc;
+        this.pos = this.pos + this.vel;
+        this.acc.scale(0);
+    }
+
+    void render(SDL_Renderer *ren) {
+        this.box.x = cast(int)(this.pos.x - this.box.w * 0.5);
+        this.box.y = cast(int)(this.pos.y - this.box.h * 0.5);
+
+        SDL_RenderCopyEx(ren,
+                         this.tex,
+                         null,
+                         &this.box,
+                         0,
+                         null,
+                         SDL_FLIP_NONE);
+    }
+}
+
+
+struct Crosshairs {
+    Vec2 pos;
+    int sz = 20;
+
+    void update(int x, int y) {
+        this.pos.x = x;
+        this.pos.y = y;
+    }
+
+    void render(SDL_Renderer *ren) {
+        SDL_SetRenderDrawColor(ren, 0x00, 0xFF, 0x00, 0xFF);
+        SDL_RenderDrawLine(ren,
+                           cast(int)(this.pos.x - this.sz),
+                           cast(int)this.pos.y,
+                           cast(int)(this.pos.x + this.sz),
+                           cast(int)this.pos.y);
+        SDL_RenderDrawLine(ren,
+                           cast(int)this.pos.x,
+                           cast(int)(this.pos.y - this.sz),
+                           cast(int)this.pos.x,
+                           cast(int)(this.pos.y + this.sz));
     }
 }
 
@@ -117,7 +174,7 @@ class Timer {
 
     double update() {
         auto now = SDL_GetTicks();
-        auto delta = (now - this.ticks) * .0001 * this.speed;
+        auto delta = (now - this.ticks) * .001 * this.speed;
         this.ticks = now;
         return delta;
     }
