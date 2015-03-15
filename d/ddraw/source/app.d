@@ -48,6 +48,7 @@ void main()
 
         SDL_RenderPresent(env.ren);
 
+
         //Thread.sleep(dur!("msecs")(16));
         //        writeln(delta);
 
@@ -86,6 +87,17 @@ struct Vec2 {
         this.y *= val;
     }
 
+    Vec2 scaled(float val) {
+        return Vec2(x * val, y * val);
+    }
+
+    void normalize() {
+        // dont normalize zero
+        if (x == 0 && y == 0) { return; }
+        auto val = 1 / ((this.x ^^ 2 + this.y ^^ 2) ^^ 0.5);
+        scale(val);
+    }
+
     void limit(float max) {
         float lengthSq = this.x ^^ 2 + this.y ^^ 2;
 
@@ -114,7 +126,7 @@ struct Ship {
     SDL_Texture *tex;
     SDL_Rect box;
     float maxSpeed = 5;
-    float maxSteer = 2;
+    float maxSteer = 0.2;
 
     this(string path, SDL_Renderer *ren) {
         this.tex = IMG_LoadTexture(ren, toStringz(path));
@@ -128,6 +140,8 @@ struct Ship {
 
     void steerToPosition(Vec2 *desired, float delta) {
         auto direction = *desired - this.pos;
+        direction.normalize();
+        direction.scale(maxSpeed);
         auto steerForce = direction - this.vel;
         steerForce.limit(this.maxSteer);
         steerForce.scale(delta);
@@ -137,7 +151,7 @@ struct Ship {
     void update(float delta) {
         this.vel = this.vel + this.acc;
         this.vel.limit(this.maxSpeed);
-        this.pos = this.pos + Vec2(this.vel.x * delta, this.vel.y * delta);
+        this.pos = this.pos + this.vel.scaled(delta);
         this.acc.scale(0);
     }
 
@@ -183,7 +197,7 @@ struct Crosshairs {
 
 class Timer {
     Uint32 ticks = 0;
-    enum speed = 50;
+    enum speed = 40;
 
     this() {
         this.ticks = SDL_GetTicks();
