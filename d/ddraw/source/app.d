@@ -42,13 +42,14 @@ void main()
         crosshairs.render(env.ren);
 
         ship.steerToPosition(&crosshairs.pos, delta);
-        ship.update();
+        ship.update(delta);
 
         ship.render(env.ren);
 
         SDL_RenderPresent(env.ren);
 
-        Thread.sleep(dur!("msecs")(16));
+        //Thread.sleep(dur!("msecs")(16));
+        //        writeln(delta);
 
     }
 }
@@ -133,10 +134,10 @@ struct Ship {
         this.acc = this.acc + steerForce;
     }
 
-    void update() {
+    void update(float delta) {
         this.vel = this.vel + this.acc;
         this.vel.limit(this.maxSpeed);
-        this.pos = this.pos + this.vel;
+        this.pos = this.pos + Vec2(this.vel.x * delta, this.vel.y * delta);
         this.acc.scale(0);
     }
 
@@ -182,13 +183,14 @@ struct Crosshairs {
 
 class Timer {
     Uint32 ticks = 0;
-    enum speed = 10;
+    enum speed = 50;
 
     this() {
         this.ticks = SDL_GetTicks();
     }
 
     double update() {
+        //        return .16;
         auto now = SDL_GetTicks();
         auto delta = (now - this.ticks) * .001 * this.speed;
         this.ticks = now;
