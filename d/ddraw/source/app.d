@@ -91,10 +91,14 @@ struct Vec2 {
         return Vec2(x * val, y * val);
     }
 
+    float magnitude() {
+        return (x ^^ 2 + y ^^ 2) ^^ 0.5;
+    }
+
     void normalize() {
         // dont normalize zero
         if (x == 0 && y == 0) { return; }
-        auto val = 1 / ((this.x ^^ 2 + this.y ^^ 2) ^^ 0.5);
+        auto val = 1 / magnitude();
         scale(val);
     }
 
@@ -127,6 +131,7 @@ struct Ship {
     SDL_Rect box;
     float maxSpeed = 5;
     float maxSteer = 0.2;
+    float slowRange = 100;
 
     this(string path, SDL_Renderer *ren) {
         this.tex = IMG_LoadTexture(ren, toStringz(path));
@@ -140,8 +145,14 @@ struct Ship {
 
     void steerToPosition(Vec2 *desired, float delta) {
         auto direction = *desired - this.pos;
+        auto mag = direction.magnitude();
         direction.normalize();
-        direction.scale(maxSpeed);
+        if (mag < slowRange) {
+            // scale from 0 - maxSpeed over distance to slowRange
+            direction.scale(mag * maxSpeed / slowRange);
+        } else {
+            direction.scale(maxSpeed);
+        }
         auto steerForce = direction - this.vel;
         steerForce.limit(this.maxSteer);
         steerForce.scale(delta);
