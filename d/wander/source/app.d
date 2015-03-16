@@ -6,6 +6,8 @@ import core.thread;
 import derelict.sdl2.sdl;
 import derelict.sdl2.image;
 
+import gl3n.linalg;
+
 void main()
 {
     int width = 800;
@@ -79,54 +81,19 @@ struct SDLEnv {
 }
 
 
-struct Vec2 {
-    float x = 0, y = 0;
+float angle(vec2 vec) {
+    return atan2(vec.y, vec.x);
+}
 
-    void scale(float val) {
-        this.x *= val;
-        this.y *= val;
-    }
-
-    Vec2 scaled(float val) {
-        return Vec2(x * val, y * val);
-    }
-
-    float magnitude() {
-        return (x ^^ 2 + y ^^ 2) ^^ 0.5;
-    }
-
-    void normalize() {
-        // dont normalize zero
-        if (x == 0 && y == 0) { return; }
-        auto val = 1 / magnitude();
-        scale(val);
-    }
-
-    void limit(float max) {
-        float lengthSq = this.x ^^ 2 + this.y ^^ 2;
-
-        if (lengthSq > (max ^^ 2)) {
-            this.scale(max / (lengthSq ^^ 0.5));
-        }
-    }
-
-    float angle() {
-        return atan2(this.y, this.x);
-    }
-
-    Vec2 opBinary(string op)(Vec2 rhs) if (op == "-") {
-        auto result = Vec2(this.x - rhs.x, this.y - rhs.y);
-        return result;
-    }
-
-    Vec2 opBinary(string op)(Vec2 rhs) if (op == "+") {
-        auto result = Vec2(this.x + rhs.x, this.y + rhs.y);
-        return result;
+void limit(ref vec2 vec, float max) {
+    float l2 = vec.magnitude_squared();
+    if (l2 > (max ^^ 2)) {
+        vec *= (max / (l2 ^^ 0.5));
     }
 }
 
 struct Ship {
-    Vec2 pos, vel, acc;
+    vec2 pos = vec2(0,0), vel = vec2(0,0), acc = vec2(0, 0);
     SDL_Texture *tex;
     SDL_Rect box;
     float maxSpeed = 5;
@@ -143,27 +110,27 @@ struct Ship {
         SDL_DestroyTexture(this.tex);
     }
 
-    void steerToPosition(Vec2 *desired, float delta) {
+    void steerToPosition(vec2 *desired, float delta) {
         auto direction = *desired - this.pos;
         auto mag = direction.magnitude();
         direction.normalize();
         if (mag < slowRange) {
             // scale from 0 - maxSpeed over distance to slowRange
-            direction.scale(mag * maxSpeed / slowRange);
+            direction *= (mag * maxSpeed / slowRange);
         } else {
-            direction.scale(maxSpeed);
+            direction *= maxSpeed;
         }
         auto steerForce = direction - this.vel;
         steerForce.limit(this.maxSteer);
-        steerForce.scale(delta);
+        steerForce *= delta;
         this.acc = this.acc + steerForce;
     }
 
     void update(float delta) {
         this.vel = this.vel + this.acc;
         this.vel.limit(this.maxSpeed);
-        this.pos = this.pos + this.vel.scaled(delta);
-        this.acc.scale(0);
+        this.pos = this.pos + this.vel * delta;
+        this.acc *= 0;
     }
 
     void render(SDL_Renderer *ren) {
@@ -183,7 +150,7 @@ struct Ship {
 
 
 struct Crosshairs {
-    Vec2 pos;
+    vec2 pos = vec2(0, 0);
     int sz = 20;
 
     void update(int x, int y) {
@@ -215,6 +182,7 @@ class Timer {
     }
 
     double update() {
+        //        return .16;
         auto now = SDL_GetTicks();
         auto delta = (now - this.ticks) * .001 * this.speed;
         this.ticks = now;
