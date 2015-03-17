@@ -67,7 +67,9 @@ struct SDLEnv {
         SDL_Init(SDL_INIT_VIDEO);
         this.win = SDL_CreateWindow("A Window", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_SHOWN);
         this.ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-    }
+
+
+        }
 
     void clear() {
         SDL_SetRenderDrawColor(this.ren, 0, 0, 0, 0xFF);
@@ -114,7 +116,7 @@ struct Ship {
         auto direction = *desired - this.pos;
         auto mag = direction.magnitude();
         direction.normalize();
-        if (mag < slowRange) {
+        if (mag <= slowRange) {
             // scale from 0 - maxSpeed over distance to slowRange
             direction *= (mag * maxSpeed / slowRange);
         } else {
