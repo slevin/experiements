@@ -33,6 +33,11 @@ void main()
                 if (mb.state == SDL_RELEASED) {
                     crosshairs.update(mb.x, mb.y);
                 }
+                if (mb.button == SDL_BUTTON_RIGHT) {
+                    crosshairs.followType = FollowType.Flee;
+                } else {
+                    crosshairs.followType = FollowType.Follow;
+                }
             }
         }
         if (!keepRunning) { break; }
@@ -43,7 +48,13 @@ void main()
 
         crosshairs.render(env.ren);
 
-        ship.steerToPosition(&crosshairs.pos, delta);
+        //        ship.steerToPosition(&crosshairs.pos, delta);
+        if (crosshairs.followType == FollowType.Flee) {
+            ship.steerAwayFrom(&crosshairs.pos, delta);
+        } else {
+            ship.steerToPosition(&crosshairs.pos, delta);
+        }
+
         ship.update(delta);
 
         ship.render(env.ren);
@@ -128,6 +139,17 @@ struct Ship {
         this.acc = this.acc + steerForce;
     }
 
+    void steerAwayFrom(vec2 *fleeing, float delta) {
+        auto direction = pos - *fleeing + pos;
+        direction.normalize();
+        direction *= maxSpeed;
+
+        auto steerForce = direction - vel;
+        steerForce.limit(maxSteer);
+        steerForce *= delta;
+        acc += steerForce;
+    }
+
     void update(float delta) {
         this.vel = this.vel + this.acc;
         this.vel.limit(this.maxSpeed);
@@ -150,10 +172,15 @@ struct Ship {
     }
 }
 
+enum FollowType {
+    Follow,
+    Flee
+}
 
 struct Crosshairs {
     vec2 pos = vec2(0, 0);
     int sz = 20;
+    FollowType followType = FollowType.Follow;
 
     void update(int x, int y) {
         this.pos.x = x;
@@ -161,7 +188,11 @@ struct Crosshairs {
     }
 
     void render(SDL_Renderer *ren) {
-        SDL_SetRenderDrawColor(ren, 0x00, 0xFF, 0x00, 0xFF);
+        if (followType == FollowType.Follow) {
+            SDL_SetRenderDrawColor(ren, 0x00, 0xFF, 0x00, 0xFF);
+        } else {
+            SDL_SetRenderDrawColor(ren, 0xFF, 0x00, 0x00, 0xFF);
+        }
         SDL_RenderDrawLine(ren,
                            cast(int)(this.pos.x - this.sz),
                            cast(int)this.pos.y,
