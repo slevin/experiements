@@ -183,9 +183,10 @@ struct Crosshairs {
     vec2 vel = vec2(0, 0);
     int sz = 20;
     FollowType followType = FollowType.Follow;
+    float speed = 4;
 
     void update(float delta) {
-        pos += vel * delta;
+        pos += vel * delta * speed;
     }
 
     void render(SDL_Renderer *ren) {
@@ -204,6 +205,18 @@ struct Crosshairs {
                            cast(int)(this.pos.y - this.sz),
                            cast(int)this.pos.x,
                            cast(int)(this.pos.y + this.sz));
+    }
+
+    void stayWithinWalls(float delta) {
+
+    }
+
+    unittest {
+        // given current with y far away but x within
+        // desired point is with
+        // wall is 0 range
+        vec2 current = vec2()
+        assert(1 == 1);
     }
 
     void reposition(int x, int y) {
