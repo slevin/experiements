@@ -2,6 +2,7 @@ import std.stdio;
 import std.string;
 import std.math;
 import core.thread;
+import std.random;
 
 import derelict.sdl2.sdl;
 import derelict.sdl2.image;
@@ -31,7 +32,7 @@ void main()
             } else if (event.type == SDL_MOUSEBUTTONUP) {
                 auto mb = event.button;
                 if (mb.state == SDL_RELEASED) {
-                    crosshairs.update(mb.x, mb.y);
+                    crosshairs.reposition(mb.x, mb.y);
                 }
                 if (mb.button == SDL_BUTTON_RIGHT) {
                     crosshairs.followType = FollowType.Flee;
@@ -46,8 +47,6 @@ void main()
 
         env.clear();
 
-        crosshairs.render(env.ren);
-
         //        ship.steerToPosition(&crosshairs.pos, delta);
         if (crosshairs.followType == FollowType.Flee) {
             ship.steerAwayFrom(&crosshairs.pos, delta);
@@ -55,8 +54,10 @@ void main()
             ship.steerToPosition(&crosshairs.pos, delta);
         }
 
+        crosshairs.update(delta);
         ship.update(delta);
 
+        crosshairs.render(env.ren);
         ship.render(env.ren);
 
         SDL_RenderPresent(env.ren);
@@ -179,12 +180,12 @@ enum FollowType {
 
 struct Crosshairs {
     vec2 pos = vec2(0, 0);
+    vec2 vel = vec2(0, 0);
     int sz = 20;
     FollowType followType = FollowType.Follow;
 
-    void update(int x, int y) {
-        this.pos.x = x;
-        this.pos.y = y;
+    void update(float delta) {
+        pos += vel * delta;
     }
 
     void render(SDL_Renderer *ren) {
@@ -203,6 +204,19 @@ struct Crosshairs {
                            cast(int)(this.pos.y - this.sz),
                            cast(int)this.pos.x,
                            cast(int)(this.pos.y + this.sz));
+    }
+
+    void reposition(int x, int y) {
+        pos.x = x;
+        pos.y = y;
+        randomizeVelocity();
+    }
+
+    void randomizeVelocity() {
+        auto x = uniform(-1.0f, 1.0f);
+        auto y = uniform(-1.0f, 1.0f);
+        vel = vec2(x, y);
+        vel.normalize();
     }
 }
 
