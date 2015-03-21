@@ -211,14 +211,6 @@ struct Crosshairs {
 
     }
 
-    unittest {
-        // given current with y far away but x within
-        // desired point is with
-        // wall is 0 range
-        vec2 current = vec2()
-        assert(1 == 1);
-    }
-
     void reposition(int x, int y) {
         pos.x = x;
         pos.y = y;
@@ -232,6 +224,25 @@ struct Crosshairs {
         vel.normalize();
     }
 }
+
+    vec2 stayInsideForce() {
+        return vec2(0, 0);
+    }
+
+    unittest {
+        // given current with y far away but x within
+        // desired point is with
+        // wall is 0 range
+        auto force = stayInsideForce();
+        assert(force == vec2(0, 0));
+
+        // 10 and x = 8, y 30, maxSpeed
+        auto distance = 10;
+        vec2 current = vec2(20, 20);
+
+    }
+
+
 
 class Timer {
     Uint32 ticks = 0;
