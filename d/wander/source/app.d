@@ -157,8 +157,8 @@ struct Ship {
     }
 
     void render(SDL_Renderer *ren) {
-        this.box.x = cast(int)(this.pos.x - this.box.w * 0.5);
-        this.box.y = cast(int)(this.pos.y - this.box.h * 0.5);
+        this.box.x = cast(int)round(this.pos.x - this.box.w * 0.5);
+        this.box.y = cast(int)round(this.pos.y - this.box.h * 0.5);
         double angle = 90 + this.vel.angle() * 57.29;
 
         SDL_RenderCopyEx(ren,
@@ -183,7 +183,7 @@ struct Crosshairs {
 
     int sz = 20;
     FollowType followType = FollowType.Follow;
-    float maxSpeed = 10;
+    float maxSpeed = 7;
 
     void update(float delta) {
         vel += acc;
@@ -199,15 +199,15 @@ struct Crosshairs {
             SDL_SetRenderDrawColor(ren, 0xFF, 0x00, 0x00, 0xFF);
         }
         SDL_RenderDrawLine(ren,
-                           cast(int)(this.pos.x - this.sz),
-                           cast(int)this.pos.y,
-                           cast(int)(this.pos.x + this.sz),
-                           cast(int)this.pos.y);
+                           cast(int)round(this.pos.x - this.sz),
+                           cast(int)round(this.pos.y),
+                           cast(int)round(this.pos.x + this.sz),
+                           cast(int)round(this.pos.y));
         SDL_RenderDrawLine(ren,
-                           cast(int)this.pos.x,
-                           cast(int)(this.pos.y - this.sz),
-                           cast(int)this.pos.x,
-                           cast(int)(this.pos.y + this.sz));
+                           cast(int)round(this.pos.x),
+                           cast(int)round(this.pos.y - this.sz),
+                           cast(int)round(this.pos.x),
+                           cast(int)round(this.pos.y + this.sz));
     }
 
     void stayWithinWalls(float delta, vec2 area) {
