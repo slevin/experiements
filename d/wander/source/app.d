@@ -13,6 +13,7 @@ void main()
 {
     int width = 800;
     int height = 600;
+    vec2 area = vec2(width, height);
     SDLEnv env = SDLEnv(width, height);
 
     auto keepRunning = true;
@@ -47,7 +48,8 @@ void main()
 
         env.clear();
 
-        //        ship.steerToPosition(&crosshairs.pos, delta);
+        crosshairs.stayWithinWalls(delta, area);
+
         if (crosshairs.followType == FollowType.Flee) {
             ship.steerAwayFrom(&crosshairs.pos, delta);
         } else {
@@ -61,10 +63,6 @@ void main()
         ship.render(env.ren);
 
         SDL_RenderPresent(env.ren);
-
-
-        //Thread.sleep(dur!("msecs")(16));
-        //        writeln(delta);
 
     }
 }
@@ -154,7 +152,7 @@ struct Ship {
     void update(float delta) {
         this.vel = this.vel + this.acc;
         this.vel.limit(this.maxSpeed);
-        this.pos = this.pos + this.vel * delta;
+        this.pos += vel * delta;
         this.acc *= 0;
     }
 
@@ -181,12 +179,17 @@ enum FollowType {
 struct Crosshairs {
     vec2 pos = vec2(0, 0);
     vec2 vel = vec2(0, 0);
+    vec2 acc = vec2(0, 0);
+
     int sz = 20;
     FollowType followType = FollowType.Follow;
-    float speed = 4;
+    float maxSpeed = 10;
 
     void update(float delta) {
-        pos += vel * delta * speed;
+        vel += acc;
+        vel.limit(maxSpeed);
+        pos += vel * delta;
+        acc *= 0;
     }
 
     void render(SDL_Renderer *ren) {
@@ -207,8 +210,11 @@ struct Crosshairs {
                            cast(int)(this.pos.y + this.sz));
     }
 
-    void stayWithinWalls(float delta) {
-
+    void stayWithinWalls(float delta, vec2 area) {
+        auto dir = stayInsideDirection(pos, area, 20);
+        dir.normalize();
+        dir *= maxSpeed;
+        acc += dir * delta;
     }
 
     void reposition(int x, int y) {
@@ -222,25 +228,52 @@ struct Crosshairs {
         auto y = uniform(-1.0f, 1.0f);
         vel = vec2(x, y);
         vel.normalize();
+        vel *= maxSpeed;
     }
 }
 
-    vec2 stayInsideForce() {
-        return vec2(0, 0);
+vec2 stayInsideDirection(ref vec2 current, ref vec2 area, float distance) {
+    float xDir = 0;
+    float yDir = 0;
+    if (current.x < distance) {
+        xDir = distance - current.x;
+    } else if (current.x > area.x - distance) {
+        xDir = area.x - distance - current.x;
     }
-
-    unittest {
-        // given current with y far away but x within
-        // desired point is with
-        // wall is 0 range
-        auto force = stayInsideForce();
-        assert(force == vec2(0, 0));
-
-        // 10 and x = 8, y 30, maxSpeed
-        auto distance = 10;
-        vec2 current = vec2(20, 20);
-
+    if (current.y < distance) {
+        yDir = distance - current.y;
+    } else if (current.y > area.y - distance) {
+        yDir = area.y - distance - current.y;
     }
+    auto stayForce = vec2(xDir, yDir);
+    return stayForce;
+}
+
+unittest {
+    auto distance = 10;
+    vec2 area = vec2(100, 100);
+    vec2 stayDir, current;
+
+    // outside range
+    current = vec2(20, 20);
+    stayDir = stayInsideDirection(current, area, distance);
+    assert(stayDir == vec2(0, 0));
+
+    // should head directly right
+    current = vec2(8, 30);
+    stayDir = stayInsideDirection(current, area, distance);
+    assert(stayDir == vec2(2, 0));
+
+    // should head directly left
+    current = vec2(92, 30);
+    stayDir = stayInsideDirection(current, area, distance);
+    assert(stayDir == vec2(-2, 0));
+
+    // up and right
+    current = vec2(8, 92);
+    stayDir = stayInsideDirection(current, area, distance);
+    assert(stayDir == vec2(2, -2));
+}
 
 
 
