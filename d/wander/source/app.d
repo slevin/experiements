@@ -26,6 +26,8 @@ void main()
     auto crosshairs = Crosshairs();
 
     while (keepRunning) {
+
+        // poll events
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) {
                 keepRunning = false;
@@ -45,9 +47,9 @@ void main()
         if (!keepRunning) { break; }
 
         auto delta = timer.update();
+        //writeln(delta);
 
-        env.clear();
-
+        // calculate forces
         crosshairs.stayWithinWalls(delta, area);
 
         if (crosshairs.followType == FollowType.Flee) {
@@ -56,14 +58,16 @@ void main()
             ship.steerToPosition(&crosshairs.pos, delta);
         }
 
+        // update positions
         crosshairs.update(delta);
         ship.update(delta);
 
+        env.clear();
+
+        // render
         crosshairs.render(env.ren);
         ship.render(env.ren);
-
         SDL_RenderPresent(env.ren);
-
     }
 }
 
@@ -77,7 +81,7 @@ struct SDLEnv {
         SDL_Init(SDL_INIT_VIDEO);
         this.win = SDL_CreateWindow("A Window", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_SHOWN);
         this.ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-
+        SDL_SetHint( SDL_HINT_RENDER_SCALE_QUALITY, "1" );
 
         }
 
