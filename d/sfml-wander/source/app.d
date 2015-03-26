@@ -21,7 +21,7 @@ void main()
 
     //    auto ship = Ship("plane.png", env.ren);
 
-    //auto crosshairs = Crosshairs();
+    auto crosshairs = Crosshairs();
 
     sfEvent event;
 
@@ -31,20 +31,15 @@ void main()
             if (event.type == sfEvtClosed) {
                 sfRenderWindow_close(env.win);
                 break mainLoop;
-            }
-            /*
-            else if (event.type == SDL_MOUSEBUTTONUP) {
-                auto mb = event.button;
-                if (mb.state == SDL_RELEASED) {
-                    crosshairs.reposition(mb.x, mb.y);
-                }
-                if (mb.button == SDL_BUTTON_RIGHT) {
+            } else if (event.type == sfEvtMouseButtonReleased) {
+                auto mb = event.mouseButton;
+                crosshairs.reposition(mb.x, mb.y);
+                if (mb.button == sfMouseRight) {
                     crosshairs.followType = FollowType.Flee;
                 } else {
                     crosshairs.followType = FollowType.Follow;
                 }
             }
-            */
 
         }
 
@@ -54,29 +49,27 @@ void main()
         //writeln(delta);
 
         // calculate forces
-        /*
+
         crosshairs.stayWithinWalls(delta, area);
 
+        /*
         if (crosshairs.followType == FollowType.Flee) {
             ship.steerAwayFrom(&crosshairs.pos, delta);
         } else {
             ship.steerToPosition(&crosshairs.pos, delta);
         }
+        */
 
         // update positions
         crosshairs.update(delta);
-        ship.update(delta);
-        */
+        //ship.update(delta);
+
 
         env.clear();
+        crosshairs.render(env.win);
+        //        ship.render(env.ren);
 
         sfRenderWindow_display(env.win);
-        /*
-        // render
-        crosshairs.render(env.ren);
-        ship.render(env.ren);
-        SDL_RenderPresent(env.ren);
-        */
     }
 }
 
@@ -191,6 +184,7 @@ struct Ship {
     }
 }
 
+*/
 enum FollowType {
     Follow,
     Flee
@@ -212,22 +206,22 @@ struct Crosshairs {
         acc *= 0;
     }
 
-    void render(SDL_Renderer *ren) {
+
+    void render(sfRenderWindow *win) {
+        sfColor color;
         if (followType == FollowType.Follow) {
-            SDL_SetRenderDrawColor(ren, 0x00, 0xFF, 0x00, 0xFF);
+            color = sfColor(0x00, 0xFF, 0x00, 0xFF);
         } else {
-            SDL_SetRenderDrawColor(ren, 0xFF, 0x00, 0x00, 0xFF);
+            color = sfColor(0xFF, 0x00, 0x00, 0xFF);
         }
-        SDL_RenderDrawLine(ren,
-                           cast(int)round(this.pos.x - this.sz),
-                           cast(int)round(this.pos.y),
-                           cast(int)round(this.pos.x + this.sz),
-                           cast(int)round(this.pos.y));
-        SDL_RenderDrawLine(ren,
-                           cast(int)round(this.pos.x),
-                           cast(int)round(this.pos.y - this.sz),
-                           cast(int)round(this.pos.x),
-                           cast(int)round(this.pos.y + this.sz));
+
+        sfVertex[] line1 = [sfVertex(sfVector2f(pos.x - sz, pos.y), color),
+                            sfVertex(sfVector2f(pos.x + sz, pos.y), color)];
+        sfVertex[] line2 = [sfVertex(sfVector2f(pos.x, pos.y - sz), color),
+                            sfVertex(sfVector2f(pos.x, pos.y + sz), color)];
+
+        sfRenderWindow_drawPrimitives(win, line1.ptr, 2, sfLines, null);
+        sfRenderWindow_drawPrimitives(win, line2.ptr, 2, sfLines, null);
     }
 
     void stayWithinWalls(float delta, vec2 area) {
@@ -294,4 +288,3 @@ unittest {
     stayDir = stayInsideDirection(current, area, distance);
     assert(stayDir == vec2(2, -2));
 }
-*/
