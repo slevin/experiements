@@ -19,7 +19,7 @@ void main()
 
     sfClock *clock = sfClock_create();
 
-    //    auto ship = Ship("plane.png", env.ren);
+    auto ship = Ship("plane.png");
 
     auto crosshairs = Crosshairs();
 
@@ -52,22 +52,20 @@ void main()
 
         crosshairs.stayWithinWalls(delta, area);
 
-        /*
         if (crosshairs.followType == FollowType.Flee) {
             ship.steerAwayFrom(&crosshairs.pos, delta);
         } else {
             ship.steerToPosition(&crosshairs.pos, delta);
         }
-        */
 
         // update positions
         crosshairs.update(delta);
-        //ship.update(delta);
+        ship.update(delta);
 
 
         env.clear();
         crosshairs.render(env.win);
-        //        ship.render(env.ren);
+        ship.render(env.win);
 
         sfRenderWindow_display(env.win);
     }
@@ -76,7 +74,6 @@ void main()
 struct SFMLEnv {
     sfRenderWindow *win;
     sfVideoMode mode;
-    //SDL_Renderer *ren;
 
     this(int width, int height) {
         DerelictSFML2System.load("/usr/local/Cellar/csfml/2.2/lib/libcsfml-system.2.2.dylib");
@@ -85,22 +82,14 @@ struct SFMLEnv {
 
         mode = sfVideoMode(width, height, 32);
         win = sfRenderWindow_create(mode, "A Window", sfResize | sfClose, null);
-        //        this.win = SDL_CreateWindow("A Window", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_SHOWN);
-        //        this.ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-        // SDL_SetHint( SDL_HINT_RENDER_SCALE_QUALITY, "1" );
-
         }
 
     void clear() {
         sfRenderWindow_clear(win, sfBlack);
-        //SDL_SetRenderDrawColor(this.ren, 0, 0, 0, 0xFF);
-        //SDL_RenderClear(this.ren);
     }
 
     ~this() {
         sfRenderWindow_destroy(win);
-        //        SDL_DestroyRenderer(this.ren);
-        //        SDL_DestroyWindow(this.win);
     }
 }
 
@@ -116,23 +105,24 @@ void limit(ref vec2 vec, float max) {
     }
 }
 
-/*
+
 struct Ship {
     vec2 pos = vec2(0,0), vel = vec2(0,0), acc = vec2(0, 0);
-    SDL_Texture *tex;
-    SDL_Rect box;
+    sfTexture *tex;
+    sfSprite *sprite;
     float maxSpeed = 5;
     float maxSteer = 0.2;
     float slowRange = 100;
 
-    this(string path, SDL_Renderer *ren) {
-        this.tex = IMG_LoadTexture(ren, toStringz(path));
-        this.box = SDL_Rect();
-        SDL_QueryTexture(tex, null, null, &this.box.w, &this.box.h);
+    this(string path) {
+        tex = sfTexture_createFromFile(toStringz(path), null);
+        sprite = sfSprite_create();
+        sfSprite_setTexture(sprite, tex, true);
     }
 
     ~this() {
-        SDL_DestroyTexture(this.tex);
+        sfSprite_destroy(sprite);
+        sfTexture_destroy(tex);
     }
 
     void steerToPosition(vec2 *desired, float delta) {
@@ -169,22 +159,16 @@ struct Ship {
         this.acc *= 0;
     }
 
-    void render(SDL_Renderer *ren) {
-        this.box.x = cast(int)round(this.pos.x - this.box.w * 0.5);
-        this.box.y = cast(int)round(this.pos.y - this.box.h * 0.5);
+    void render(sfRenderWindow *win) {
         double angle = 90 + this.vel.angle() * 57.29;
+        sfSprite_setRotation(sprite, angle);
+        sfSprite_setPosition(sprite, sfVector2f(pos.x, pos.y));
 
-        SDL_RenderCopyEx(ren,
-                         this.tex,
-                         null,
-                         &this.box,
-                         angle,
-                         null,
-                         SDL_FLIP_NONE);
+        sfRenderWindow_drawSprite(win, sprite, null);
     }
 }
 
-*/
+
 enum FollowType {
     Follow,
     Flee
