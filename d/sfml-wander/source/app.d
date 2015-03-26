@@ -118,6 +118,8 @@ struct Ship {
         tex = sfTexture_createFromFile(toStringz(path), null);
         sprite = sfSprite_create();
         sfSprite_setTexture(sprite, tex, true);
+        sfFloatRect rect = sfSprite_getLocalBounds(sprite);
+        sfSprite_setOrigin(sprite, sfVector2f(rect.width / 2.0, rect.height /2.0));
     }
 
     ~this() {
