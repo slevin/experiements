@@ -44,9 +44,11 @@ void main()
         }
 
         // 40 is speed
-        float delta = sfClock_restart(clock).sfTime_asSeconds * 40;
+        //float delta = sfClock_restart(clock).sfTime_asSeconds * 40;
 
-        //writeln(delta);
+        float millis = sfClock_restart(clock).sfTime_asMilliseconds;
+        //writeln(millis);
+        float delta = millis * .001 * 40;
 
         // calculate forces
 
@@ -82,6 +84,7 @@ struct SFMLEnv {
 
         mode = sfVideoMode(width, height, 32);
         win = sfRenderWindow_create(mode, "A Window", sfResize | sfClose, null);
+        sfRenderWindow_setVerticalSyncEnabled(win, true);
         }
 
     void clear() {
@@ -116,6 +119,7 @@ struct Ship {
 
     this(string path) {
         tex = sfTexture_createFromFile(toStringz(path), null);
+        sfTexture_setSmooth(tex, true);
         sprite = sfSprite_create();
         sfSprite_setTexture(sprite, tex, true);
         sfFloatRect rect = sfSprite_getLocalBounds(sprite);
