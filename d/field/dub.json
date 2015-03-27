@@ -4,5 +4,7 @@
 	"copyright": "Copyright © 2015, slevin",
 	"authors": ["slevin"],
 	"dependencies": {
+        "derelict-sfml2": "~>1.1.0",
+        "gl3n": "~>1.0.1"
 	}
 }

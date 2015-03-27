@@ -1,3 +1,5 @@
+static import noise;
+
 import std.stdio;
 import std.string;
 import std.math;
@@ -45,7 +47,7 @@ void main()
 
         // 40 is speed
         //float delta = sfClock_restart(clock).sfTime_asSeconds * 40;
-
+        double n = noise.noise(1,1,1);
         float millis = sfClock_restart(clock).sfTime_asMilliseconds;
         //writeln(millis);
         float delta = millis * .001 * 40;
