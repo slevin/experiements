@@ -47,7 +47,6 @@ void main()
 
         // 40 is speed
         //float delta = sfClock_restart(clock).sfTime_asSeconds * 40;
-        double n = noise.noise(1,1,1);
         float millis = sfClock_restart(clock).sfTime_asMilliseconds;
         //writeln(millis);
         float delta = millis * .001 * 40;
@@ -279,4 +278,51 @@ unittest {
     current = vec2(8, 92);
     stayDir = stayInsideDirection(current, area, distance);
     assert(stayDir == vec2(2, -2));
+}
+
+struct Field {
+    double slopes[][];
+    int cols;
+    int rows;
+
+    void fill(int cols, int rows) {
+        // noise * 360 to radians sin and cos of that angle to
+        // get my y and x
+
+        // can have an array of prebuilt lines as well that
+        // are positioned correctl based on slopes
+    }
+
+    //void lookup
+    /*
+      field get slope
+       returns unit vector at position x and y
+      given an x, y look up in noise field
+      x / cols, y / rows
+
+      ship is at position
+      normalized vectors that I can position in the middle
+
+      how to draw if I have normalized vectors I can position them as
+      an offset into the field (just a bunch of lines) that I rerender
+      each time
+
+      so assuming noiseVal
+     */
+
+}
+
+unittest {
+    // I have pos, I want a vector to multiply by
+    auto v = vec2(10.5, 13.1);
+    auto f = flowVectorForPosition(v);
+    assert(f == vec2(0, -1));
+    /*
+    uint col, row;
+    //posToRowCol(x, y, ref col, ref row);
+
+    int slopes[][];
+    slopes[0][0] = vec2()
+    slopeAt(10.5, 13.1, slopes);
+    */
 }
