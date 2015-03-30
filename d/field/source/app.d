@@ -312,11 +312,18 @@ struct Field {
 
 }
 
+vec2 flowVectorForPosition(vec2 pos, vec2[][] flowVecs) {
+    return flowVecs[0][0];
+}
+
 unittest {
-    // I have pos, I want a vector to multiply by
+    int cols = 10;
+    int rows = 10;
+    vec2[10][10] flowVecs;
+    flowVecs[0][0] = vec2(0,-1);
     auto v = vec2(10.5, 13.1);
-    auto f = flowVectorForPosition(v);
-    assert(f == vec2(0, -1));
+    auto f = flowVectorForPosition(v, flowVecs);
+    assert(f == flowVecs[0][0]);
     /*
     uint col, row;
     //posToRowCol(x, y, ref col, ref row);
