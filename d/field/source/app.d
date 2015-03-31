@@ -283,10 +283,14 @@ unittest {
 struct Field {
     enum size_t cols = 10;
     enum size_t rows = 10;
+    enum int width = 20;
+    enum int height = 20;
     vec2 slopes[cols][rows];
 
     vec2 flowVectorForPosition(vec2 pos) {
-        return slopes[0][0];
+        size_t x = cast(size_t)floor(pos.x / width);
+        size_t y = cast(size_t)floor(pos.y / height);
+        return slopes[x][y];
     }
 }
 
@@ -300,18 +304,15 @@ unittest {
     dir= field.flowVectorForPosition(pos);
     assert(dir == field.slopes[0][0]);
 
-    // 20 wide? 20 high?
+    // because x >= 20 which is width of box
     field.slopes[1][0] = vec2(3, 4);
     pos = vec2(20, 10);
     dir = field.flowVectorForPosition(pos);
     assert(dir == field.slopes[1][0]);
 
-    /*
-    uint col, row;
-    //posToRowCol(x, y, ref col, ref row);
-
-    int slopes[][];
-    slopes[0][0] = vec2()
-    slopeAt(10.5, 13.1, slopes);
-    */
+    // because y >= 20 which is height of box
+    field.slopes[0][1] = vec2(5, 6);
+    pos = vec2(5, 21);
+    dir = field.flowVectorForPosition(pos);
+    assert(dir == field.slopes[0][1]);
 }
