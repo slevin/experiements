@@ -281,49 +281,31 @@ unittest {
 }
 
 struct Field {
-    double slopes[][];
-    int cols;
-    int rows;
+    enum size_t cols = 10;
+    enum size_t rows = 10;
+    vec2 slopes[cols][rows];
 
-    void fill(int cols, int rows) {
-        // noise * 360 to radians sin and cos of that angle to
-        // get my y and x
-
-        // can have an array of prebuilt lines as well that
-        // are positioned correctl based on slopes
+    vec2 flowVectorForPosition(vec2 pos) {
+        return slopes[0][0];
     }
-
-    //void lookup
-    /*
-      field get slope
-       returns unit vector at position x and y
-      given an x, y look up in noise field
-      x / cols, y / rows
-
-      ship is at position
-      normalized vectors that I can position in the middle
-
-      how to draw if I have normalized vectors I can position them as
-      an offset into the field (just a bunch of lines) that I rerender
-      each time
-
-      so assuming noiseVal
-     */
-
-}
-
-vec2 flowVectorForPosition(vec2 pos, vec2[][] flowVecs) {
-    return flowVecs[0][0];
 }
 
 unittest {
-    int cols = 10;
-    int rows = 10;
-    vec2[10][10] flowVecs;
-    flowVecs[0][0] = vec2(0,-1);
-    auto v = vec2(10.5, 13.1);
-    auto f = flowVectorForPosition(v, flowVecs);
-    assert(f == flowVecs[0][0]);
+    Field field;
+    vec2 pos;
+    vec2 dir;
+
+    field.slopes[0][0] = vec2(0,-1);
+    pos = vec2(10.5, 13.1);
+    dir= field.flowVectorForPosition(pos);
+    assert(dir == field.slopes[0][0]);
+
+    // 20 wide? 20 high?
+    field.slopes[1][0] = vec2(3, 4);
+    pos = vec2(20, 10);
+    dir = field.flowVectorForPosition(pos);
+    assert(dir == field.slopes[1][0]);
+
     /*
     uint col, row;
     //posToRowCol(x, y, ref col, ref row);
