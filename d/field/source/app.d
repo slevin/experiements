@@ -286,11 +286,25 @@ struct Field {
     enum int width = 20;
     enum int height = 20;
     vec2 slopes[cols][rows];
+    sfVertex[] lineVertices;
 
     vec2 flowVectorForPosition(vec2 pos) {
         size_t x = cast(size_t)floor(pos.x / width);
         size_t y = cast(size_t)floor(pos.y / height);
         return slopes[x][y];
+    }
+
+    uint numberOfLines() {
+        return cols * rows;
+    }
+
+    void render(sfRenderWindow *win) {
+        sfRenderWindow_drawPrimitives(win,
+                                      lineVertices.ptr,
+                                      numberOfLines(),
+                                      sfLines,
+                                      null
+                                      );
     }
 }
 
@@ -315,4 +329,22 @@ unittest {
     pos = vec2(5, 21);
     dir = field.flowVectorForPosition(pos);
     assert(dir == field.slopes[0][1]);
+
+    // should have rows * cols lines
+    assert(100 == field.numberOfLines);
+
+
+    // line
+
+    /*
+        sfVertex[] line1 = [sfVertex(sfVector2f(pos.x - sz, pos.y), color),
+                            sfVertex(sfVector2f(pos.x + sz, pos.y), color)];
+        sfVertex[] line2 = [sfVertex(sfVector2f(pos.x, pos.y - sz), color),
+                            sfVertex(sfVector2f(pos.x, pos.y + sz), color)];
+
+        sfRenderWindow_drawPrimitives(win, line1.ptr, 2, sfLines, null);
+        sfRenderWindow_drawPrimitives(win, line2.ptr, 2, sfLines, null);
+    */
+
+
 }
