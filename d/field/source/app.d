@@ -295,7 +295,16 @@ struct Field {
     }
 
     uint numberOfLines() {
-        return cols * rows;
+        return cast(uint)(lineVertices.length);
+    }
+
+    void fill() {
+
+        foreach(x; 0 .. width) {
+            foreach(y; 0 .. height) {
+                lineVertices[x + y * width] = sfVertex(sfVector2f(0,0), sfRed);
+            }
+        }
     }
 
     void render(sfRenderWindow *win) {
@@ -331,8 +340,10 @@ unittest {
     assert(dir == field.slopes[0][1]);
 
     // should have rows * cols lines
-    assert(100 == field.numberOfLines);
+    field.fill();
+    assert(100 == field.numberOfLines());
 
+    // the line should
 
     // line
 
