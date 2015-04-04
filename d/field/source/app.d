@@ -286,7 +286,7 @@ struct Field {
     enum int width = 20;
     enum int height = 20;
     vec2 slopes[cols][rows];
-    sfVertex[] lineVertices;
+    sfVertex[cols * rows] lineVertices;
 
     vec2 flowVectorForPosition(vec2 pos) {
         size_t x = cast(size_t)floor(pos.x / width);
@@ -300,9 +300,9 @@ struct Field {
 
     void fill() {
 
-        foreach(x; 0 .. width) {
-            foreach(y; 0 .. height) {
-                lineVertices[x + y * width] = sfVertex(sfVector2f(0,0), sfRed);
+        foreach(y; 0 .. rows) {
+            foreach(x; 0 .. cols) {
+                lineVertices[x + y * rows] = sfVertex(sfVector2f(0,0), sfRed);
             }
         }
     }
