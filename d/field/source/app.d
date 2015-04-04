@@ -1,4 +1,4 @@
-static import noise;
+static import field;
 
 import std.stdio;
 import std.string;
@@ -278,84 +278,4 @@ unittest {
     current = vec2(8, 92);
     stayDir = stayInsideDirection(current, area, distance);
     assert(stayDir == vec2(2, -2));
-}
-
-struct Field {
-    enum size_t cols = 10;
-    enum size_t rows = 10;
-    enum int width = 20;
-    enum int height = 20;
-    vec2 slopes[cols][rows];
-    sfVertex[cols * rows] lineVertices;
-
-    vec2 flowVectorForPosition(vec2 pos) {
-        size_t x = cast(size_t)floor(pos.x / width);
-        size_t y = cast(size_t)floor(pos.y / height);
-        return slopes[x][y];
-    }
-
-    uint numberOfLines() {
-        return cast(uint)(lineVertices.length);
-    }
-
-    void fill() {
-
-        foreach(y; 0 .. rows) {
-            foreach(x; 0 .. cols) {
-                lineVertices[x + y * rows] = sfVertex(sfVector2f(0,0), sfRed);
-            }
-        }
-    }
-
-    void render(sfRenderWindow *win) {
-        sfRenderWindow_drawPrimitives(win,
-                                      lineVertices.ptr,
-                                      numberOfLines(),
-                                      sfLines,
-                                      null
-                                      );
-    }
-}
-
-unittest {
-    Field field;
-    vec2 pos;
-    vec2 dir;
-
-    field.slopes[0][0] = vec2(0,-1);
-    pos = vec2(10.5, 13.1);
-    dir= field.flowVectorForPosition(pos);
-    assert(dir == field.slopes[0][0]);
-
-    // because x >= 20 which is width of box
-    field.slopes[1][0] = vec2(3, 4);
-    pos = vec2(20, 10);
-    dir = field.flowVectorForPosition(pos);
-    assert(dir == field.slopes[1][0]);
-
-    // because y >= 20 which is height of box
-    field.slopes[0][1] = vec2(5, 6);
-    pos = vec2(5, 21);
-    dir = field.flowVectorForPosition(pos);
-    assert(dir == field.slopes[0][1]);
-
-    // should have rows * cols lines
-    field.fill();
-    assert(100 == field.numberOfLines());
-
-    // the line should
-
-    // line
-
-    /*
-        sfVertex[] line1 = [sfVertex(sfVector2f(pos.x - sz, pos.y), color),
-                            sfVertex(sfVector2f(pos.x + sz, pos.y), color)];
-        sfVertex[] line2 = [sfVertex(sfVector2f(pos.x, pos.y - sz), color),
-                            sfVertex(sfVector2f(pos.x, pos.y + sz), color)];
-
-        sfRenderWindow_drawPrimitives(win, line1.ptr, 2, sfLines, null);
-        sfRenderWindow_drawPrimitives(win, line2.ptr, 2, sfLines, null);
-    */
-
-
 }
