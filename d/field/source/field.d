@@ -28,11 +28,12 @@ struct Field {
         return cast(uint)(lineVertices.length);
     }
 
-    void fill(float function(int, int) fillFunction) {
+    void fill(float function(ulong, ulong) fillFunction) {
         // takes the slopes and creates a line that matches the slope
         // with the proper offset
         foreach(y; 0 .. rows) {
             foreach(x; 0 .. cols) {
+                slopes[x][y] = unitAngleToVec(fillFunction(x, y));
                 lineVertices[x + y * rows] = sfVertex(sfVector2f(0,0), sfRed);
             }
         }
@@ -53,32 +54,46 @@ unittest {
     vec2 pos;
     vec2 dir;
 
-    field.slopes[0][0] = vec2(0,-1);
+    // fill gets called with delegate method
+    field.fill(function float(ulong x, ulong y) {
+            if (x == 0 && y == 0) {
+                return 0.0;
+            } else if (x == 1 && y == 0) {
+                return 0.25;
+            } else if (x == 0 && y == 1) {
+                return 0.5;
+            } else {
+                return 0.3;
+            }
+        });
+
+    // slopes fill up normals for angle
+    assert(field.slopes[0][0] == unitAngleToVec(0.0));
+    assert(field.slopes[1][0] == unitAngleToVec(0.25));
+
+    // find slope by position
     pos = vec2(10.5, 13.1);
-    dir= field.flowVectorForPosition(pos);
+    dir = field.flowVectorForPosition(pos);
     assert(dir == field.slopes[0][0]);
 
     // because x >= 20 which is width of box
-    field.slopes[1][0] = vec2(3, 4);
     pos = vec2(20, 10);
     dir = field.flowVectorForPosition(pos);
     assert(dir == field.slopes[1][0]);
 
     // because y >= 20 which is height of box
-    field.slopes[0][1] = vec2(5, 6);
     pos = vec2(5, 21);
     dir = field.flowVectorForPosition(pos);
     assert(dir == field.slopes[0][1]);
 
-    // fill gets called with delegate method
+
+
+    // what is a line?
+    /*
 
     // should have rows * cols lines
-    field.fill(function float(int x, int y) {
-            return 0.0;
-        });
-
     assert(100 == field.numberOfLines());
-
+    */
     // line
 
     /*
@@ -104,7 +119,6 @@ vec2 unitAngleToVec(float angle)
         auto y = round(cos(theta) * 100) / 100;
         return vec2(x, y);
     }
-
 
 unittest {
     vec2 v;
