@@ -4,6 +4,7 @@ static import noise;
 
 import std.math;
 import std.stdio;
+import std.format;
 
 import derelict.sfml2.graphics;
 import derelict.sfml2.system;
@@ -48,6 +49,12 @@ struct Field {
                 lineVertices[(x + y * rows) * 2 + 1] = vtx2;
             }
         }
+    }
+
+    void fillWithNoise() {
+        fill(function float(ulong x, ulong y) {
+                return (cast(float)noise.noise(x * 0.1, y * 0.1, 0) + 1) / 2.0f;
+            });
     }
 
     vec2 boxCenter(ulong x, ulong y) {
@@ -133,7 +140,7 @@ need to catch that? or with position queries
 
 
 vec2 unitAngleToVec(float angle)
-    in { assert(angle >= 0 && angle <= 1.0); }
+    in { assert(angle >= 0 && angle <= 1.0, format("Angle must be between 0 and 1. You gave: %f", angle)); }
     body {
         // turns unit angle [0, 1)
         // into a unit vector

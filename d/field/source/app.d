@@ -1,4 +1,4 @@
-static import field;
+import field;
 
 import std.stdio;
 import std.string;
@@ -26,6 +26,10 @@ void main()
     auto crosshairs = Crosshairs();
 
     sfEvent event;
+
+    Field dirField = Field();
+    dirField.fillWithNoise();
+
 
  mainLoop:
     while (sfRenderWindow_isOpen(env.win)) {
@@ -67,6 +71,7 @@ void main()
 
 
         env.clear();
+        dirField.render(env.win);
         crosshairs.render(env.win);
         ship.render(env.win);
 
