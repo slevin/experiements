@@ -14,15 +14,17 @@ import gl3n.linalg;
 struct Field {
     enum size_t cols = 10;
     enum size_t rows = 10;
-    enum int width = 20;
-    enum int height = 20;
+    enum float width = 200;
+    enum float height = 200;
+    enum float boxWidth = width / cols;
+    enum float boxHeight = height / rows;
     enum float lineLength = 14;
     vec2 slopes[cols][rows];
     sfVertex[cols * rows * 2] lineVertices; // 2 points per line
 
     vec2 flowVectorForPosition(vec2 pos) {
-        size_t x = cast(size_t)floor(pos.x / width);
-        size_t y = cast(size_t)floor(pos.y / height);
+        size_t x = cast(size_t)floor(pos.x / boxWidth);
+        size_t y = cast(size_t)floor(pos.y / boxHeight);
         return slopes[x][y];
     }
 
@@ -58,7 +60,7 @@ struct Field {
     }
 
     vec2 boxCenter(ulong x, ulong y) {
-        return vec2(x * width + (width / 2.0f), y * height + (height / 2.0f));
+        return vec2(x * boxWidth + (boxWidth / 2.0f), y * boxHeight + (boxHeight / 2.0f));
     }
 
     void render(sfRenderWindow *win) {
