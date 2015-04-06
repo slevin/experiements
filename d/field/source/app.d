@@ -14,8 +14,8 @@ import gl3n.linalg;
 
 void main()
 {
-    int width = 800;
-    int height = 600;
+    enum int width = 800;
+    enum int height = 600;
     vec2 area = vec2(width, height);
     SFMLEnv env = SFMLEnv(width, height);
 
@@ -27,7 +27,7 @@ void main()
 
     sfEvent event;
 
-    Field dirField = Field();
+    Field!(50, 50, width, height) dirField;
     dirField.fillWithNoise();
 
 

@@ -11,14 +11,10 @@ import derelict.sfml2.system;
 
 import gl3n.linalg;
 
-struct Field {
-    enum size_t cols = 10;
-    enum size_t rows = 10;
-    enum float width = 200;
-    enum float height = 200;
+struct Field(size_t cols, size_t rows, float width, float height) {
     enum float boxWidth = width / cols;
     enum float boxHeight = height / rows;
-    enum float lineLength = 14;
+    enum float lineLength = boxWidth * 0.7;
     vec2 slopes[cols][rows];
     sfVertex[cols * rows * 2] lineVertices; // 2 points per line
 
@@ -74,7 +70,7 @@ struct Field {
 }
 
 unittest {
-    Field field;
+    Field!(10, 10, 200, 200) field;
     vec2 pos;
     vec2 dir;
 
@@ -128,15 +124,6 @@ unittest {
     v2 = field.lineVertices[1].position;
     assert(v1.x == 17 && v1.y == 10);
     assert(v2.x ==  3 && v2.y == 10);
-
-
-    /*
-should 1 == 0 seems like there will be a harsh line at that point
-maybe should go from 0 fully rotated to 0 again something to think about
-
-could go out of range with some of these queries
-need to catch that? or with position queries
-    */
 
 }
 
