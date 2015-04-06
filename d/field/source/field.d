@@ -17,6 +17,7 @@ struct Field(size_t cols, size_t rows, float width, float height) {
     enum float lineLength = boxWidth * 0.7;
     vec2 slopes[cols][rows];
     sfVertex[cols * rows * 2] lineVertices; // 2 points per line
+    float zFill = 0.0f;
 
     vec2 flowVectorForPosition(vec2 pos) {
         size_t x = cast(size_t)floor(pos.x / boxWidth);
@@ -28,10 +29,10 @@ struct Field(size_t cols, size_t rows, float width, float height) {
         return cast(uint)(lineVertices.length);
     }
 
-    void fill(float function(ulong, ulong) fillFunction) {
+    void fill(float function(ulong, ulong, float) fillFunction) {
         foreach(y; 0 .. rows) {
             foreach(x; 0 .. cols) {
-                vec2 slope = unitAngleToVec(fillFunction(x, y));
+                vec2 slope = unitAngleToVec(fillFunction(x, y, zFill));
                 slopes[x][y] = slope;
                 // center around 0
                 vec2 v1 = vec2(slope.x * lineLength / 2.0f,
@@ -50,8 +51,8 @@ struct Field(size_t cols, size_t rows, float width, float height) {
     }
 
     void fillWithNoise() {
-        fill(function float(ulong x, ulong y) {
-                return (cast(float)noise.noise(x * 0.1, y * 0.1, 0) + 1) / 2.0f;
+        fill(function float(ulong x, ulong y, float z) {
+                return (cast(float)noise.noise(x * 0.1, y * 0.1, z) + 1) / 2.0f;
             });
     }
 
@@ -75,7 +76,7 @@ unittest {
     vec2 dir;
 
     // fill gets called with delegate method
-    field.fill(function float(ulong x, ulong y) {
+    field.fill(function float(ulong x, ulong y, float zFill) {
             if (x == 0 && y == 0) {
                 return 0.0;
             } else if (x == 1 && y == 0) {

@@ -27,8 +27,8 @@ void main()
 
     sfEvent event;
 
-    Field!(50, 50, width, height) dirField;
-    dirField.fillWithNoise();
+    Field!(40, 40, width, height) dirField;
+    double zNoise = 0;
 
 
  mainLoop:
@@ -56,6 +56,8 @@ void main()
         float delta = millis * .001 * 40;
 
         // calculate forces
+        dirField.zFill = zNoise;
+        dirField.fillWithNoise();
 
         crosshairs.stayWithinWalls(delta, area);
 
@@ -76,6 +78,8 @@ void main()
         ship.render(env.win);
 
         sfRenderWindow_display(env.win);
+
+        zNoise += 0.005;
     }
 }
 
