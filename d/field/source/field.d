@@ -22,7 +22,11 @@ struct Field(size_t cols, size_t rows, float width, float height) {
     vec2 flowVectorForPosition(vec2 pos) {
         size_t x = cast(size_t)floor(pos.x / boxWidth);
         size_t y = cast(size_t)floor(pos.y / boxHeight);
-        return slopes[x][y];
+        if (x < 0 || x >= cols || y < 0 || y >= rows) {
+            return vec2(0, 0);
+        } else {
+            return slopes[x][y];
+        }
     }
 
     uint numberOfLines() {
@@ -107,6 +111,14 @@ unittest {
     dir = field.flowVectorForPosition(pos);
     assert(dir == field.slopes[0][1]);
 
+    // outside range gives 0 vector
+    pos = vec2(-100, -100);
+    dir = field.flowVectorForPosition(pos);
+    assert(dir == vec2(0, 0));
+
+    pos = vec2(100000, 100000);
+    dir = field.flowVectorForPosition(pos);
+    assert(dir == vec2(0, 0));
 
     // drawable lines
 

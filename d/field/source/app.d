@@ -12,10 +12,12 @@ import derelict.sfml2.system;
 
 import gl3n.linalg;
 
+enum int width = 800;
+enum int height = 600;
+alias NoiseField = Field!(40, 40, width, height);
+
 void main()
 {
-    enum int width = 800;
-    enum int height = 600;
     vec2 area = vec2(width, height);
     SFMLEnv env = SFMLEnv(width, height);
 
@@ -27,7 +29,7 @@ void main()
 
     sfEvent event;
 
-    Field!(40, 40, width, height) dirField;
+    NoiseField dirField;
     double zNoise = 0;
 
 
@@ -59,6 +61,7 @@ void main()
         dirField.zFill = zNoise;
         dirField.fillWithNoise();
 
+        /*
         crosshairs.stayWithinWalls(delta, area);
 
         if (crosshairs.followType == FollowType.Flee) {
@@ -66,15 +69,16 @@ void main()
         } else {
             ship.steerToPosition(&crosshairs.pos, delta);
         }
-
+        */
+        ship.steerInDirectionOfField(dirField, delta);
         // update positions
-        crosshairs.update(delta);
+        //crosshairs.update(delta);
         ship.update(delta);
 
 
         env.clear();
         dirField.render(env.win);
-        crosshairs.render(env.win);
+        //crosshairs.render(env.win);
         ship.render(env.win);
 
         sfRenderWindow_display(env.win);
@@ -139,6 +143,15 @@ struct Ship {
     ~this() {
         sfSprite_destroy(sprite);
         sfTexture_destroy(tex);
+    }
+
+    void steerInDirectionOfField(ref NoiseField field, float delta) {
+        auto direction = field.flowVectorForPosition(pos);
+        direction *= maxSpeed;
+        auto steerForce = direction - vel;
+        steerForce.limit(maxSteer);
+        steerForce *= delta;
+        acc += steerForce;
     }
 
     void steerToPosition(vec2 *desired, float delta) {
