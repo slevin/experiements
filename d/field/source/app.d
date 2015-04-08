@@ -24,6 +24,7 @@ void main()
     sfClock *clock = sfClock_create();
 
     auto ship = Ship("plane.png");
+    ship.pos = vec2(width / 2.0, height / 2.0);
 
     auto crosshairs = Crosshairs();
 
