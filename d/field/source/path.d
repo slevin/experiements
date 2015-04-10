@@ -11,6 +11,7 @@ import gl3n.linalg;
 
 struct Path(size_t points) {
 
+    sfVertex[points * 2] lineVertices; // 2 points per line
 
     uint numberOfLines() {
         return points;
@@ -28,7 +29,10 @@ struct Path(size_t points) {
 
 unittest {
 
-    Path p(3);
+    Path!3 path;
+
+    assert(path.numberOfLines() == 3);
+    assert(path.lineVertices.length == 6);
 
 
 
