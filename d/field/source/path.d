@@ -12,4 +12,24 @@ import gl3n.linalg;
 struct Path(size_t points) {
 
 
+    uint numberOfLines() {
+        return points;
+    }
+
+    void render(sfRenderWindow *win) {
+        sfRenderWindow_drawPrimitives(win,
+                                      lineVertices.ptr,
+                                      numberOfLines(),
+                                      sfLines,
+                                      null);
+    }
+
+}
+
+unittest {
+
+    Path p(3);
+
+
+
 }
