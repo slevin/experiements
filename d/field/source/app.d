@@ -16,7 +16,7 @@ enum int width = 800;
 enum int height = 600;
 alias NoiseField = Field!(40, 40, width, height);
 
-version(unittest)
+//version(unittest)
 void main()
 {
     vec2 area = vec2(width, height);

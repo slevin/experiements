@@ -5,6 +5,7 @@
 	"authors": ["slevin"],
 	"dependencies": {
         "derelict-sfml2": "~>1.1.0",
-        "gl3n": "~>1.0.1"
+        "gl3n": "~>1.0.1",
+        "unit-threaded": "~>0.4.7"
 	}
 }

@@ -34,6 +34,7 @@ unittest {
     assert(path.numberOfLines() == 3);
     assert(path.lineVertices.length == 6);
 
-
+    // fill with points
+    //
 
 }
