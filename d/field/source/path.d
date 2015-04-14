@@ -17,8 +17,18 @@ struct Path(size_t points) {
         return points;
     }
 
-    void fill(float function(int index) fillFunction) {
-
+    void fill(vec2 function(ulong index) fillFunction) {
+        foreach(pt; 0 .. points) {
+            auto nextPoint = pt + 1;
+            if (pt == points - 1) {
+                // last point wraps
+                nextPoint = 0;
+            }
+            vec2 v1 = fillFunction(pt);
+            lineVertices[pt * 2] = sfVertex(sfVector2f(v1.x, v1.y), sfBlue);
+            vec2 v2 = fillFunction(nextPoint);
+            lineVertices[pt * 2 + 1] = sfVertex(sfVector2f(v2.x, v2.y), sfBlue);
+        }
     }
 
     void render(sfRenderWindow *win) {
@@ -28,27 +38,5 @@ struct Path(size_t points) {
                                       sfLines,
                                       null);
     }
-
-}
-
-unittest {
-
-    Path!3 path;
-
-    path.fill((int index) {
-            if (index == 0) {
-                return vec2(0, 0);
-            } else if (index == 1) {
-                return vec2(100, 100);
-            } else if (index == 2) {
-                return vec2(200, 50);
-            }
-        });
-
-
-    assert(path.numberOfLines() == 3);
-    assert(path.lineVertices.length == 6);
-
-
 
 }
