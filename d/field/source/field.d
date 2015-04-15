@@ -11,7 +11,11 @@ import derelict.sfml2.system;
 
 import gl3n.linalg;
 
-struct Field(size_t cols, size_t rows, float width, float height) {
+struct Field(size_t inCols, size_t inRows, float inWidth, float inHeight) {
+    enum size_t cols = inCols;
+    enum size_t rows = inRows;
+    enum float width = inWidth;
+    enum float height = inHeight;
     enum float boxWidth = width / cols;
     enum float boxHeight = height / rows;
     enum float lineLength = boxWidth * 0.7;
