@@ -54,4 +54,20 @@ void testPath() {
     v2.x.shouldEqual(0);
     v2.y.shouldEqual(0);
 
+
+    /*
+      need to say given a position
+whats the closest normal that is on each line
+so need a way of getting each line
+and given a line what is the normal
+and is that normal on that line
+and given a set of normals that are on lines
+which one is the closest
+
+and also need to say given where I will be (another point)
+is that within a radius of a line
+
+
+    */
+
 }
