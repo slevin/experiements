@@ -6,6 +6,16 @@ import derelict.sfml2.graphics;
 import derelict.sfml2.system;
 import path;
 
+void testPathLine() {
+
+    float nearRadius = 10;
+    PathLine pl = PathLine(vec2(0, 0), vec2(100, 100), nearRadius);
+
+    // on line equal
+    bool within;
+    within = pl.within(vec2(0, 0));
+    checkTrue(within);
+}
 void testPath() {
 
 
@@ -54,6 +64,9 @@ void testPath() {
     v2.x.shouldEqual(0);
     v2.y.shouldEqual(0);
 
+    // given point is that within some radius of a line
+    // a point within
+    //path.pointClose(vec2())
 
     /*
       need to say given a position

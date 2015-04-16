@@ -9,6 +9,16 @@ import derelict.sfml2.system;
 
 import gl3n.linalg;
 
+struct PathLine {
+    vec2 start;
+    vec2 end;
+    float radius;
+
+    bool within(vec2 p) {
+        return false;
+    }
+}
+
 struct Path(size_t inPoints) {
     enum size_t points = inPoints;
     sfVertex[points * 2] lineVertices; // 2 points per line
