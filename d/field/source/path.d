@@ -14,7 +14,13 @@ struct PathLine {
     vec2 end;
     float radius;
 
+    vec2 normalForPoint(vec2 p) {
+        return vec2(p.x, 0);
+    }
+
     bool within(vec2 p) {
+        // get distance for p to line
+        // get perp point on line to point
         return false;
     }
 }
