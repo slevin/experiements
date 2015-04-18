@@ -9,18 +9,29 @@ import path;
 void testPathLine() {
 
     float nearRadius = 10;
-    PathLine pl = PathLine(vec2(0, 0), vec2(100, 0), nearRadius);
+    PathLine pl = PathLine(vec2(0, 0), vec2(100, 0), 10, 25);
+
+    /*
+
+      actually need to check will future point be
+within range and if not then take current?
+maybe that's fine too?
+
+really need results, bool if
 
     // normal point on line
     checkEqual(pl.normalForPoint(vec2(50, 100)),
                vec2(50, 0));
 
-    //checkEqual(pl.normalForPoint(vec2()))
-    // distance from point to line
-    // on line equal
-    bool within;
-    //within = pl.within(vec2(0, 0));
-    //checkTrue(within);
+    pl = PathLine(vec2(0, 0), vec2(100, 100), nearRadius);
+    checkEqual(pl.normalForPoint(vec2(100, 0)),
+               vec2(50, 50));
+
+    // other side
+    checkEqual(pl.normalForPoint(vec2(0, 100)),
+               vec2(50, 50));
+    */
+
 }
 
 void testPath() {
