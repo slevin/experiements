@@ -15,7 +15,11 @@ struct PathLine {
     float radius;
 
     vec2 normalForPoint(vec2 p) {
-        return vec2(p.x, 0);
+        vec2 a = p - start;
+        vec2 b = end - start;
+        b.normalize();
+        b *= a * b;
+        return start + b;
     }
 
     bool within(vec2 p) {

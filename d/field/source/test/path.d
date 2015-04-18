@@ -15,7 +15,7 @@ void testPathLine() {
     checkEqual(pl.normalForPoint(vec2(50, 100)),
                vec2(50, 0));
 
-    checkEqual(pl.normalForPoint(vec2()))
+    //checkEqual(pl.normalForPoint(vec2()))
     // distance from point to line
     // on line equal
     bool within;
