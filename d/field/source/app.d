@@ -1,4 +1,5 @@
 import field;
+import path;
 
 import std.stdio;
 import std.string;
@@ -14,7 +15,8 @@ import gl3n.linalg;
 
 enum int width = 800;
 enum int height = 600;
-alias NoiseField = Field!(40, 40, width, height);
+//alias NoiseField = Field!(40, 40, width, height);
+alias FollowPath = Path!(3, 10, 25);
 
 //version(unittest)
 void main()
@@ -30,9 +32,18 @@ void main()
     auto crosshairs = Crosshairs();
 
     sfEvent event;
-
-    NoiseField dirField;
-    double zNoise = 0;
+    FollowPath followPath;
+    followPath.fill((ulong index) {
+            if (index == 0) {
+                return vec2(0, 0);
+            } else if (index == 1) {
+                return vec2(400, 500);
+            } else {
+                return vec2(800, 300);
+            }
+        });
+    //    NoiseField dirField;
+    //double zNoise = 0;
 
 
  mainLoop:
@@ -60,8 +71,8 @@ void main()
         float delta = millis * .001 * 40;
 
         // calculate forces
-        dirField.zFill = zNoise;
-        dirField.fillWithNoise();
+        //        dirField.zFill = zNoise;
+        //dirField.fillWithNoise();
 
         /*
         crosshairs.stayWithinWalls(delta, area);
@@ -72,20 +83,27 @@ void main()
             ship.steerToPosition(&crosshairs.pos, delta);
         }
         */
-        ship.steerInDirectionOfField(dirField, delta);
+        // ship.steerInDirectionOfField(dirField, delta);
+        vec2 willBe = ship.pos + (ship.vel * delta);
+        PathCheckResults res = followPath.steerCheckForPoint(willBe);
+        if (res.needsSteering) {
+            ship.steerToPosition(&res.steerTarget, delta);
+        }
+
         // update positions
         //crosshairs.update(delta);
         ship.update(delta);
 
 
         env.clear();
-        dirField.render(env.win);
+        //dirField.render(env.win);
         //crosshairs.render(env.win);
+        followPath.render(env.win);
         ship.render(env.win);
 
         sfRenderWindow_display(env.win);
 
-        zNoise += 0.005;
+        //        zNoise += 0.005;
     }
 }
 
@@ -147,6 +165,7 @@ struct Ship {
         sfTexture_destroy(tex);
     }
 
+    /*
     void steerInDirectionOfField(ref NoiseField field, float delta) {
         auto direction = field.flowVectorForPosition(pos);
         direction *= maxSpeed;
@@ -155,6 +174,7 @@ struct Ship {
         steerForce *= delta;
         acc += steerForce;
     }
+    */
 
     void steerToPosition(vec2 *desired, float delta) {
         auto direction = *desired - this.pos;
