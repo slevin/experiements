@@ -76,13 +76,19 @@ struct Path(size_t inPoints) {
     }
 
     PathCheckResults steerCheckForPoint(vec2 p) {
-        auto results = map!(a => a.normalForPoint(p))(pathLines);
-
-        // for each line, run check
-        // if any have withinradius true, then return false
-        // otherwise filter online only
-        // get min distance
-        // use that pointahead
+        auto results = map!(a => a.normalForPoint(p))(pathLines[]);
+        if (any!(a => a.withinRadius)(results)) {
+            return PathCheckResults(false);
+        } else {
+            auto best = results
+                .filter!(a => a.onLine)
+                .minPos!((a, b) => a.distance < b.distance);
+            if (best.empty == false) {
+                return PathCheckResults(true, best.front.pointAhead);
+            } else {
+                return PathCheckResults(false);
+            }
+        }
     }
 
     void render(sfRenderWindow *win) {
