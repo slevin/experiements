@@ -51,7 +51,7 @@ struct PathCheckResults {
     vec2 steerTarget;
 }
 
-struct Path(size_t inPoints) {
+struct Path(size_t inPoints, float inRadius, float inSteerAhead) {
     enum size_t points = inPoints;
     sfVertex[points * 2] lineVertices; // 2 points per line
     PathLine[points] pathLines;
@@ -71,7 +71,7 @@ struct Path(size_t inPoints) {
             lineVertices[pt * 2] = sfVertex(sfVector2f(v1.x, v1.y), sfBlue);
             vec2 v2 = fillFunction(nextPoint);
             lineVertices[pt * 2 + 1] = sfVertex(sfVector2f(v2.x, v2.y), sfBlue);
-            pathLines[pt] = PathLine(v1, v2, 10, 25);
+            pathLines[pt] = PathLine(v1, v2, inRadius, inSteerAhead);
         }
     }
 

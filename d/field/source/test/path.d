@@ -1,5 +1,6 @@
 module test.path;
 
+import std.stdio;
 import unit_threaded;
 import gl3n.linalg;
 import derelict.sfml2.graphics;
@@ -11,33 +12,23 @@ void testPathLine() {
     float nearRadius = 10;
     PathLine pl = PathLine(vec2(0, 0), vec2(100, 0), 10, 25);
 
-    /*
-
-      actually need to check will future point be
-within range and if not then take current?
-maybe that's fine too?
-
-really need results, bool if
-
-    // normal point on line
-    checkEqual(pl.normalForPoint(vec2(50, 100)),
+        // normal point on line
+    checkEqual(pl.normalForPoint(vec2(50, 100)).normalPoint,
                vec2(50, 0));
 
-    pl = PathLine(vec2(0, 0), vec2(100, 100), nearRadius);
-    checkEqual(pl.normalForPoint(vec2(100, 0)),
+    pl = PathLine(vec2(0, 0), vec2(100, 100), 10, 25);
+    checkEqual(pl.normalForPoint(vec2(100, 0)).normalPoint,
                vec2(50, 50));
 
     // other side
-    checkEqual(pl.normalForPoint(vec2(0, 100)),
+    checkEqual(pl.normalForPoint(vec2(0, 100)).normalPoint,
                vec2(50, 50));
-    */
-
 }
 
 void testPath() {
 
 
-    Path!3 path;
+    Path!(3, 10, 0) path;
 
     path.fill((ulong index) {
             if (index == 0) {
@@ -82,23 +73,19 @@ void testPath() {
     v2.x.shouldEqual(0);
     v2.y.shouldEqual(0);
 
-    // given point is that within some radius of a line
-    // a point within
-    //path.pointClose(vec2())
+    // point near line should be within range and not need steering
+    checkFalse(path.steerCheckForPoint(vec2(1, 1)).needsSteering);
 
-    /*
-      need to say given a position
-whats the closest normal that is on each line
-so need a way of getting each line
-and given a line what is the normal
-and is that normal on that line
-and given a set of normals that are on lines
-which one is the closest
+    // point outside path radius should require steering
+    checkTrue(path.steerCheckForPoint(vec2(0, 50)).needsSteering);
+    checkEqual(path.steerCheckForPoint(vec2(0, 50)).steerTarget,
+               vec2(25, 25));
 
-and also need to say given where I will be (another point)
-is that within a radius of a line
+    // if within multiple should find closest
+    //checkEqual(path.steerCheckForPoint(vec2(100, 75)).steerTarget,
+    //               vec2(87.5, 87.5));
+    // need an epsilon check here
 
-
-    */
-
+    // if not perp to any line then we are screwed
+    // but should have a test
 }
