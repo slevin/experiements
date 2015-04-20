@@ -44,7 +44,7 @@ void testPath() {
 
 
     // has enough lines
-    checkEqual(path.numberOfLines(), 3);
+    checkEqual(path.numberOfLines(), 6);
     checkEqual(path.lineVertices.length, 6);
 
     // points are correct

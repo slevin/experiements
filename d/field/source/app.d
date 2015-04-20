@@ -15,10 +15,8 @@ import gl3n.linalg;
 
 enum int width = 800;
 enum int height = 600;
-//alias NoiseField = Field!(40, 40, width, height);
-alias FollowPath = Path!(3, 10, 25);
+alias FollowPath = Path!(4, 10, 25);
 
-//version(unittest)
 void main()
 {
     vec2 area = vec2(width, height);
@@ -27,24 +25,19 @@ void main()
     sfClock *clock = sfClock_create();
 
     auto ship = Ship("plane.png");
-    ship.pos = vec2(width / 2.0, height / 2.0);
+    ship.pos = vec2(width / 2.0 + 150, height / 2.0);
 
     auto crosshairs = Crosshairs();
 
     sfEvent event;
     FollowPath followPath;
     followPath.fill((ulong index) {
-            if (index == 0) {
-                return vec2(0, 0);
-            } else if (index == 1) {
-                return vec2(400, 500);
-            } else {
-                return vec2(800, 300);
-            }
+            vec2[4] pts = [vec2(0, 0),
+                           vec2(400, 550),
+                           vec2(750, 300),
+                           vec2(400, 20)];
+            return pts[index];
         });
-    //    NoiseField dirField;
-    //double zNoise = 0;
-
 
  mainLoop:
     while (sfRenderWindow_isOpen(env.win)) {
@@ -64,26 +57,10 @@ void main()
 
         }
 
-        // 40 is speed
-        //float delta = sfClock_restart(clock).sfTime_asSeconds * 40;
         float millis = sfClock_restart(clock).sfTime_asMilliseconds;
-        //writeln(millis);
+        // 40 is speed
         float delta = millis * .001 * 40;
 
-        // calculate forces
-        //        dirField.zFill = zNoise;
-        //dirField.fillWithNoise();
-
-        /*
-        crosshairs.stayWithinWalls(delta, area);
-
-        if (crosshairs.followType == FollowType.Flee) {
-            ship.steerAwayFrom(&crosshairs.pos, delta);
-        } else {
-            ship.steerToPosition(&crosshairs.pos, delta);
-        }
-        */
-        // ship.steerInDirectionOfField(dirField, delta);
         vec2 willBe = ship.pos + (ship.vel * delta);
         PathCheckResults res = followPath.steerCheckForPoint(willBe);
         if (res.needsSteering) {
@@ -91,19 +68,15 @@ void main()
         }
 
         // update positions
-        //crosshairs.update(delta);
         ship.update(delta);
 
 
         env.clear();
-        //dirField.render(env.win);
-        //crosshairs.render(env.win);
         followPath.render(env.win);
         ship.render(env.win);
 
         sfRenderWindow_display(env.win);
 
-        //        zNoise += 0.005;
     }
 }
 
@@ -164,17 +137,6 @@ struct Ship {
         sfSprite_destroy(sprite);
         sfTexture_destroy(tex);
     }
-
-    /*
-    void steerInDirectionOfField(ref NoiseField field, float delta) {
-        auto direction = field.flowVectorForPosition(pos);
-        direction *= maxSpeed;
-        auto steerForce = direction - vel;
-        steerForce.limit(maxSteer);
-        steerForce *= delta;
-        acc += steerForce;
-    }
-    */
 
     void steerToPosition(vec2 *desired, float delta) {
         auto direction = *desired - this.pos;

@@ -36,8 +36,8 @@ struct PathLine {
             (normalPoint.x <= start.x && normalPoint.x >= end.x);
         vec2 pn = normalPoint - p;
         float distance = (pn.x ^^ 2 + pn.y ^^ 2) ^^ 0.5;
-        bool withinRadius = distance <= radius;
-        vec2 pointAhead = unitB * (lenB + aheadDistance);
+        bool withinRadius = onLine && (distance <= radius);
+        vec2 pointAhead = start + unitB * (lenB + aheadDistance);
         return PathLineCheckResults(normalPoint,
                                     onLine,
                                     distance,
@@ -57,7 +57,7 @@ struct Path(size_t inPoints, float inRadius, float inSteerAhead) {
     PathLine[points] pathLines;
 
     uint numberOfLines() {
-        return points;
+        return points * 2;
     }
 
     void fill(vec2 function(ulong index) fillFunction) {
@@ -78,6 +78,7 @@ struct Path(size_t inPoints, float inRadius, float inSteerAhead) {
     PathCheckResults steerCheckForPoint(vec2 p) {
         auto results = map!(a => a.normalForPoint(p))(pathLines[]);
         if (any!(a => a.withinRadius)(results)) {
+            //            writeln("within");
             return PathCheckResults(false);
         } else {
             auto best = results
@@ -86,6 +87,7 @@ struct Path(size_t inPoints, float inRadius, float inSteerAhead) {
             if (best.empty == false) {
                 return PathCheckResults(true, best.front.pointAhead);
             } else {
+                //                writeln("no nearest");
                 return PathCheckResults(false);
             }
         }
