@@ -40,3 +40,5 @@ elm/build
 /d/sfml-wander/sfml-wander
 /d/field/field
 /d/field/try
+
+/rust/**/target
