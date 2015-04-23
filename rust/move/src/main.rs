@@ -20,7 +20,8 @@ fn main() {
             }
         }
 
-        env.win.clear(&Color::new_rgb(0, 200, 200));
+        env.clear();
+
         env.win.draw(&circle);
         env.win.display();
     }
@@ -45,5 +46,9 @@ impl SFMLEnv {
             width: width,
             height: height
         }
+    }
+
+    fn clear(&mut self) {
+        self.win.clear(&Color::black());
     }
 }
