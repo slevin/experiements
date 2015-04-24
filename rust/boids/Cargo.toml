@@ -1,0 +1,7 @@
+[package]
+name = "boids"
+version = "0.1.0"
+authors = ["Sean Levin <sean.levin@gmail.com>"]
+[dependencies]
+sfml = "0.9.3"
+nalgebra = "0.2.12"
