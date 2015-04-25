@@ -1,20 +1,15 @@
 extern crate sfml;
-extern crate "nalgebra" as na;
+extern crate nalgebra as na;
 
 use sfml::system::Vector2f;
 use sfml::window::{ContextSettings, VideoMode, event, Close};
-use sfml::graphics::{RenderWindow, RenderTarget, CircleShape, Color};
+use sfml::graphics::{RenderWindow, Texture, Sprite, Color};
 
-use nalgebra::{Vec2};
+use na::{Vec2};
 
 
 fn main() {
     let mut env = SFMLEnv::new(800, 600);
-
-    let mut circle = CircleShape::new().expect("Error cannot create ball.");
-    circle.set_radius(30.);
-    circle.set_fill_color(&Color::red());
-    circle.set_position(&Vector2f::new(100., 100.));
 
     while env.win.is_open() {
         for event in env.win.events() {
@@ -26,7 +21,6 @@ fn main() {
 
         env.clear();
 
-        env.win.draw(&circle);
         env.win.display();
     }
 }
@@ -34,7 +28,8 @@ fn main() {
 struct SFMLEnv {
     win: RenderWindow,
     width: u32,
-    height: u32
+    height: u32,
+    shipTexture: Texture
 }
 
 impl SFMLEnv {
@@ -45,10 +40,13 @@ impl SFMLEnv {
                                            &ContextSettings::default())
             .expect("Cannot create a new Render Window.");
         window.set_vertical_sync_enabled(true);
+        let mut t = Texture::new_from_file("plane.png");
+        t.set_smooth(true);
         SFMLEnv {
             win: window,
             width: width,
-            height: height
+            height: height,
+            shipTexture: t
         }
     }
 
@@ -57,7 +55,30 @@ impl SFMLEnv {
     }
 }
 
-struct Boid {
-    pos: Vec2,
-    vel: Vec2,
-    acc: Vec2}
+struct Boid<'a> {
+    pos: Vec2<f32>,
+    vel: Vec2<f32>,
+    acc: Vec2<f32>,
+    sprite: Sprite<'a>,
+    maxSpeed: f32,
+    maxSteer: f32
+}
+
+impl Boid {
+
+    fn new(env: SFMLEnv) -> Boid<'a> {
+        let mut s = Sprite::new_with_texture(env.shipTexture).expect("Cannot create ship sprite.");
+        let rect = s.get_local_bounds();
+        s.set_origin2f(rect.width / 2.0,
+                       rect.height / 2.0);
+        Boid {
+            pos: Vec2::new(0, 0),
+            vel: Vec2::new(0, 0),
+            acc: Vec2::new(0, 0),
+            sprite: s,
+            maxSpeed: 5,
+            maxSteer: 0.2
+        }
+    }
+
+}
