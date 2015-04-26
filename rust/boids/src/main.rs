@@ -40,7 +40,8 @@ impl SFMLEnv {
                                            &ContextSettings::default())
             .expect("Cannot create a new Render Window.");
         window.set_vertical_sync_enabled(true);
-        let mut t = Texture::new_from_file("plane.png");
+        let mut t = Texture::new_from_file("plane.png")
+            .expect("Cannot create Texture");
         t.set_smooth(true);
         SFMLEnv {
             win: window,
@@ -64,7 +65,7 @@ struct Boid<'a> {
     maxSteer: f32
 }
 
-impl Boid {
+impl<'a> Boid<'a> {
 
     fn new(env: SFMLEnv) -> Boid<'a> {
         let mut s = Sprite::new_with_texture(env.shipTexture).expect("Cannot create ship sprite.");
@@ -72,11 +73,11 @@ impl Boid {
         s.set_origin2f(rect.width / 2.0,
                        rect.height / 2.0);
         Boid {
-            pos: Vec2::new(0, 0),
-            vel: Vec2::new(0, 0),
-            acc: Vec2::new(0, 0),
+            pos: Vec2::new(0.0, 0.0),
+            vel: Vec2::new(0.0, 0.0),
+            acc: Vec2::new(0.0, 0.0),
             sprite: s,
-            maxSpeed: 5,
+            maxSpeed: 5.0,
             maxSteer: 0.2
         }
     }
