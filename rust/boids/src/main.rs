@@ -3,7 +3,7 @@ extern crate nalgebra as na;
 
 use sfml::system::Vector2f;
 use sfml::window::{ContextSettings, VideoMode, event, Close};
-use sfml::graphics::{RenderWindow, Texture, Sprite, Color};
+use sfml::graphics::{RenderWindow, RenderTarget, Texture, Sprite, Color};
 
 use na::{Vec2};
 
@@ -67,8 +67,8 @@ struct Boid<'a> {
 
 impl<'a> Boid<'a> {
 
-    fn new(env: SFMLEnv) -> Boid<'a> {
-        let mut s = Sprite::new_with_texture(env.shipTexture).expect("Cannot create ship sprite.");
+    fn new(env: &'a SFMLEnv) -> Boid<'a> {
+        let mut s = Sprite::new_with_texture(&env.shipTexture).expect("Cannot create ship sprite.");
         let rect = s.get_local_bounds();
         s.set_origin2f(rect.width / 2.0,
                        rect.height / 2.0);
