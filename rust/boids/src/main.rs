@@ -60,7 +60,7 @@ struct Boid<'a> {
     pos: Vec2<f32>,
     vel: Vec2<f32>,
     acc: Vec2<f32>,
-    sprite: Sprite<'a>,
+    sprite: &'a Sprite<'a>,
     maxSpeed: f32,
     maxSteer: f32
 }
@@ -80,7 +80,7 @@ impl<'a> Boid<'a> {
             pos: Vec2::new(0.0, 0.0),
             vel: Vec2::new(0.0, 0.0),
             acc: Vec2::new(0.0, 0.0),
-            sprite: s,
+            sprite: &s,
             maxSpeed: 5.0,
             maxSteer: 0.2
         }
@@ -90,7 +90,7 @@ impl<'a> Boid<'a> {
         let angle = 90.0 + angle(self.vel) * 57.29;
         self.sprite.set_rotation(angle);
         self.sprite.set_position(&Vector2f::new(self.pos.x, self.pos.y));
-        env.win.draw(self.sprite)
+        env.win.draw_sprite(self.sprite)
     }
 
 }
