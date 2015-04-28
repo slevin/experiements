@@ -65,6 +65,10 @@ struct Boid<'a> {
     maxSteer: f32
 }
 
+fn angle(vec: Vec2<f32>) -> f32 {
+    vec.y.atan2(vec.x)
+}
+
 impl<'a> Boid<'a> {
 
     fn new(env: &'a SFMLEnv) -> Boid<'a> {
@@ -80,6 +84,13 @@ impl<'a> Boid<'a> {
             maxSpeed: 5.0,
             maxSteer: 0.2
         }
+    }
+
+    fn render(&mut self, env: &SFMLEnv) {
+        let angle = 90.0 + angle(self.vel) * 57.29;
+        self.sprite.set_rotation(angle);
+        self.sprite.set_position(&Vector2f::new(self.pos.x, self.pos.y));
+        env.win.draw(self.sprite)
     }
 
 }
