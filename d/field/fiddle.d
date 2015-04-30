@@ -1,13 +1,22 @@
-#!/usr/local/bin/rdmd -I/Users/slevin/.dub/packages/gl3n-1.0.1
+#!/usr/local/bin/rdmd
 
-import gl3n.linalg;
+   //--compiler=ldmd2
+
+enum size_t sz = 100000;
 
 void main(string[] args) {
-    enum size_t sz = 100000;
-    vec2 slopes[sz];
-    //Field!(sz) fld;
+    vec slopes[sz];
 }
 
-struct Field(size_t cols) {
-    vec2 slopes[cols];
+struct Field2 {
+    vec slopes[sz];
 }
+
+struct vec {
+    float x;
+    float y;
+}
+
+// same with int?
+
+// get rid of y and its 2.5 seconds
