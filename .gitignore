@@ -42,3 +42,4 @@ elm/build
 /d/field/try
 
 /rust/**/target
+/fsharp/small/packages/
