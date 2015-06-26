@@ -32,10 +32,15 @@ type smallViewController() =
         let im = new UIImage("ziggy.jpg")
         iv.Image <- im
         this.View.AddSubview(iv)
-        let pt = CoreGraphics.CGPoint(this.View.Bounds.X + 10, this.View.Bounds.Y + 10)
-        let sz = CGSize(CGPoint(this.View.Bounds.Width - 20, this.View.Bounds.Height - 20))
-        let less = CGRect(pt, sz)
-        let sv = new SnakeView(less)
+        //let pt = new Rectangle // new MonoTouch.CoreGraphics.CGPoint(this.View.Bounds.X + 10, this.View.Bounds.Y + 10)
+        //let sz = CGSize(CGPoint(this.View.Bounds.Width - 20, this.View.Bounds.Height - 20))
+        //let less = new CGRect(pt, sz)
+        let sv = new SnakeView()
+        sv.Frame <- RectangleF(
+            this.View.Bounds.X + 10.0f,
+            this.View.Bounds.Y + 10.0f,
+            this.View.Bounds.Width - 20.0f,
+            this.View.Bounds.Height - 20.0f)
         this.View.AddSubview(sv)
 
     // Return true for supported orientations
