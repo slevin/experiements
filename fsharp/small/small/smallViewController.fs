@@ -6,14 +6,19 @@ open MonoTouch.UIKit
 open MonoTouch.Foundation
 open MonoTouch.CoreGraphics
 
+type SnakeSquare = int * int
+type Snake = SnakeSquare list
+
 [<Register("SnakeView")>]
 type SnakeView() =
     inherit UIView()
+    member val Snake : Snake = [] with get, set
 
     override this.Draw(rect) =
         base.Draw(rect)
         let ctx = UIGraphics.GetCurrentContext()
         UIColor.Red.SetFill()
+        // for each of my snakesquare elements should draw a square
         ctx.FillRect(rect)
 
 
