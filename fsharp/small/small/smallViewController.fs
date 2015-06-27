@@ -19,8 +19,12 @@ type SnakeView() =
         let ctx = UIGraphics.GetCurrentContext()
         UIColor.Red.SetFill()
         // for each of my snakesquare elements should draw a square
-        ctx.FillRect(rect)
+        this.Snake |> Seq.iter (fun u -> this.DrawSquare (ctx, u))
 
+    member this.DrawSquare(ctx, sq) =
+        // given a snake square how does it draw?
+        ctx.FillRect(RectangleF(fst sq * 20, snd sq * 20, 20, 20))
+    
 
 [<Register("smallViewController")>]
 type smallViewController() = 
@@ -37,9 +41,6 @@ type smallViewController() =
         let im = new UIImage("ziggy.jpg")
         iv.Image <- im
         this.View.AddSubview(iv)
-        //let pt = new Rectangle // new MonoTouch.CoreGraphics.CGPoint(this.View.Bounds.X + 10, this.View.Bounds.Y + 10)
-        //let sz = CGSize(CGPoint(this.View.Bounds.Width - 20, this.View.Bounds.Height - 20))
-        //let less = new CGRect(pt, sz)
         let sv = new SnakeView()
         sv.Frame <- RectangleF(
             this.View.Bounds.X + 10.0f,
