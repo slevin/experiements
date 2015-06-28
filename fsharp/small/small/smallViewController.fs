@@ -23,7 +23,8 @@ type SnakeView() =
 
     member this.DrawSquare(ctx, sq) =
         // given a snake square how does it draw?
-        ctx.FillRect(RectangleF(fst sq * 20, snd sq * 20, 20, 20))
+        let piece = RectangleF(float32 (fst sq) * 20.0f, float32 (snd sq) * 20.0f, 20.0f, 20.0f)
+        ctx.FillRect(piece)
     
 
 [<Register("smallViewController")>]
@@ -42,6 +43,7 @@ type smallViewController() =
         iv.Image <- im
         this.View.AddSubview(iv)
         let sv = new SnakeView()
+        sv.Snake <- [ (0, 0); (1,0) ]
         sv.Frame <- RectangleF(
             this.View.Bounds.X + 10.0f,
             this.View.Bounds.Y + 10.0f,

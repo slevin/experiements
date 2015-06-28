@@ -13,8 +13,7 @@ type AppDelegate() =
         this.Window <- new UIWindow(UIScreen.MainScreen.Bounds)
         let viewController = new smallViewController()
         viewController.View.BackgroundColor <- UIColor.White
-        let navController = new UINavigationController(viewController)
-        this.Window.RootViewController <- navController
+        this.Window.RootViewController <- viewController
         this.Window.MakeKeyAndVisible()
         true
 
