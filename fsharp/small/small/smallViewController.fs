@@ -6,26 +6,39 @@ open MonoTouch.UIKit
 open MonoTouch.Foundation
 open MonoTouch.CoreGraphics
 
+type SnakeMove =
+    | Up
+    | Down
+    | Left
+    | Right
+
 type SnakeSquare = int * int
-type Snake = SnakeSquare list
+type Snake = {
+    direction : SnakeMove;
+    body : SnakeSquare list
+    }
+
 
 [<Register("SnakeView")>]
 type SnakeView() =
     inherit UIView()
-    member val Snake : Snake = [] with get, set
+    member val Snake : Snake = SnakeView.NewSnake() with get, set
 
     override this.Draw(rect) =
         base.Draw(rect)
         let ctx = UIGraphics.GetCurrentContext()
         UIColor.Red.SetFill()
         // for each of my snakesquare elements should draw a square
-        this.Snake |> Seq.iter (fun u -> this.DrawSquare (ctx, u))
+        this.Snake.body |> Seq.iter (fun u -> this.DrawSquare (ctx, u))
 
     member this.DrawSquare(ctx, sq) =
         // given a snake square how does it draw?
         let piece = RectangleF(float32 (fst sq) * 20.0f, float32 (snd sq) * 20.0f, 20.0f, 20.0f)
         ctx.FillRect(piece)
-    
+
+    static member NewSnake() =
+        { Snake.direction = Right; Snake.body = [ (0, 0) ] }
+
 
 [<Register("smallViewController")>]
 type smallViewController() = 
@@ -43,7 +56,6 @@ type smallViewController() =
         iv.Image <- im
         this.View.AddSubview(iv)
         let sv = new SnakeView()
-        sv.Snake <- [ (0, 0); (1,0) ]
         sv.Frame <- RectangleF(
             this.View.Bounds.X + 10.0f,
             this.View.Bounds.Y + 10.0f,
