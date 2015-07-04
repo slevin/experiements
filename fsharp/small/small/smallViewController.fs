@@ -12,10 +12,10 @@ type SnakeMove =
     | Left
     | Right
 
-type SnakeSquare = int * int
+type Location = int * int
 type Snake = {
     direction : SnakeMove;
-    body : SnakeSquare list
+    body : Location list
     }
 
 
@@ -23,19 +23,25 @@ type Snake = {
 type SnakeView() =
     inherit UIView()
     member val Snake : Snake = SnakeView.NewSnake() with get, set
+    member val Food : Location = (5, 5) with get, set
 
     override this.Draw(rect) =
         base.Draw(rect)
         let ctx = UIGraphics.GetCurrentContext()
         ctx.ClearRect rect
-        UIColor.Red.SetFill()
-        // for each of my snakesquare elements should draw a square
+        this.DrawFood (ctx, this.Food)
         this.Snake.body |> Seq.iter (fun u -> this.DrawSquare (ctx, u))
 
     member this.DrawSquare(ctx, sq) =
         // given a snake square how does it draw?
+        UIColor.Red.SetFill()
         let piece = RectangleF(float32 (fst sq) * 20.0f, float32 (snd sq) * 20.0f, 20.0f, 20.0f)
         ctx.FillRect(piece)
+
+    member this.DrawFood(ctx, sq) =
+        UIColor.Blue.SetFill()
+        let piece = RectangleF(float32 (fst sq) * 20.0f, float32 (snd sq) * 20.0f, 20.0f, 20.0f)
+        ctx.FillEllipseInRect piece 
 
     static member NewSnake() =
         { Snake.direction = Right; Snake.body = [ (0, 0) ] }
@@ -45,10 +51,17 @@ type SnakeView() =
         this.SetNeedsDisplay()
 
     member this.MoveForward() =
-        let newBody = this.NextSquare(this.Snake.body.Head, this.Snake.direction) :: this.Snake.body
+        let newSquare = this.NextSquare(this.Snake.body.Head, this.Snake.direction)
+        let newBody =  newSquare :: this.Snake.body
+        let totalBody = 
+            if newSquare = this.Food then
+                newBody
+            else
+                Seq.take (newBody.Length - 1) newBody |> List.ofSeq
+                
         this.Snake <- { 
             direction = this.Snake.direction;
-            body = Seq.take (newBody.Length - 1) newBody |> List.ofSeq
+            body = totalBody
             }
 
             
