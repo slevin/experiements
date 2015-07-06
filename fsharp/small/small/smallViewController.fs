@@ -55,6 +55,8 @@ type SnakeView() =
         let newBody =  newSquare :: this.Snake.body
         let totalBody = 
             if newSquare = this.Food then
+                // update food location (very non functional, hello)
+                this.Food <- (System.Random().Next(20), System.Random().Next(20))
                 newBody
             else
                 Seq.take (newBody.Length - 1) newBody |> List.ofSeq
