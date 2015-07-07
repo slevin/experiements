@@ -39,6 +39,9 @@ type SnakeView() =
     static member NewSnake() =
         { Snake.direction = Right; Snake.body = [ (0, 0) ] }
 
+    member this.Step() =
+        printfn "stepping"
+        ()
 
 [<Register("smallViewController")>]
 type smallViewController() = 
@@ -62,6 +65,16 @@ type smallViewController() =
             this.View.Bounds.Width - 20.0f,
             this.View.Bounds.Height - 20.0f)
         this.View.AddSubview(sv)
+        let b = UIButton.FromType(UIButtonType.System)
+        b.SetTitle("Update", UIControlState.Normal)
+        b.Frame <- RectangleF(
+            10.0f,
+            this.View.Bounds.Height - 50.0f,
+            100.0f,
+            44.0f)
+        b.TouchUpInside.Add (fun x -> sv.Step())
+        this.View.AddSubview(b)
+
 
     // Return true for supported orientations
     override this.ShouldAutorotateToInterfaceOrientation(orientation) = 
