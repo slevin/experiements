@@ -27,6 +27,7 @@ type SnakeView() =
     override this.Draw(rect) =
         base.Draw(rect)
         let ctx = UIGraphics.GetCurrentContext()
+        ctx.ClearRect rect
         UIColor.Red.SetFill()
         // for each of my snakesquare elements should draw a square
         this.Snake.body |> Seq.iter (fun u -> this.DrawSquare (ctx, u))
@@ -40,8 +41,25 @@ type SnakeView() =
         { Snake.direction = Right; Snake.body = [ (0, 0) ] }
 
     member this.Step() =
-        printfn "stepping"
-        ()
+        this.MoveForward()
+        this.SetNeedsDisplay()
+
+    member this.MoveForward() =
+        let newBody = this.NextSquare(this.Snake.body.Head, this.Snake.direction) :: this.Snake.body
+        this.Snake <- { 
+            direction = this.Snake.direction;
+            body = Seq.take (newBody.Length - 1) newBody |> List.ofSeq
+            }
+
+            
+
+    member this.NextSquare( (x, y), dir : SnakeMove) =
+        match dir with
+        | Up -> (x, y - 1)
+        | Down -> (x, y + 1)
+        | Left -> (x - 1, y)
+        | Right -> (x + 1, y)
+
 
 [<Register("smallViewController")>]
 type smallViewController() = 
