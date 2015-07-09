@@ -93,6 +93,26 @@ type smallViewController() =
         b.TouchUpInside.Add (fun x -> sv.Step())
         this.View.AddSubview(b)
 
+        let lft = new UISwipeGestureRecognizer(Action<_> this.HandleSwipe)
+        lft.Direction <- UISwipeGestureRecognizerDirection.Left
+        this.View.AddGestureRecognizer lft
+
+        let rgt = new UISwipeGestureRecognizer(Action<_> this.HandleSwipe)
+        rgt.Direction <- UISwipeGestureRecognizerDirection.Right
+        this.View.AddGestureRecognizer rgt
+
+        let up = new UISwipeGestureRecognizer(Action<_> this.HandleSwipe)
+        up.Direction <- UISwipeGestureRecognizerDirection.Up
+        this.View.AddGestureRecognizer up
+
+        let dwn = new UISwipeGestureRecognizer(Action<_> this.HandleSwipe)
+        dwn.Direction <- UISwipeGestureRecognizerDirection.Down
+        this.View.AddGestureRecognizer dwn
+
+
+
+    member this.HandleSwipe(gr : UISwipeGestureRecognizer) =
+        printfn "%A" gr.Direction
 
     // Return true for supported orientations
     override this.ShouldAutorotateToInterfaceOrientation(orientation) = 
