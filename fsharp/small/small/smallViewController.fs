@@ -60,10 +60,16 @@ type SnakeView() =
         | Left -> (x - 1, y)
         | Right -> (x + 1, y)
 
+    member this.MoveTowards( dir : SnakeMove ) =
+        this.Snake <- {
+            direction = dir;
+            body = this.Snake.body
+            }
 
 [<Register("smallViewController")>]
 type smallViewController() = 
     inherit UIViewController()
+    member val MySnakeView : SnakeView = new SnakeView() with get, set
 
     // Release any cached data, images, etc that aren't in use.
     override this.DidReceiveMemoryWarning() = 
@@ -76,13 +82,12 @@ type smallViewController() =
         let im = new UIImage("ziggy.jpg")
         iv.Image <- im
         this.View.AddSubview(iv)
-        let sv = new SnakeView()
-        sv.Frame <- RectangleF(
+        this.MySnakeView.Frame <- RectangleF(
             this.View.Bounds.X + 10.0f,
             this.View.Bounds.Y + 10.0f,
             this.View.Bounds.Width - 20.0f,
             this.View.Bounds.Height - 20.0f)
-        this.View.AddSubview(sv)
+        this.View.AddSubview(this.MySnakeView)
         let b = UIButton.FromType(UIButtonType.System)
         b.SetTitle("Update", UIControlState.Normal)
         b.Frame <- RectangleF(
@@ -90,7 +95,7 @@ type smallViewController() =
             this.View.Bounds.Height - 50.0f,
             100.0f,
             44.0f)
-        b.TouchUpInside.Add (fun x -> sv.Step())
+        b.TouchUpInside.Add (fun x -> this.MySnakeView.Step())
         this.View.AddSubview(b)
 
         let lft = new UISwipeGestureRecognizer(Action<_> this.HandleSwipe)
@@ -112,7 +117,13 @@ type smallViewController() =
 
 
     member this.HandleSwipe(gr : UISwipeGestureRecognizer) =
-        printfn "%A" gr.Direction
+        this.MySnakeView.MoveTowards <| 
+        match gr.Direction with
+        | UISwipeGestureRecognizerDirection.Up -> Up
+        | UISwipeGestureRecognizerDirection.Left -> Left
+        | UISwipeGestureRecognizerDirection.Right -> Right
+        | UISwipeGestureRecognizerDirection.Down -> Down
+        | _ -> Up
 
     // Return true for supported orientations
     override this.ShouldAutorotateToInterfaceOrientation(orientation) = 
