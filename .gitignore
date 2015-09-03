@@ -43,3 +43,7 @@ elm/build
 
 /rust/**/target
 /fsharp/small/packages/
+pures/**/.psci
+pures/**/.psci_modules/*
+pures/**/bower_components/*
+
