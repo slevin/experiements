@@ -47,3 +47,4 @@ pures/**/.psci
 pures/**/.psci_modules/*
 pures/**/bower_components/*
 pures/**/.browserify-cache.json
+haskell/**/.stack-work/*
