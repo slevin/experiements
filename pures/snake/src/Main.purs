@@ -11,7 +11,7 @@ import Control.Monad.Eff.JQuery hiding (append)
 import Control.Monad.Eff.Console
 import DOM
 
-foreign import jqwhich :: forall eff. JQueryEvent -> Eff (dom :: DOM | eff) String
+foreign import jqwhich :: forall eff. JQueryEvent -> Eff (dom :: DOM | eff) Int
 
 data Direction = Left | Up | Right | Down
 
@@ -68,9 +68,9 @@ main = do
   st <- newSTRef initialState
 
   body <- body
-  on "keydown" onKey body
+  on "keydown" (onKey st) body
 
-  inter <- interval 500 $ do
+  inter <- interval 100 $ do
     st2 <- readSTRef st
     setFillStyle "#FF0000" ctx
     fillPath ctx $ rect ctx { x:0.0, y:0.0, w:dim.width, h:dim.height }
@@ -80,17 +80,17 @@ main = do
     return unit
   return unit
 
-onKey :: forall eff a h. JQueryEvent -> JQuery -> Eff (dom :: DOM, console :: CONSOLE | eff) Unit
-onKey evt _ = do
-  --37 8 9 40 left up right down
+onKey :: forall eff a h r. (STRef h GameState) -> JQueryEvent -> JQuery -> Eff (dom :: DOM, console :: CONSOLE, st :: ST h | eff) GameState
+onKey mystate evt _ = do
   code <- jqwhich evt
-  log code
+  modifySTRef mystate \cur -> cur { dir = case code of
+                                       37 -> Left
+                                       38 -> Up
+                                       39 -> Right
+                                       40 -> Down }
 
-
--- pass in state ugh
--- now code to direction
-  -- and put direction in the state
--- how do I want to modify?
--- need a way to compile it and open in a browser
+-- make it grow with food, some random place ment
+-- performance is funny
+-- need an easy way to compile it and open in a browser
 -- compile means pulp browserify > and then open something
   -- would be nice to have some sort of project thing I can think about that
