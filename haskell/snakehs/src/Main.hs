@@ -1,6 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Main where
 
+import Control.Monad
 import Linear
 import Linear.Affine ( Point(P) )
 import SDL (($=))
@@ -19,12 +20,25 @@ main = do
   window <- SDL.createWindow "Hello world" winConfig
   renderer <- SDL.createRenderer window (-1) rdrConfig
 
-  SDL.clear renderer
-  SDL.rendererDrawColor renderer $= V4 255 0 0 255
-  SDL.fillRect renderer $ Just $ SDL.Rectangle (P (V2 100 100)) (V2 50 50)
-  SDL.present renderer
+  let loop = do
+        let collectEvents = do
+              e <- SDL.pollEvent
+              case e of
+                Nothing -> return []
+                Just e' -> (e' :) <$> collectEvents
+        events <- collectEvents
 
-  SDL.delay 2000
+        let quit = any (== SDL.QuitEvent) $ map SDL.eventPayload events
+
+        SDL.rendererDrawColor renderer $= V4 0 0 0 255
+        SDL.clear renderer
+
+        SDL.rendererDrawColor renderer $= V4 248 231 28 255
+        SDL.fillRect renderer $ Just $ SDL.Rectangle (P (V2 100 100)) (V2 50 50)
+        SDL.present renderer
+
+        unless quit loop
+  loop
 
   SDL.destroyRenderer renderer
   SDL.destroyWindow window

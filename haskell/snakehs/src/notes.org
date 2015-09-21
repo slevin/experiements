@@ -1,8 +1,10 @@
 snake game is target
 
-data Rectangle a = Rectangle (Point V2 a) (V2 a)
+game loop with q as a quit
 
-draw yellow square
+
+draw an image
+
 draw some image from somewhere as thing to eat
 a game loop
 snake moves
