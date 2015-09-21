@@ -1,0 +1,46 @@
+purescript
+
+file:///Users/slevin/wrk/exp/pures/snake/html/index.html
+
+handle arrow keys and state
+
+ arrow keys update snakes move direction
+
+
+
+then some notion of eating a growing
+then some noting of dying by hitting the
+ wall or something
+then make more levels
+
+
+maybe a stop or start or something
+
+
+
+
+
+
+
+
+
+notes
+
+snake game
+game of life
+tetris
+brick breaker
+2048
+sudoku
+flappy bird
+some other old style game
+frogger
+tripple town type game
+bejeweled
+connect things/dots
+card game / solitaire
+text based role playing type game
+redo play with some flocking stuff from before
+
+do any of these work on electron?
+ probably all of them

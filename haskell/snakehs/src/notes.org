@@ -1,0 +1,9 @@
+snake game is target
+
+data Rectangle a = Rectangle (Point V2 a) (V2 a)
+
+draw yellow square
+draw some image from somewhere as thing to eat
+a game loop
+snake moves
+arrow keys trigger movement
