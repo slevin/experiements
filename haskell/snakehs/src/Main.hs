@@ -6,7 +6,11 @@ import Linear
 import Linear.Affine ( Point(P) )
 import SDL (($=))
 import qualified SDL
+import Data.IORef
+import Data.Word
 
+-- data GameState = GameState {
+--                            }
 main :: IO ()
 main = do
   SDL.initialize [ SDL.InitEverything ]
@@ -20,6 +24,8 @@ main = do
   window <- SDL.createWindow "Hello world" winConfig
   renderer <- SDL.createRenderer window (-1) rdrConfig
 
+  lstRef <- newIORef (0 :: Word32)
+
   let loop = do
         let collectEvents = do
               e <- SDL.pollEvent
@@ -29,6 +35,12 @@ main = do
         events <- collectEvents
 
         let quit = any (== SDL.QuitEvent) $ map SDL.eventPayload events
+        lst <- readIORef lstRef
+        ts <- SDL.ticks
+        if ts > lst + 800
+          then do writeIORef lstRef ts
+                  putStrLn "writing"
+          else do return ()
 
         SDL.rendererDrawColor renderer $= V4 0 0 0 255
         SDL.clear renderer
