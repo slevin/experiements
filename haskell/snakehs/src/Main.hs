@@ -25,6 +25,7 @@ main = do
   renderer <- SDL.createRenderer window (-1) rdrConfig
 
   lstRef <- newIORef (0 :: Word32)
+  offRef <- newIORef 0
 
   let loop = do
         let collectEvents = do
@@ -37,16 +38,17 @@ main = do
         let quit = any (== SDL.QuitEvent) $ map SDL.eventPayload events
         lst <- readIORef lstRef
         ts <- SDL.ticks
-        if ts > lst + 800
+        if ts > lst + 400
           then do writeIORef lstRef ts
-                  putStrLn "writing"
+                  modifyIORef offRef (\x -> x + 50)
           else do return ()
 
         SDL.rendererDrawColor renderer $= V4 0 0 0 255
         SDL.clear renderer
 
         SDL.rendererDrawColor renderer $= V4 248 231 28 255
-        SDL.fillRect renderer $ Just $ SDL.Rectangle (P (V2 100 100)) (V2 50 50)
+        off <- readIORef offRef
+        SDL.fillRect renderer $ Just $ SDL.Rectangle (P (V2 (100 + off) 100)) (V2 50 50)
         SDL.present renderer
 
         unless quit loop
