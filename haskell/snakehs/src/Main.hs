@@ -9,7 +9,7 @@ import qualified SDL
 import Data.IORef
 import Data.Word
 import Data.Maybe
-
+import System.Random
 
 data Direction = L | U | R | D
                deriving(Show)
@@ -39,6 +39,8 @@ main = do
       rdrConfig = SDL.RendererConfig { SDL.rendererType = SDL.AcceleratedVSyncRenderer
                                      , SDL.rendererTargetTexture = True }
 
+  let gridSize = 25
+
   window <- SDL.createWindow "Hello world" winConfig
   renderer <- SDL.createRenderer window (-1) rdrConfig
 
@@ -61,24 +63,32 @@ main = do
         currentDir <- readIORef dirRef
 
         -- putStrLn $ show dirs -- $ map key2Code $ map SDL.eventPayload events
+        rndx <- getStdRandom (randomR (0, 10))
+        rndy <- getStdRandom (randomR (0, 10))
 
         lst <- readIORef lstRef
         ts <- SDL.ticks
         if ts > lst + 400
           then do writeIORef lstRef ts
                   modifyIORef offRef (\x -> case currentDir of
-                                        L -> (fst x - 50, snd x)
-                                        R -> (fst x + 50, snd x)
-                                        U -> (fst x, snd x - 50)
-                                        D -> (fst x, snd x + 50))
+                                        L -> (fst x - gridSize, snd x)
+                                        R -> (fst x + gridSize, snd x)
+                                        U -> (fst x, snd x - gridSize)
+                                        D -> (fst x, snd x + gridSize))
           else do return ()
 
+        -- clear the drawing
         SDL.rendererDrawColor renderer $= V4 0 0 0 255
         SDL.clear renderer
 
+        -- draw a food
+        SDL.rendererDrawColor renderer $= V4 184 233 134 255
+        SDL.fillRect renderer $ Just $ SDL.Rectangle (P (V2 (rndx * gridSize) (rndy * gridSize))) (V2 gridSize gridSize)
+
+        -- draw the snake
         SDL.rendererDrawColor renderer $= V4 248 231 28 255
         off <- readIORef offRef
-        SDL.fillRect renderer $ Just $ SDL.Rectangle (P (V2 (100 + fst off) (100 + snd off))) (V2 50 50)
+        SDL.fillRect renderer $ Just $ SDL.Rectangle (P (V2 (100 + fst off) (100 + snd off))) (V2 gridSize gridSize)
         SDL.present renderer
 
         unless quit loop
