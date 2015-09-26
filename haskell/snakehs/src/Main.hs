@@ -47,6 +47,7 @@ main = do
   lstRef <- newIORef (0 :: Word32)
   offRef <- newIORef (0, 0)
   dirRef <- newIORef R
+  foodRef <- newIORef Nothing
 
   let loop = do
         let collectEvents = do
@@ -63,8 +64,6 @@ main = do
         currentDir <- readIORef dirRef
 
         -- putStrLn $ show dirs -- $ map key2Code $ map SDL.eventPayload events
-        rndx <- getStdRandom (randomR (0, 10))
-        rndy <- getStdRandom (randomR (0, 10))
 
         lst <- readIORef lstRef
         ts <- SDL.ticks
@@ -77,13 +76,25 @@ main = do
                                         D -> (fst x, snd x + gridSize))
           else do return ()
 
+        food <- readIORef foodRef
+        when (isNothing food) $ do
+          rndx <- getStdRandom (randomR (0, 10))
+          rndy <- getStdRandom (randomR (0, 10))
+          writeIORef foodRef $ Just (rndx, rndy)
+
         -- clear the drawing
         SDL.rendererDrawColor renderer $= V4 0 0 0 255
         SDL.clear renderer
 
         -- draw a food
-        SDL.rendererDrawColor renderer $= V4 184 233 134 255
-        SDL.fillRect renderer $ Just $ SDL.Rectangle (P (V2 (rndx * gridSize) (rndy * gridSize))) (V2 gridSize gridSize)
+        food <- readIORef foodRef
+        when (isJust food) $ do
+          case food of
+            Just ((x, y)) -> do
+              SDL.rendererDrawColor renderer $= V4 184 233 134 255
+              SDL.fillRect renderer $ Just $ SDL.Rectangle (P (V2 (x * gridSize) (y * gridSize))) (V2 gridSize gridSize)
+            Nothing -> return ()
+
 
         -- draw the snake
         SDL.rendererDrawColor renderer $= V4 248 231 28 255
