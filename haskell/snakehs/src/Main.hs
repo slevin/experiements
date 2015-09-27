@@ -70,11 +70,11 @@ main = do
         if ts > lst + 400
           then do writeIORef lstRef ts
                   modifyIORef posRef (\x -> case x of
-                                        s:ss -> case currentDir of
-                                          L -> (fst s - gridSize, snd s):ss
-                                          R -> (fst s + gridSize, snd s):ss
-                                          U -> (fst s, snd s - gridSize):ss
-                                          D -> (fst s, snd s + gridSize):ss
+                                        s:ss -> init ((case currentDir of
+                                          L -> (fst s - gridSize, snd s)
+                                          R -> (fst s + gridSize, snd s)
+                                          U -> (fst s, snd s - gridSize)
+                                          D -> (fst s, snd s + gridSize)):s:ss)
                                         _ -> [])
           else do return ()
 
