@@ -45,7 +45,7 @@ main = do
   renderer <- SDL.createRenderer window (-1) rdrConfig
 
   lstRef <- newIORef (0 :: Word32)
-  offRef <- newIORef (0, 0)
+  posRef <- newIORef [(0, 0)]
   dirRef <- newIORef R
   foodRef <- newIORef Nothing
 
@@ -69,11 +69,13 @@ main = do
         ts <- SDL.ticks
         if ts > lst + 400
           then do writeIORef lstRef ts
-                  modifyIORef offRef (\x -> case currentDir of
-                                        L -> (fst x - gridSize, snd x)
-                                        R -> (fst x + gridSize, snd x)
-                                        U -> (fst x, snd x - gridSize)
-                                        D -> (fst x, snd x + gridSize))
+                  modifyIORef posRef (\x -> case x of
+                                        s:ss -> case currentDir of
+                                          L -> (fst s - gridSize, snd s):ss
+                                          R -> (fst s + gridSize, snd s):ss
+                                          U -> (fst s, snd s - gridSize):ss
+                                          D -> (fst s, snd s + gridSize):ss
+                                        _ -> [])
           else do return ()
 
         food <- readIORef foodRef
@@ -98,8 +100,9 @@ main = do
 
         -- draw the snake
         SDL.rendererDrawColor renderer $= V4 248 231 28 255
-        off <- readIORef offRef
-        SDL.fillRect renderer $ Just $ SDL.Rectangle (P (V2 (100 + fst off) (100 + snd off))) (V2 gridSize gridSize)
+        pos <- readIORef posRef
+        forM_ pos $ (\p ->
+          SDL.fillRect renderer $ Just $ SDL.Rectangle (P (V2 (fst p) (snd p))) (V2 gridSize gridSize))
         SDL.present renderer
 
         unless quit loop
