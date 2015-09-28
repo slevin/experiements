@@ -9,6 +9,7 @@ import qualified SDL
 import Data.IORef
 import Data.Word
 import Data.Maybe
+import Data.List (uncons)
 import System.Random
 
 data Direction = L | U | R | D
@@ -63,39 +64,48 @@ main = do
         forM_ dirs $ writeIORef dirRef
         currentDir <- readIORef dirRef
 
-        -- putStrLn $ show dirs -- $ map key2Code $ map SDL.eventPayload events
-
-        lst <- readIORef lstRef
-        ts <- SDL.ticks
-        if ts > lst + 400
-          then do writeIORef lstRef ts
-                  modifyIORef posRef (\x -> case x of
-                                        s:ss -> init ((case currentDir of
-                                          L -> (fst s - gridSize, snd s)
-                                          R -> (fst s + gridSize, snd s)
-                                          U -> (fst s, snd s - gridSize)
-                                          D -> (fst s, snd s + gridSize)):s:ss)
-                                        _ -> [])
-          else do return ()
-
         food <- readIORef foodRef
         when (isNothing food) $ do
           rndx <- getStdRandom (randomR (0, 10))
           rndy <- getStdRandom (randomR (0, 10))
           writeIORef foodRef $ Just (rndx, rndy)
 
+
+        lst <- readIORef lstRef
+        ts <- SDL.ticks
+        if ts > lst + 400
+          then do writeIORef lstRef ts
+                  modifyIORef posRef (\x -> case x of
+                                        s:ss -> (case currentDir of
+                                                   L -> (fst s - gridSize, snd s)
+                                                   R -> (fst s + gridSize, snd s)
+                                                   U -> (fst s, snd s - gridSize)
+                                                   D -> (fst s, snd s + gridSize)):s:ss
+                                        _ -> [])
+                  pos <- readIORef posRef
+                  food <- readIORef foodRef
+                  case uncons pos of
+                    Just (p, ps) -> (case food of
+                                       Just (x, y) -> (if fst p == x * gridSize && snd p == y * gridSize
+                                                       then writeIORef foodRef Nothing
+                                                       else modifyIORef posRef (\s -> init s))
+                                       Nothing -> modifyIORef posRef (\s -> init s))
+                    Nothing -> return ()
+          else do return ()
+
         -- clear the drawing
         SDL.rendererDrawColor renderer $= V4 0 0 0 255
         SDL.clear renderer
 
+
+
         -- draw a food
         food <- readIORef foodRef
-        when (isJust food) $ do
-          case food of
-            Just ((x, y)) -> do
-              SDL.rendererDrawColor renderer $= V4 184 233 134 255
-              SDL.fillRect renderer $ Just $ SDL.Rectangle (P (V2 (x * gridSize) (y * gridSize))) (V2 gridSize gridSize)
-            Nothing -> return ()
+        case food of
+          Just ((x, y)) -> do
+            SDL.rendererDrawColor renderer $= V4 184 233 134 255
+            SDL.fillRect renderer $ Just $ SDL.Rectangle (P (V2 (x * gridSize) (y * gridSize))) (V2 gridSize gridSize)
+          Nothing -> return ()
 
 
         -- draw the snake
