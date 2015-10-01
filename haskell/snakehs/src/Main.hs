@@ -11,14 +11,18 @@ import Data.Word
 import Data.Maybe
 import Data.List (uncons)
 import System.Random
+import Foreign.C.Types (CInt)
+
+gridSize = 25
+
 
 data Direction = L | U | R | D
                deriving(Show)
 
 -- turn an event into a possible direction if its an arrow key
 --key2Code :: SDL.EventPayload -> Maybe Int32
-key2Code (SDL.KeyboardEvent ked) = Just $ SDL.unwrapScancode $ SDL.keysymScancode $ SDL.keyboardEventKeysym ked
-key2Code _ = Nothing
+--key2Code (SDL.KeyboardEvent ked) = Just $ SDL.unwrapScancode $ SDL.keysymScancode $ SDL.keyboardEventKeysym ked
+--key2Code _ = Nothing
 
 key2Direction :: SDL.EventPayload -> Maybe Direction
 key2Direction (SDL.KeyboardEvent ked)
@@ -29,6 +33,14 @@ key2Direction (SDL.KeyboardEvent ked)
   where sym = SDL.unwrapScancode $ SDL.keysymScancode $ SDL.keyboardEventKeysym ked
 key2Direction _ = Nothing
 
+type Snake = [(CInt, CInt)]
+moveSnakeInDirection :: Direction -> Snake -> Snake
+moveSnakeInDirection dir (s:ss) = (case dir of
+                                     L -> (fst s - gridSize, snd s)
+                                     R -> (fst s + gridSize, snd s)
+                                     U -> (fst s, snd s - gridSize)
+                                     D -> (fst s, snd s + gridSize)):s:ss
+moveSnakeInDirection _ _ = []
 
 main :: IO ()
 main = do
@@ -39,8 +51,6 @@ main = do
 
       rdrConfig = SDL.RendererConfig { SDL.rendererType = SDL.AcceleratedVSyncRenderer
                                      , SDL.rendererTargetTexture = True }
-
-  let gridSize = 25
 
   window <- SDL.createWindow "Hello world" winConfig
   renderer <- SDL.createRenderer window (-1) rdrConfig
@@ -59,7 +69,7 @@ main = do
         events <- collectEvents
 
         let quit = any (== SDL.QuitEvent) $ map SDL.eventPayload events
-        let dirs = mapMaybe key2Direction $ map SDL.eventPayload events
+        let dirs =  mapMaybe key2Direction $ map SDL.eventPayload events
 
         forM_ dirs $ writeIORef dirRef
         currentDir <- readIORef dirRef
@@ -75,13 +85,7 @@ main = do
         ts <- SDL.ticks
         if ts > lst + 400
           then do writeIORef lstRef ts
-                  modifyIORef posRef (\x -> case x of
-                                        s:ss -> (case currentDir of
-                                                   L -> (fst s - gridSize, snd s)
-                                                   R -> (fst s + gridSize, snd s)
-                                                   U -> (fst s, snd s - gridSize)
-                                                   D -> (fst s, snd s + gridSize)):s:ss
-                                        _ -> [])
+                  modifyIORef posRef $ moveSnakeInDirection currentDir
                   pos <- readIORef posRef
                   food <- readIORef foodRef
                   case uncons pos of
@@ -96,8 +100,6 @@ main = do
         -- clear the drawing
         SDL.rendererDrawColor renderer $= V4 0 0 0 255
         SDL.clear renderer
-
-
 
         -- draw a food
         food <- readIORef foodRef
