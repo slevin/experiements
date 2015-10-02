@@ -34,6 +34,8 @@ key2Direction (SDL.KeyboardEvent ked)
 key2Direction _ = Nothing
 
 type Snake = [(CInt, CInt)]
+type Food = Maybe (CInt, CInt)
+
 moveSnakeInDirection :: Direction -> Snake -> Snake
 moveSnakeInDirection dir (s:ss) = (case dir of
                                      L -> (fst s - gridSize, snd s)
@@ -41,6 +43,19 @@ moveSnakeInDirection dir (s:ss) = (case dir of
                                      U -> (fst s, snd s - gridSize)
                                      D -> (fst s, snd s + gridSize)):s:ss
 moveSnakeInDirection _ _ = []
+
+
+-- functional "update" that says given a snake (already moved forward one)
+-- if it moved onto a food, remove the food otherwise remove the last item
+-- to make it seem like it moved
+nextSnakeAndFood :: (Food, Snake) -> (Food, Snake)
+nextSnakeAndFood (fd, sn) = case uncons sn of
+  Just (s, _) -> (case fd of
+                     Just (fx, fy) -> (if fst s == fx && snd s == fy
+                                       then (Nothing, sn)
+                                       else (fd, init sn))
+                     Nothing -> (fd, init sn))
+  Nothing -> (fd, sn)
 
 main :: IO ()
 main = do
@@ -56,9 +71,8 @@ main = do
   renderer <- SDL.createRenderer window (-1) rdrConfig
 
   lstRef <- newIORef (0 :: Word32)
-  posRef <- newIORef [(0, 0)]
   dirRef <- newIORef R
-  foodRef <- newIORef Nothing
+  stateRef <- newIORef (Nothing, [(0, 0)])
 
   let loop = do
         let collectEvents = do
@@ -74,27 +88,19 @@ main = do
         forM_ dirs $ writeIORef dirRef
         currentDir <- readIORef dirRef
 
-        food <- readIORef foodRef
+        (food, snake) <- readIORef stateRef
         when (isNothing food) $ do
           rndx <- getStdRandom (randomR (0, 10))
           rndy <- getStdRandom (randomR (0, 10))
-          writeIORef foodRef $ Just (rndx, rndy)
+          writeIORef stateRef $ (Just (rndx * gridSize, rndy * gridSize), snake)
 
 
         lst <- readIORef lstRef
         ts <- SDL.ticks
         if ts > lst + 400
           then do writeIORef lstRef ts
-                  modifyIORef posRef $ moveSnakeInDirection currentDir
-                  pos <- readIORef posRef
-                  food <- readIORef foodRef
-                  case uncons pos of
-                    Just (p, ps) -> (case food of
-                                       Just (x, y) -> (if fst p == x * gridSize && snd p == y * gridSize
-                                                       then writeIORef foodRef Nothing
-                                                       else modifyIORef posRef (\s -> init s))
-                                       Nothing -> modifyIORef posRef (\s -> init s))
-                    Nothing -> return ()
+                  modifyIORef stateRef (\(fd, sn) ->
+                                          nextSnakeAndFood (fd, moveSnakeInDirection currentDir sn))
           else do return ()
 
         -- clear the drawing
@@ -102,19 +108,18 @@ main = do
         SDL.clear renderer
 
         -- draw a food
-        food <- readIORef foodRef
+        (food, snake) <- readIORef stateRef
         case food of
           Just ((x, y)) -> do
             SDL.rendererDrawColor renderer $= V4 184 233 134 255
-            SDL.fillRect renderer $ Just $ SDL.Rectangle (P (V2 (x * gridSize) (y * gridSize))) (V2 gridSize gridSize)
+            SDL.fillRect renderer $ Just $ SDL.Rectangle (P (V2 x y)) (V2 gridSize gridSize)
           Nothing -> return ()
 
 
         -- draw the snake
         SDL.rendererDrawColor renderer $= V4 248 231 28 255
-        pos <- readIORef posRef
-        forM_ pos $ (\p ->
-          SDL.fillRect renderer $ Just $ SDL.Rectangle (P (V2 (fst p) (snd p))) (V2 gridSize gridSize))
+        forM_ snake $ (\s ->
+          SDL.fillRect renderer $ Just $ SDL.Rectangle (P (V2 (fst s) (snd s))) (V2 gridSize gridSize))
         SDL.present renderer
 
         unless quit loop
