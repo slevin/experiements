@@ -18,6 +18,16 @@ gridSize = 25
 
 data Direction = L | U | R | D
                deriving(Show)
+type Snake = [(CInt, CInt)]
+type Food = Maybe (CInt, CInt)
+type MovingDirection = Maybe Direction
+type Randoms = [CInt]
+data GameState = GameState { snake :: Snake
+                           , food :: Food
+                           , direction :: MovingDirection
+                           , ticks :: Word32
+                           , randoms :: Randoms
+                           } deriving (Show)
 
 -- turn an event into a possible direction if its an arrow key
 --key2Code :: SDL.EventPayload -> Maybe Int32
@@ -32,9 +42,6 @@ key2Direction (SDL.KeyboardEvent ked)
   | sym == 81 = Just D
   where sym = SDL.unwrapScancode $ SDL.keysymScancode $ SDL.keyboardEventKeysym ked
 key2Direction _ = Nothing
-
-type Snake = [(CInt, CInt)]
-type Food = Maybe (CInt, CInt)
 
 moveSnakeInDirection :: Direction -> Snake -> Snake
 moveSnakeInDirection dir (s:ss) = (case dir of
@@ -57,6 +64,31 @@ nextSnakeAndFood (fd, sn) = case uncons sn of
                      Nothing -> (fd, init sn))
   Nothing -> (fd, sn)
 
+
+updateFood :: GameState -> GameState
+updateFood currentState
+-- if no food then make it somewhere, and return rest of randoms
+updateFood (Nothing, r1:r2:rs) = (Just (r1 * gridSize, r2 * gridSize), rs)
+-- if food exists then just keep going the same
+updateFood (f, rs) = (f, rs)
+
+updateDirection :: MovingDirection -> GameState -> GameState
+updateDirection Nothing st = st
+updateDirection newDirection st = st { direction=newDirection }
+
+updateSnakeAndFood :: Word32 -> GameState -> GameState
+updateSnakeAndFood newTicks currentState =
+  if newTicks > (ticks currentState) + 400
+  then let (newSnake, newFood) = nextSnakeAndFood (food currentState, moveSnakeInDirection (direction currentState) (snake currentState)) in
+  currentState { snake=newSnake, food=newFood }
+  else currentState
+
+updateState :: MovingDirection -> Word32 -> GameState -> GameState
+updateState newDirection newTicks currentState =
+  updateFood $
+  updateSnakeAndFood newTicks $
+  updateDirection newDirection currentState
+
 main :: IO ()
 main = do
   SDL.initialize [ SDL.InitEverything ]
@@ -70,11 +102,8 @@ main = do
   window <- SDL.createWindow "Hello world" winConfig
   renderer <- SDL.createRenderer window (-1) rdrConfig
 
-  lstRef <- newIORef (0 :: Word32)
-  dirRef <- newIORef R
-  stateRef <- newIORef (Nothing, [(0, 0)])
 
-  let loop = do
+  let loop currentState = do
         let collectEvents = do
               e <- SDL.pollEvent
               case e of
@@ -83,25 +112,11 @@ main = do
         events <- collectEvents
 
         let quit = any (== SDL.QuitEvent) $ map SDL.eventPayload events
-        let dirs =  mapMaybe key2Direction $ map SDL.eventPayload events
+        let newDir =  listToMaybe $ reverse $ mapMaybe key2Direction $ map SDL.eventPayload events
 
-        forM_ dirs $ writeIORef dirRef
-        currentDir <- readIORef dirRef
+        newTicks <- SDL.ticks
+        let newState = updateState newDir newTicks currentState
 
-        (food, snake) <- readIORef stateRef
-        when (isNothing food) $ do
-          rndx <- getStdRandom (randomR (0, 10))
-          rndy <- getStdRandom (randomR (0, 10))
-          writeIORef stateRef $ (Just (rndx * gridSize, rndy * gridSize), snake)
-
-
-        lst <- readIORef lstRef
-        ts <- SDL.ticks
-        if ts > lst + 400
-          then do writeIORef lstRef ts
-                  modifyIORef stateRef (\(fd, sn) ->
-                                          nextSnakeAndFood (fd, moveSnakeInDirection currentDir sn))
-          else do return ()
 
         -- clear the drawing
         SDL.rendererDrawColor renderer $= V4 0 0 0 255
@@ -123,7 +138,16 @@ main = do
         SDL.present renderer
 
         unless quit loop
-  loop
+
+  -- start loop with initial state
+  rds <- fmap (randomRs (0, 10)) getStdGen
+  loop GameState { snake=[(0,0)]
+                 , food=Nothing
+                 , direction=Nothing
+                 , ticks=0
+                 , randoms=rds
+                 }
+
 
   SDL.destroyRenderer renderer
   SDL.destroyWindow window
