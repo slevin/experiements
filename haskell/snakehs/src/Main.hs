@@ -26,13 +26,11 @@ data GameState = GameState { snake :: Snake
                            , food :: Food
                            , direction :: MovingDirection
                            , ticks :: Word32
-                           , randoms :: Randoms
+                           , randomInts :: Randoms
                            } deriving (Show)
 
--- turn an event into a possible direction if its an arrow key
---key2Code :: SDL.EventPayload -> Maybe Int32
---key2Code (SDL.KeyboardEvent ked) = Just $ SDL.unwrapScancode $ SDL.keysymScancode $ SDL.keyboardEventKeysym ked
---key2Code _ = Nothing
+printableState :: GameState -> (Snake, Food, MovingDirection, Word32)
+printableState gs = (snake gs, food gs, direction gs, ticks gs)
 
 key2Direction :: SDL.EventPayload -> Maybe Direction
 key2Direction (SDL.KeyboardEvent ked)
@@ -43,12 +41,13 @@ key2Direction (SDL.KeyboardEvent ked)
   where sym = SDL.unwrapScancode $ SDL.keysymScancode $ SDL.keyboardEventKeysym ked
 key2Direction _ = Nothing
 
-moveSnakeInDirection :: Direction -> Snake -> Snake
+moveSnakeInDirection :: MovingDirection -> Snake -> Snake
+moveSnakeInDirection Nothing ss = ss
 moveSnakeInDirection dir (s:ss) = (case dir of
-                                     L -> (fst s - gridSize, snd s)
-                                     R -> (fst s + gridSize, snd s)
-                                     U -> (fst s, snd s - gridSize)
-                                     D -> (fst s, snd s + gridSize)):s:ss
+                                     Just L -> (fst s - gridSize, snd s)
+                                     Just R -> (fst s + gridSize, snd s)
+                                     Just U -> (fst s, snd s - gridSize)
+                                     Just D -> (fst s, snd s + gridSize)):s:ss
 moveSnakeInDirection _ _ = []
 
 
@@ -66,11 +65,14 @@ nextSnakeAndFood (fd, sn) = case uncons sn of
 
 
 updateFood :: GameState -> GameState
-updateFood currentState
+updateFood gs = let (fd, rs) = updateFood' (food gs, randomInts gs) in
+  gs { food=fd, randomInts=rs }
+
+updateFood' :: (Food, Randoms) -> (Food, Randoms)
 -- if no food then make it somewhere, and return rest of randoms
-updateFood (Nothing, r1:r2:rs) = (Just (r1 * gridSize, r2 * gridSize), rs)
+updateFood' (Nothing, r1:r2:rs) = (Just (r1 * gridSize, r2 * gridSize), rs)
 -- if food exists then just keep going the same
-updateFood (f, rs) = (f, rs)
+updateFood' (f, rs) = (f, rs)
 
 updateDirection :: MovingDirection -> GameState -> GameState
 updateDirection Nothing st = st
@@ -79,8 +81,8 @@ updateDirection newDirection st = st { direction=newDirection }
 updateSnakeAndFood :: Word32 -> GameState -> GameState
 updateSnakeAndFood newTicks currentState =
   if newTicks > (ticks currentState) + 400
-  then let (newSnake, newFood) = nextSnakeAndFood (food currentState, moveSnakeInDirection (direction currentState) (snake currentState)) in
-  currentState { snake=newSnake, food=newFood }
+  then let (newFood, newSnake) = nextSnakeAndFood (food currentState, moveSnakeInDirection (direction currentState) (snake currentState)) in
+  currentState { snake=newSnake, food=newFood, ticks=newTicks }
   else currentState
 
 updateState :: MovingDirection -> Word32 -> GameState -> GameState
@@ -104,6 +106,7 @@ main = do
 
 
   let loop currentState = do
+        -- get events
         let collectEvents = do
               e <- SDL.pollEvent
               case e of
@@ -114,17 +117,17 @@ main = do
         let quit = any (== SDL.QuitEvent) $ map SDL.eventPayload events
         let newDir =  listToMaybe $ reverse $ mapMaybe key2Direction $ map SDL.eventPayload events
 
+        -- update state
         newTicks <- SDL.ticks
         let newState = updateState newDir newTicks currentState
-
+        --print $ printableState newState
 
         -- clear the drawing
         SDL.rendererDrawColor renderer $= V4 0 0 0 255
         SDL.clear renderer
 
         -- draw a food
-        (food, snake) <- readIORef stateRef
-        case food of
+        case food newState of
           Just ((x, y)) -> do
             SDL.rendererDrawColor renderer $= V4 184 233 134 255
             SDL.fillRect renderer $ Just $ SDL.Rectangle (P (V2 x y)) (V2 gridSize gridSize)
@@ -133,19 +136,19 @@ main = do
 
         -- draw the snake
         SDL.rendererDrawColor renderer $= V4 248 231 28 255
-        forM_ snake $ (\s ->
+        forM_ (snake newState) $ (\s ->
           SDL.fillRect renderer $ Just $ SDL.Rectangle (P (V2 (fst s) (snd s))) (V2 gridSize gridSize))
         SDL.present renderer
 
-        unless quit loop
+        unless quit $ loop newState
 
   -- start loop with initial state
   rds <- fmap (randomRs (0, 10)) getStdGen
   loop GameState { snake=[(0,0)]
                  , food=Nothing
-                 , direction=Nothing
+                 , direction=Just R
                  , ticks=0
-                 , randoms=rds
+                 , randomInts=rds
                  }
 
 
