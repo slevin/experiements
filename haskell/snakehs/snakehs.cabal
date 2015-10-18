@@ -20,3 +20,4 @@ executable snakehs
                      , sdl2
                      , linear
                      , random
+                     , lens
