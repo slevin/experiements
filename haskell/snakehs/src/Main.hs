@@ -19,12 +19,9 @@ import Control.Lens
 gridSize = 25 :: Int
 
 
-data Direction = L | U | R | D
-               deriving (Eq, Show)
-
 type Snake = [V2 Int]
 type Food = Maybe (V2 Int)
-type MovingDirection = Maybe Direction
+type MovingDirection = Maybe (V2 Int)
 type Randoms = [Int]
 data GameState = GameState { _snake :: Snake
                            , _food :: Food
@@ -38,21 +35,17 @@ makeClassy ''GameState
 printableState :: GameState -> (Snake, Food, MovingDirection, Word32)
 printableState gs = (_snake gs, _food gs, _direction gs, _ticks gs)
 
-key2Direction :: SDL.EventPayload -> Maybe Direction
+key2Direction :: SDL.EventPayload -> MovingDirection
 key2Direction (SDL.KeyboardEvent ked)
-  | sym == 80 = Just L
-  | sym == 82 = Just U
-  | sym == 79 = Just R
-  | sym == 81 = Just D
+  | sym == 80 = Just $ V2 (-1) 0 -- left
+  | sym == 82 = Just $ V2 0 (-1) -- up
+  | sym == 79 = Just $ V2 1 0 -- right
+  | sym == 81 = Just $ V2 0 1 -- down
   where sym = SDL.unwrapScancode $ SDL.keysymScancode $ SDL.keyboardEventKeysym ked
 key2Direction _ = Nothing
 
 moveSnakeInDirection :: MovingDirection -> Snake -> Snake
-moveSnakeInDirection (Just d) (s:ss) = (case d of
-                                          L -> s + (V2 (-1) 0)
-                                          R -> s + (V2 1 0)
-                                          U -> s + (V2 0 (-1))
-                                          D -> s + (V2 0 1)):s:ss
+moveSnakeInDirection (Just d) (s:ss) = (s + d):s:ss
 moveSnakeInDirection Nothing s = s
 
 
@@ -150,7 +143,7 @@ main = do
   rds <- fmap (randomRs (0, 10)) getStdGen
   loop GameState { _snake=[V2 0 0]
                  , _food=Nothing
-                 , _direction=Just R
+                 , _direction=Just $ V2 1 0
                  , _ticks=0
                  , _randomInts=rds
                  }
